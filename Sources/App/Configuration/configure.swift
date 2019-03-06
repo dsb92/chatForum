@@ -20,12 +20,13 @@ _ services: inout Services
     services.register(middlewares)
     
     var databases = DatabasesConfig()
-    let config = PostgreSQLDatabaseConfig(hostname: "localhost", username: "davidbuhauer", database: "chatter")
+    let config = PostgreSQLDatabaseConfig(hostname: "localhost", username: "davidbuhauer", database: "chatForum")
     databases.add(database: PostgreSQLDatabase(config: config), as: .psql)
     services.register(databases)
     
     var migrations = MigrationConfig()
-    migrations.add(model: User.self, database: .psql)
+    migrations.add(model: Post.self, database: .psql)
+    migrations.add(model: Comment.self, database: .psql)
     services.register(migrations)
     
     var commands = CommandConfig.default()
