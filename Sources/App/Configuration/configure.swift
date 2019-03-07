@@ -19,9 +19,39 @@ _ services: inout Services
     middlewares.use(ErrorMiddleware.self)
     services.register(middlewares)
     
+    // Configure a database
     var databases = DatabasesConfig()
-    let config = PostgreSQLDatabaseConfig(hostname: "localhost", username: "davidbuhauer", database: "chatForum")
-    databases.add(database: PostgreSQLDatabase(config: config), as: .psql)
+    let databaseConfig: PostgreSQLDatabaseConfig
+    if let url = Environment.get("DATABASE_URL") {
+        databaseConfig = PostgreSQLDatabaseConfig(url: url)!
+    } else if let url = Environment.get("DB_POSTGRESQL") {
+        databaseConfig = PostgreSQLDatabaseConfig(url: url)!
+    } else {
+        let hostname = Environment.get("DATABASE_HOSTNAME") ?? "localhost"
+        let username = Environment.get("DATABASE_USER") ?? "davidbuhauer"
+        let databaseName: String
+        let databasePort: Int
+        if (env == .testing) {
+            databaseName = "chatforum-test"
+            if let testPort = Environment.get("DATABASE_PORT") {
+                databasePort = Int(testPort) ?? 5433
+            } else {
+                databasePort = 5433
+            }
+        } else {
+            databaseName = Environment.get("DATABASE_DB") ?? "chatForum"
+            databasePort = 5432
+        }
+        
+        databaseConfig = PostgreSQLDatabaseConfig(
+            hostname: hostname,
+            port: databasePort,
+            username: username,
+            database: databaseName
+        )
+    }
+    let database = PostgreSQLDatabase(config: databaseConfig)
+    databases.add(database: database, as: .psql)
     services.register(databases)
     
     var migrations = MigrationConfig()
