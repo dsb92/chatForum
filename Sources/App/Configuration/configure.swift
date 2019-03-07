@@ -54,8 +54,9 @@ _ services: inout Services
     
     var migrations = MigrationConfig()
     migrations.add(model: User.self, database: .psql)
-    migrations.add(model: Post.self, database: .psql)
     migrations.add(model: Comment.self, database: .psql)
+    migrations.add(model: Post.self, database: .psql)
+    
     services.register(migrations)
     
     var commands = CommandConfig.default()
