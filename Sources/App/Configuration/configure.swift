@@ -20,11 +20,12 @@ _ services: inout Services
     // Configure a database
     var databases = DatabasesConfig()
     let databaseConfig: PostgreSQLDatabaseConfig
+    
     if let url = Environment.get("DATABASE_URL") {
         databaseConfig = PostgreSQLDatabaseConfig(url: url)!
     } else {
         let hostname = Environment.get("DATABASE_HOSTNAME") ?? "localhost"
-        let username = Environment.get("DATABASE_USER") ?? "vapor"
+        let username = Environment.get("DATABASE_USER") ?? "davidbuhauer"
         let password = Environment.get("DATABASE_PASSWORD") ?? "password"
         let databaseName: String
         let databasePort: Int
@@ -36,7 +37,7 @@ _ services: inout Services
                 databasePort = 5433
             }
         } else {
-            databaseName = Environment.get("DATABASE_DB") ?? "vapor"
+            databaseName = Environment.get("DATABASE_DB") ?? "chatForum"
             databasePort = 5432
         }
         
