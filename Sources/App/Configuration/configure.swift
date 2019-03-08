@@ -46,7 +46,7 @@ _ services: inout Services
             port: databasePort,
             username: username,
             database: databaseName,
-            password: password)
+            password: hostname == "localhost" ? nil : password)
     }
     let database = PostgreSQLDatabase(config: databaseConfig)
     databases.add(database: database, as: .psql)
