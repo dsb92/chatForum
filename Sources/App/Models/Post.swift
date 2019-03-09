@@ -5,14 +5,17 @@ import Vapor
 final class Post: Content {
     var id: UUID?
     var text: String
+    var updatedAt: String
     
-    init(text: String) {
+    init(text: String, updatedAt: String) {
         self.text = text
+        self.updatedAt = updatedAt
     }
 }
 
-extension Post: Migration {}
 extension Post: Parameter {}
+extension Post: Migration {}
+
 extension Post: Model {
     typealias Database = PostgreSQLDatabase
     

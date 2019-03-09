@@ -52,14 +52,20 @@ _ services: inout Services
     databases.add(database: database, as: .psql)
     services.register(databases)
     
+    // Migrations
     var migrations = MigrationConfig()
-    migrations.add(model: User.self, database: .psql)
-    migrations.add(model: Post.self, database: .psql)
-    migrations.add(model: Comment.self, database: .psql)
+//    migrations.add(model: Post.self, database: .psql)
+//    migrations.add(model: Comment.self, database: .psql)
+    
+    migrations.add(migration: PostAddUpdatedAt.self, database: .psql)
+//    migrations.add(migration: CommentAddUpdatedAt.self, database: .psql)
     
     services.register(migrations)
     
     var commands = CommandConfig.default()
     commands.useFluentCommands()
     services.register(commands)
+    
+    Post.defaultDatabase = .psql
+    Comment.defaultDatabase = .psql
 }
