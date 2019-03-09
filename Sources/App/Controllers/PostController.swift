@@ -1,6 +1,12 @@
 import Vapor
 import Fluent
 
+struct PostsResponse: Codable {
+    var posts: [Post]
+}
+
+extension PostsResponse: Content { }
+
 final class PostController: RouteCollection {
     // Register all 'users' routes
     func boot(router: Router) throws {
@@ -9,9 +15,13 @@ final class PostController: RouteCollection {
         // Regiser each handler
         posts.post(Post.self, use: postPost)
         posts.put(Post.self, use: putPost)
-        posts.get(Post.parameter, "comments") { request -> Future<[Comment]> in
-            return try request.parameters.next(Post.self).flatMap(to: [Comment].self) { (post) in
-                return try post.comments.query(on: request).all()
+        posts.get(Post.parameter, "comments") { request -> Future<CommentsResponse> in
+            return try request.parameters.next(Post.self).flatMap(to: CommentsResponse.self) { (post) in
+                let val = try post.comments.query(on: request).all()
+                return val.flatMap { comments in
+                    let all = CommentsResponse(comments: comments)
+                    return Future.map(on: request) {return all }
+                }
             }
         }
         posts.get(use: getPosts)
@@ -20,8 +30,12 @@ final class PostController: RouteCollection {
     }
     
     // GET POSTS
-    func getPosts(_ request: Request)throws -> Future<[Post]> {
-        return Post.query(on: request).all()
+    func getPosts(_ request: Request)throws -> Future<PostsResponse> {
+        let val = Post.query(on: request).all()
+        return val.flatMap { posts in
+            let all = PostsResponse(posts: posts)
+            return Future.map(on: request) {return all }
+        }
     }
     
     // GET POST

@@ -1,6 +1,12 @@
 import Vapor
 import Fluent
 
+struct CommentsResponse: Codable {
+    var comments: [Comment]
+}
+
+extension CommentsResponse: Content { }
+
 final class CommentController: RouteCollection {
     // Register all 'users' routes
     func boot(router: Router) throws {
@@ -12,8 +18,12 @@ final class CommentController: RouteCollection {
     }
     
     // GET COMMENTS
-    func getComments(_ request: Request)throws -> Future<[Comment]> {
-        return Comment.query(on: request).all()
+    func getComments(_ request: Request)throws -> Future<CommentsResponse> {
+        let val = Comment.query(on: request).all()
+        return val.flatMap { comments in
+            let all = CommentsResponse(comments: comments)
+            return Future.map(on: request) {return all }
+        }
     }
     
     // POST COMMENT
