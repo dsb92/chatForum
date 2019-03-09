@@ -13,17 +13,23 @@ import AlamofireObjectMapper
 class CFDataController: NSObject {
     static let shared = CFDataController()
     
-    typealias GetPostsCallback = ([CFPost]) -> Void
+    typealias GetPostsCallback = ([CFPost]) -> ()
+    
+    struct Urls {
+        static let baseUrl = "https://chatforum-production.vapor.cloud/"
+        static let posts = CFDataController.Urls.baseUrl.grouped("posts")
+    }
     
     private override init() {
         super.init()
     }
     
     func getPosts(_ callback: @escaping GetPostsCallback) {
-        Alamofire.request("https://chatforum-production.vapor.cloud/posts", method: .get)
-            .responseJSON { response in
+        Alamofire.request(Urls.posts, method: .get)
+            .validate()
+            .responseObject { (response: DataResponse<CFPostsParser>) in
                 
-                if let posts = response.result.value as! NSArray as? [CFPost] {
+                if let parser = response.result.value, let posts = parser.posts {
                     callback(posts)
                 }
         }

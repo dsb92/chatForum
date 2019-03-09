@@ -12,6 +12,12 @@ class CFForumTableView: UITableView, UITableViewDataSource, UITableViewDelegate 
     
     let IDENTIFIER: String = "CFForumCell"
     
+    var posts = [CFPost]() {
+        didSet {
+            self.reloadData()
+        }
+    }
+    
     override init(frame: CGRect, style: UITableView.Style) {
         super.init(frame: frame, style: style)
         
@@ -30,8 +36,11 @@ class CFForumTableView: UITableView, UITableViewDataSource, UITableViewDelegate 
         self.tableHeaderView = UIView()
         self.tableFooterView = UIView()
         
-        self.estimatedRowHeight = 100
+        self.dataSource = self
+        self.delegate = self
+        
         self.rowHeight = UITableView.automaticDimension
+        self.estimatedRowHeight = 100
     }
     
     func registerCells() {
@@ -39,11 +48,18 @@ class CFForumTableView: UITableView, UITableViewDataSource, UITableViewDelegate 
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 0
+        return 1
+    }
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return self.posts.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell: CFForumCell = tableView.dequeueReusableCell(withIdentifier: IDENTIFIER, for: indexPath) as? CFForumCell else { return UITableViewCell() }
+        
+        let post = self.posts[indexPath.section]
+        cell.forumTextLabel.text = post.text
         
         return cell
     }

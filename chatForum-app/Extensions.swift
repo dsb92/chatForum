@@ -7,3 +7,9 @@
 //
 
 import Foundation
+
+extension String {
+    func grouped(_ path: String) -> String {
+        return self + path
+    }
+}
