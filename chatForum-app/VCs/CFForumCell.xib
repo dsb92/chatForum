@@ -18,18 +18,31 @@
                 <rect key="frame" x="0.0" y="0.0" width="442" height="197.5"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="5" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SD5-MW-qfN">
-                        <rect key="frame" x="0.0" y="0.0" width="442" height="197.5"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Labelasdsa" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="10" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SD5-MW-qfN">
+                        <rect key="frame" x="15" y="15" width="412" height="100"/>
+                        <constraints>
+                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="100" id="eVT-wy-RkK"/>
+                        </constraints>
                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kjD-BD-62s">
+                        <rect key="frame" x="0.0" y="191.5" width="442" height="6"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="6" id="Naq-Lw-NCJ"/>
+                        </constraints>
+                    </view>
                 </subviews>
                 <constraints>
-                    <constraint firstAttribute="trailing" secondItem="SD5-MW-qfN" secondAttribute="trailing" id="9Fu-GN-N95"/>
-                    <constraint firstAttribute="bottom" secondItem="SD5-MW-qfN" secondAttribute="bottom" id="L6x-Ju-a6u"/>
-                    <constraint firstItem="SD5-MW-qfN" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="cbM-Ns-IfM"/>
-                    <constraint firstItem="SD5-MW-qfN" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="xUc-sY-NDM"/>
+                    <constraint firstItem="kjD-BD-62s" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="5BO-ve-vX8"/>
+                    <constraint firstAttribute="trailing" secondItem="SD5-MW-qfN" secondAttribute="trailing" constant="15" id="9Fu-GN-N95"/>
+                    <constraint firstItem="kjD-BD-62s" firstAttribute="top" relation="greaterThanOrEqual" secondItem="SD5-MW-qfN" secondAttribute="bottom" constant="15" id="EwC-Dk-FHa"/>
+                    <constraint firstAttribute="bottom" secondItem="kjD-BD-62s" secondAttribute="bottom" id="Pnz-eB-0hq"/>
+                    <constraint firstItem="SD5-MW-qfN" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="15" id="cbM-Ns-IfM"/>
+                    <constraint firstAttribute="trailing" secondItem="kjD-BD-62s" secondAttribute="trailing" id="nW4-0j-q5h"/>
+                    <constraint firstItem="SD5-MW-qfN" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="15" id="xUc-sY-NDM"/>
                 </constraints>
             </tableViewCellContentView>
             <connections>

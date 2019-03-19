@@ -14,6 +14,9 @@ class CFDataController: NSObject {
     static let shared = CFDataController()
     
     typealias GetPostsCallback = ([CFPost]) -> ()
+    typealias PostPostCallback = (CFPost) -> ()
+    
+    let dateFormat: String = "yyyy-MM-dd'T'HH:mm:ssZ"
     
     struct Urls {
         static let baseUrl = "https://chatforum-production.vapor.cloud/"
@@ -31,6 +34,21 @@ class CFDataController: NSObject {
                 
                 if let parser = response.result.value, let posts = parser.posts {
                     callback(posts)
+                }
+        }
+    }
+    
+    func postPost(text: String, updatedAt: String, callback: @escaping PostPostCallback) {
+        let parameters: [String: Any] = [
+            "text": text,
+            "updatedAt": updatedAt
+        ]
+        Alamofire.request(Urls.posts, method: .post, parameters: parameters, encoding: JSONEncoding.default)
+            .validate()
+            .responseObject { (response: DataResponse<CFPost>) in
+                
+                if let parser = response.result.value {
+                    callback(parser)
                 }
         }
     }

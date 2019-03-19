@@ -3,23 +3,31 @@ PODS:
   - AlamofireObjectMapper (5.2.0):
     - Alamofire (~> 4.7)
     - ObjectMapper (~> 3.4)
+  - MultilineTextField (0.2.3)
   - ObjectMapper (3.4.2)
+  - SnapKit (4.2.0)
 
 DEPENDENCIES:
   - Alamofire
   - AlamofireObjectMapper
+  - MultilineTextField
+  - SnapKit
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - Alamofire
     - AlamofireObjectMapper
+    - MultilineTextField
     - ObjectMapper
+    - SnapKit
 
 SPEC CHECKSUMS:
   Alamofire: 16ce2c353fb72865124ddae8a57c5942388f4f11
   AlamofireObjectMapper: 92b6ce2423a9d159e686f6a1d514a009bf903ddc
+  MultilineTextField: 10965d9c3e05a182181bd7971eb009c7607001ae
   ObjectMapper: 0d4402610f4e468903ae64629eec4784531e5c51
+  SnapKit: fe8a619752f3f27075cc9a90244d75c6c3f27e2a
 
-PODFILE CHECKSUM: 0333e076d097b864df6490390fdf1f416e2e5dc0
+PODFILE CHECKSUM: e8b24c38ab0f8d360bdb48204d161ebf2f024740
 
 COCOAPODS: 1.6.1

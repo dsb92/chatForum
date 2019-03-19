@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SnapKit
 
 class CFHomeVC: CFBaseVC {
     @IBOutlet weak var forumTableView: CFForumTableView!
@@ -22,13 +23,46 @@ class CFHomeVC: CFBaseVC {
         self.forumTableView.addSubview(refreshControl)
         
         self.refreshData()
+        
+        let floatingButton = CFFloatingButton()
+        floatingButton.addTarget(self, action: #selector(self.didTapFloatingActionButton), for: .touchUpInside)
+        self.view.addSubview(floatingButton)
+        floatingButton.snp.makeConstraints { (make) in
+            if #available(iOS 11, *) {
+                make.bottom.equalTo(self.view.safeAreaLayoutGuide.snp.bottomMargin).offset(-15)
+                make.right.equalTo(self.view.safeAreaLayoutGuide.snp.rightMargin).offset(-20)
+            } else {
+                make.bottom.equalToSuperview().offset(-15)
+                make.right.equalToSuperview().offset(-20)
+            }
+            
+            make.width.height.equalTo(60)
+        }
+    }
+    
+    // MARK: - Actions
+    @objc func didTapFloatingActionButton() {
+        let createPostVc = CFCreatePostVC()
+        createPostVc.delegate = self
+        self.present(UINavigationController(rootViewController: createPostVc), animated: true, completion: nil)
     }
     
     @objc func refreshData() {
         self.dataCon.getPosts { (posts) in
             self.forumTableView.posts = posts
+            self.forumTableView.reloadData()
             
             self.refreshControl.endRefreshing()
         }
+    }
+}
+
+extension CFHomeVC: CFCreatePostVCDelegate {
+    func createPostVcDidCreatePost(_ post: CFPost, sender: CFCreatePostVC) {
+        self.forumTableView.setContentOffset(.zero, animated: true)
+        self.forumTableView.beginUpdates()
+        self.forumTableView.posts.insert(post, at: 0)
+        self.forumTableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
+        self.forumTableView.endUpdates()
     }
 }
