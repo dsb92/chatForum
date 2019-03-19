@@ -33,8 +33,16 @@ final class PostController: RouteCollection {
     func getPosts(_ request: Request)throws -> Future<PostsResponse> {
         let val = Post.query(on: request).all()
         return val.flatMap { posts in
-            let all = PostsResponse(posts: posts)
-            return Future.map(on: request) {return all }
+            let all = PostsResponse(posts: posts.sorted(by: { (l, r) -> Bool in
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+                dateFormatter.locale = Locale(identifier: "en_US_POSIX") // set locale to reliable US_POSIX
+                let lDate = dateFormatter.date(from:l.updatedAt) ?? Date()
+                let rDate = dateFormatter.date(from: r.updatedAt) ?? Date()
+                
+                return lDate.compare(rDate) == .orderedDescending
+            }))
+            return Future.map(on: request) { return all }
         }
     }
     
