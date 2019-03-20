@@ -15,6 +15,7 @@ class CFDataController: NSObject {
     
     typealias GetPostsCallback = ([CFPost]) -> ()
     typealias PostPostCallback = (CFPost) -> ()
+    typealias GetCommentsCallback = ([CFComment]) -> ()
     
     let dateFormat: String = "yyyy-MM-dd'T'HH:mm:ssZ"
     
@@ -27,6 +28,7 @@ class CFDataController: NSObject {
         super.init()
     }
     
+    // MARK: - Posts
     func getPosts(_ callback: @escaping GetPostsCallback) {
         Alamofire.request(Urls.posts, method: .get)
             .validate()
@@ -49,6 +51,18 @@ class CFDataController: NSObject {
                 
                 if let parser = response.result.value {
                     callback(parser)
+                }
+        }
+    }
+    
+    // MARK: - Comments
+    func getComments(from postId: String, callback: @escaping GetCommentsCallback) {
+        Alamofire.request(Urls.posts + "/\(postId)/comments", method: .get)
+            .validate()
+            .responseObject { (response: DataResponse<CFCommentsParser>) in
+                
+                if let parser = response.result.value, let comments = parser.comments {
+                    callback(comments)
                 }
         }
     }

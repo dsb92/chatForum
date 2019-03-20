@@ -8,8 +8,9 @@
 
 import UIKit
 
-class CFForumCell: UITableViewCell {
+class CFForumCell: UITableViewCell, Reusable {
     @IBOutlet weak var forumTextLabel: UILabel!
+    @IBOutlet weak var seperator: UIView!
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -18,11 +19,8 @@ class CFForumCell: UITableViewCell {
         self.backgroundColor = ColorUtil.randomColor
         self.forumTextLabel.textColor = UIColor.white
     }
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
-    }
     
+    static var nib: UINib? {
+        return UINib(nibName: String(describing: CFForumCell.self), bundle: nil)
+    }
 }

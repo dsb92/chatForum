@@ -20,7 +20,8 @@ class CFHomeVC: CFBaseVC {
         // Do any additional setup after loading the view.
         
         self.refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
-        self.forumTableView.addSubview(refreshControl)
+        self.forumTableView.addSubview(self.refreshControl)
+        self.forumTableView.forumTableViewDelegate = self
         
         self.refreshData()
         
@@ -64,5 +65,11 @@ extension CFHomeVC: CFCreatePostVCDelegate {
         self.forumTableView.posts.insert(post, at: 0)
         self.forumTableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
         self.forumTableView.endUpdates()
+    }
+}
+
+extension CFHomeVC: CFForumTableViewDelegate {
+    func didSelectPost(_ post: CFPost, sender: CFForumTableView) {
+        self.navigationController?.pushViewController(CFCommentPostVC(post: post), animated: true)
     }
 }

@@ -47,6 +47,7 @@
             </tableViewCellContentView>
             <connections>
                 <outlet property="forumTextLabel" destination="SD5-MW-qfN" id="xow-jt-aWz"/>
+                <outlet property="seperator" destination="kjD-BD-62s" id="Pxh-9Q-eu0"/>
             </connections>
             <point key="canvasLocation" x="235.19999999999999" y="223.08845577211397"/>
         </tableViewCell>
