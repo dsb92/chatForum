@@ -53,14 +53,16 @@ _ services: inout Services
     services.register(databases)
     
     // Migrations
-//    var migrations = MigrationConfig()
+    var migrations = MigrationConfig()
 //    migrations.add(model: Post.self, database: .psql)
 //    migrations.add(model: Comment.self, database: .psql)
+    migrations.add(model: Color.self, database: .psql)
     
 //    migrations.add(migration: PostAddUpdatedAt.self, database: .psql)
 //    migrations.add(migration: CommentAddUpdatedAt.self, database: .psql)
+    migrations.add(migration: PostAddBackgroundColorHex.self, database: .psql)
     
-//    services.register(migrations)
+    services.register(migrations)
     
     var commands = CommandConfig.default()
     commands.useFluentCommands()

@@ -40,4 +40,12 @@ class CFForumTableView: CFBaseTableView {
         
         self.forumTableViewDelegate?.didSelectPost(self.posts[indexPath.row], sender: self)
     }
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 0.001
+    }
+    
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 0.001
+    }
 }

@@ -6,10 +6,12 @@ final class Post: Content {
     var id: UUID?
     var text: String
     var updatedAt: String
+    var backgroundColorHex: String
     
-    init(text: String, updatedAt: String) {
+    init(text: String, updatedAt: String, backgroundColorHex: String) {
         self.text = text
         self.updatedAt = updatedAt
+        self.backgroundColorHex = backgroundColorHex
     }
 }
 

@@ -19,6 +19,8 @@ class CFHomeVC: CFBaseVC {
 
         // Do any additional setup after loading the view.
         
+        self.view.backgroundColor = UIColor.random
+        
         self.refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
         self.forumTableView.addSubview(self.refreshControl)
         self.forumTableView.forumTableViewDelegate = self
@@ -60,11 +62,14 @@ class CFHomeVC: CFBaseVC {
 
 extension CFHomeVC: CFCreatePostVCDelegate {
     func createPostVcDidCreatePost(_ post: CFPost, sender: CFCreatePostVC) {
-        self.forumTableView.setContentOffset(.zero, animated: true)
-        self.forumTableView.beginUpdates()
-        self.forumTableView.posts.insert(post, at: 0)
-        self.forumTableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
-        self.forumTableView.endUpdates()
+        UIView.animate(withDuration: 0.5, animations: {
+            self.forumTableView.contentOffset = .zero
+        }) { (_) in
+            self.forumTableView.beginUpdates()
+            self.forumTableView.posts.insert(post, at: 0)
+            self.forumTableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
+            self.forumTableView.endUpdates()
+        }
     }
 }
 

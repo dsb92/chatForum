@@ -16,7 +16,7 @@ class CFForumCell: UITableViewCell, Reusable {
         super.awakeFromNib()
         // Initialization code
         
-        self.backgroundColor = ColorUtil.randomColor
+        self.backgroundColor = UIColor.random
         self.forumTextLabel.textColor = UIColor.white
     }
     

@@ -16,12 +16,14 @@ class CFDataController: NSObject {
     typealias GetPostsCallback = ([CFPost]) -> ()
     typealias PostPostCallback = (CFPost) -> ()
     typealias GetCommentsCallback = ([CFComment]) -> ()
+    typealias PostCommentCallback = (CFComment) -> ()
     
     let dateFormat: String = "yyyy-MM-dd'T'HH:mm:ssZ"
     
     struct Urls {
         static let baseUrl = "https://chatforum-production.vapor.cloud/"
         static let posts = CFDataController.Urls.baseUrl.grouped("posts")
+        static let comments = CFDataController.Urls.baseUrl.grouped("comments")
     }
     
     private override init() {
@@ -40,12 +42,8 @@ class CFDataController: NSObject {
         }
     }
     
-    func postPost(text: String, updatedAt: String, callback: @escaping PostPostCallback) {
-        let parameters: [String: Any] = [
-            "text": text,
-            "updatedAt": updatedAt
-        ]
-        Alamofire.request(Urls.posts, method: .post, parameters: parameters, encoding: JSONEncoding.default)
+    func postPost(_ post: CFPost, callback: @escaping PostPostCallback) {
+        Alamofire.request(Urls.posts, method: .post, parameters: post.toDictionary(), encoding: JSONEncoding.default)
             .validate()
             .responseObject { (response: DataResponse<CFPost>) in
                 
@@ -63,6 +61,17 @@ class CFDataController: NSObject {
                 
                 if let parser = response.result.value, let comments = parser.comments {
                     callback(comments)
+                }
+        }
+    }
+    
+    func postComment(_ comment: CFComment, callback: @escaping PostCommentCallback) {
+        Alamofire.request(Urls.comments, method: .post, parameters: comment.toDictionary(), encoding: JSONEncoding.default)
+            .validate()
+            .responseObject { (response: DataResponse<CFComment>) in
+                
+                if let parser = response.result.value {
+                    callback(parser)
                 }
         }
     }

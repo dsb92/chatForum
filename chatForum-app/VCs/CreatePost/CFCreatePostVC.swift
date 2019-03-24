@@ -21,7 +21,7 @@ class CFCreatePostVC: CFBaseVC {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.view.backgroundColor = ColorUtil.randomColor
+        self.view.backgroundColor = UIColor.random
         
         // below are properties that can be optionally customized
         self.multilineTextField.placeholder = "Send en Jodel til hvem som helst inden for 10 k."
@@ -45,7 +45,11 @@ class CFCreatePostVC: CFBaseVC {
         
         let updatedAt: String = dateFormatter.string(from: Date())
         
-        self.dataCon.postPost(text: self.multilineTextField.text, updatedAt: updatedAt) { (post) in
+        let post = CFPost()
+        post.text = self.multilineTextField.text
+        post.updatedAt = updatedAt
+        
+        self.dataCon.postPost(post) { (post) in
             self.dismiss(animated: true, completion: {
                 self.delegate?.createPostVcDidCreatePost(post, sender: self)
             })

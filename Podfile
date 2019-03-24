@@ -12,5 +12,8 @@ pod 'Alamofire'
 pod 'AlamofireObjectMapper'
 pod 'SnapKit'
 pod 'MultilineTextField'
+pod 'GrowingTextView'
+pod 'IQKeyboardManager'
+pod 'SwiftyJSON'
 
 end

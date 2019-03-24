@@ -4,7 +4,7 @@
 
 import Foundation 
 import ObjectMapper
-
+import SwiftyJSON
 
 class CFPost : NSObject, NSCoding, Mappable{
 
@@ -17,7 +17,7 @@ class CFPost : NSObject, NSCoding, Mappable{
 		return CFPost()
 	}
 	required init?(map: Map){}
-	private override init(){}
+    override init(){}
 
 	func mapping(map: Map)
 	{
@@ -26,6 +26,36 @@ class CFPost : NSObject, NSCoding, Mappable{
 		updatedAt <- map["updatedAt"]
 		
 	}
+    
+    /**
+     * Instantiate the instance using the passed json values to set the properties values
+     */
+    init(fromJson json: JSON!){
+        if json.isEmpty{
+            return
+        }
+        id = json["id"].stringValue
+        text = json["text"].stringValue
+        updatedAt = json["updatedAt"].stringValue
+    }
+    
+    /**
+     * Returns all the available property values in the form of [String:Any] object where the key is the approperiate json key and the value is the value of the corresponding property
+     */
+    func toDictionary() -> [String:Any]
+    {
+        var dictionary = [String:Any]()
+        if id != nil{
+            dictionary["id"] = id
+        }
+        if text != nil{
+            dictionary["text"] = text
+        }
+        if updatedAt != nil{
+            dictionary["updatedAt"] = updatedAt
+        }
+        return dictionary
+    }
 
     /**
     * NSCoding required initializer.

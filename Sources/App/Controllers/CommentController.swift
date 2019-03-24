@@ -12,7 +12,7 @@ final class CommentController: RouteCollection {
     func boot(router: Router) throws {
         let comments = router.grouped("comments")
         
-        // Regiser each handler
+        // Register each handler
         comments.get(use: getComments)
         comments.post(Comment.self, use: postComment)
     }

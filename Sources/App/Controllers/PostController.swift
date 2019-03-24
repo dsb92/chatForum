@@ -20,7 +20,7 @@ final class PostController: RouteCollection {
                 let val = try post.comments.query(on: request).all()
                 return val.flatMap { comments in
                     let all = CommentsResponse(comments: comments)
-                    return Future.map(on: request) {return all }
+                    return Future.map(on: request) { return all }
                 }
             }
         }
