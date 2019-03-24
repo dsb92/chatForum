@@ -51,6 +51,8 @@ class CFHomeVC: CFBaseVC {
     }
     
     @objc func refreshData() {
+        self.view.backgroundColor = UIColor.random
+        
         self.dataCon.getPosts { (posts) in
             self.forumTableView.posts = posts
             self.forumTableView.reloadData()

@@ -13,21 +13,42 @@ import AlamofireObjectMapper
 class CFDataController: NSObject {
     static let shared = CFDataController()
     
+    typealias GetSettingsCallback = (CFSettingsParser) -> ()
     typealias GetPostsCallback = ([CFPost]) -> ()
     typealias PostPostCallback = (CFPost) -> ()
     typealias GetCommentsCallback = ([CFComment]) -> ()
     typealias PostCommentCallback = (CFComment) -> ()
     
     let dateFormat: String = "yyyy-MM-dd'T'HH:mm:ssZ"
+    var colors: [UIColor] = [UIColor]()
     
     struct Urls {
         static let baseUrl = "https://chatforum-production.vapor.cloud/"
+        static let settings = CFDataController.Urls.baseUrl.grouped("settings")
         static let posts = CFDataController.Urls.baseUrl.grouped("posts")
         static let comments = CFDataController.Urls.baseUrl.grouped("comments")
     }
     
     private override init() {
         super.init()
+        
+        getSettings { (parser) in
+            parser.colors?.forEach({ (cfColor) in
+                self.colors.append(UIColor(hexString: cfColor.hexString ?? ""))
+            })
+        }
+    }
+    
+    // MARK: - Settings
+    func getSettings(_ callback: @escaping GetSettingsCallback) {
+        Alamofire.request(Urls.settings, method: .get)
+            .validate()
+            .responseObject { (response: DataResponse<CFSettingsParser>) in
+                
+                if let parser = response.result.value {
+                    callback(parser)
+                }
+        }
     }
     
     // MARK: - Posts

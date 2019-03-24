@@ -79,26 +79,19 @@ extension UIColor {
         return String(format:"#%06x", rgb)
     }
     
+    static var peeYellow = UIColor(hexString: "#fcc500")
+
     static var random: UIColor {
         get {
-            let number = Int.random(in: 0 ..< self.colors.count)
-            return UIColor(hexString: self.colors[number])
-        }
-    }
-    
-    static var peeYellow = UIColor(hexString: "#fcc500")
-    static var darkRed = UIColor(hexString: "#e5000f")
-    static var turkishGreen = UIColor(hexString: "#00db8a")
-    static var lightBlue = UIColor(hexString: "#00a4db")
-    static var lightGreen = UIColor(hexString: "#12bc00")
-    
-    private static var colors: [String] {
-        get {
-            return [darkRed.toHexString(),
-                    peeYellow.toHexString(),
-                    turkishGreen.toHexString(),
-                    lightBlue.toHexString(),
-                    lightGreen.toHexString()]
+            
+            let shared = CFDataController.shared
+            
+            if shared.colors.isEmpty {
+                return peeYellow
+            }
+            
+            let number = Int.random(in: 0 ..< shared.colors.count)
+            return shared.colors[number]
         }
     }
 }

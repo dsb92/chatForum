@@ -27,6 +27,8 @@ class CFCommentTableView: CFBaseTableView {
         
         let comment = self.comments[indexPath.row]
         cell.forumTextLabel.text = comment.comment
+        cell.backgroundColor = UIColor.clear
+        cell.backgroundView = UIView()
         cell.seperator.isHidden = true
         
         return cell
@@ -40,6 +42,7 @@ class CFCommentTableView: CFBaseTableView {
         let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: String(describing: CFCommentsTableHeaderView.self))! as! CFCommentsTableHeaderView
         
         header.forumLabel.text = self.post?.text
+        header.containerView.backgroundColor = UIColor(hexString: self.post?.backgroundColorHex ?? "")
         
         return header
     }

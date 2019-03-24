@@ -17,7 +17,6 @@ class CFCommentsTableHeaderView: UITableViewHeaderFooterView, Reusable {
     override func awakeFromNib() {
         super.awakeFromNib()
         
-        self.containerView.backgroundColor = UIColor.random
         self.forumLabel.textColor = UIColor.white
     }
 

@@ -36,12 +36,12 @@ class CFCommentPostVC: CFBaseVC {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = UIColor.orange
+        self.view.backgroundColor = UIColor(hexString: post?.backgroundColorHex ?? "")
         
         self.refreshControl.addTarget(self, action: #selector(self.refreshData), for: .valueChanged)
         self.commentsTableView.addSubview(self.refreshControl)
         self.commentsTableView.post = post
-        self.commentsTableView.backgroundColor = UIColor.orange
+        self.commentsTableView.backgroundColor = UIColor(hexString: post?.backgroundColorHex ?? "")
         
         self.refreshData()
         
@@ -56,7 +56,7 @@ class CFCommentPostVC: CFBaseVC {
         messageComposerTextView.delegate = self
         
         sendButton.setImage(#imageLiteral(resourceName: "icons8-send-comment-filled-100").withRenderingMode(.alwaysTemplate), for: .normal)
-        sendButton.tintColor = UIColor.orange
+        sendButton.tintColor = UIColor(hexString: self.post?.backgroundColorHex ?? "")
     }
     
     @objc func refreshData() {

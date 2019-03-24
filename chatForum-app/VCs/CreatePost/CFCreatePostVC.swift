@@ -48,6 +48,7 @@ class CFCreatePostVC: CFBaseVC {
         let post = CFPost()
         post.text = self.multilineTextField.text
         post.updatedAt = updatedAt
+        post.backgroundColorHex = self.view.backgroundColor?.toHexString()
         
         self.dataCon.postPost(post) { (post) in
             self.dismiss(animated: true, completion: {
