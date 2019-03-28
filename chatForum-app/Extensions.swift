@@ -45,6 +45,72 @@ extension UITableView {
     }
 }
 
+extension Date {
+    // Returns the number of years
+    func yearsCount(from date: Date) -> Int {
+        return Calendar.current.dateComponents([.year], from: date, to: self).year ?? 0
+    }
+    // Returns the number of months
+    func monthsCount(from date: Date) -> Int {
+        return Calendar.current.dateComponents([.month], from: date, to: self).month ?? 0
+    }
+    // Returns the number of weeks
+    func weeksCount(from date: Date) -> Int {
+        return Calendar.current.dateComponents([.weekOfMonth], from: date, to: self).weekOfMonth ?? 0
+    }
+    // Returns the number of days
+    func daysCount(from date: Date) -> Int {
+        return Calendar.current.dateComponents([.day], from: date, to: self).day ?? 0
+    }
+    // Returns the number of hours
+    func hoursCount(from date: Date) -> Int {
+        return Calendar.current.dateComponents([.hour], from: date, to: self).hour ?? 0
+    }
+    // Returns the number of minutes
+    func minutesCount(from date: Date) -> Int {
+        return Calendar.current.dateComponents([.minute], from: date, to: self).minute ?? 0
+    }
+    // Returns the number of seconds
+    func secondsCount(from date: Date) -> Int {
+        return Calendar.current.dateComponents([.second], from: date, to: self).second ?? 0
+    }
+    // Returns time ago by checking if the time differences between two dates are in year or months or weeks or days or hours or minutes or seconds
+    func timeAgo(from date: Date) -> String {
+        if yearsCount(from: date)   > 0 { return "\(yearsCount(from: date))Y"   }
+        if monthsCount(from: date)  > 0 { return "\(monthsCount(from: date))M"  }
+        if weeksCount(from: date)   > 0 { return "\(weeksCount(from: date))w"   }
+        if daysCount(from: date)    > 0 { return "\(daysCount(from: date))d"    }
+        if hoursCount(from: date)   > 0 { return "\(hoursCount(from: date))h"   }
+        if minutesCount(from: date) > 0 { return "\(minutesCount(from: date))m" }
+        if secondsCount(from: date) > 0 { return "\(secondsCount(from: date))s" }
+        return "just now"
+    }
+}
+
+extension CFPost {
+    func timeAgo() -> String {
+        let dateFormatter = CFDataController.shared.dateFormatter
+        
+        guard let updatedAt = self.updatedAt else { return "" }
+        guard let date = dateFormatter.date(from: updatedAt) else { return "" }
+        
+        let timeAgo = Date().timeAgo(from: date)
+        return timeAgo
+    }
+}
+
+extension CFComment {
+    func timeAgo() -> String {
+        let dateFormatter = CFDataController.shared.dateFormatter
+        
+        guard let updatedAt = self.updatedAt else { return "" }
+        guard let date = dateFormatter.date(from: updatedAt) else { return "" }
+        
+        let timeAgo = Date().timeAgo(from: date)
+        return timeAgo
+    }
+}
+
 extension String {
     func grouped(_ path: String) -> String {
         return self + path

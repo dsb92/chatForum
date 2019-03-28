@@ -31,6 +31,7 @@ class CFForumTableView: CFBaseTableView {
         
         let post = self.posts[indexPath.row]
         cell.forumTextLabel.text = post.text
+        cell.forumDateLabel.text = post.timeAgo()
         cell.backgroundColor = UIColor(hexString: post.backgroundColorHex ?? "")
         
         return cell

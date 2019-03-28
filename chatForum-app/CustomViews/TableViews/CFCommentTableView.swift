@@ -27,6 +27,7 @@ class CFCommentTableView: CFBaseTableView {
         
         let comment = self.comments[indexPath.row]
         cell.forumTextLabel.text = comment.comment
+        cell.forumDateLabel.text = comment.timeAgo()
         cell.backgroundColor = UIColor.clear
         cell.backgroundView = UIView()
         cell.seperator.isHidden = true
@@ -41,7 +42,8 @@ class CFCommentTableView: CFBaseTableView {
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: String(describing: CFCommentsTableHeaderView.self))! as! CFCommentsTableHeaderView
         
-        header.forumLabel.text = self.post?.text
+        header.forumTextLabel.text = self.post?.text
+        header.forumDateLabel.text = self.post?.timeAgo()
         header.containerView.backgroundColor = UIColor(hexString: self.post?.backgroundColorHex ?? "")
         
         return header

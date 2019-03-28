@@ -19,6 +19,11 @@ class CFDataController: NSObject {
     typealias GetCommentsCallback = ([CFComment]) -> ()
     typealias PostCommentCallback = (CFComment) -> ()
     
+    lazy var dateFormatter: DateFormatter = {
+        let df = DateFormatter()
+        df.dateFormat = self.dateFormat
+        return df
+    }()
     let dateFormat: String = "yyyy-MM-dd'T'HH:mm:ssZ"
     var colors: [UIColor] = [UIColor]()
     

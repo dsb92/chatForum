@@ -18,8 +18,14 @@
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="leb-yM-heq">
                     <rect key="frame" x="0.0" y="0.0" width="375" height="212"/>
                     <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="odI-as-032">
+                            <rect key="frame" x="15" y="15" width="345" height="20.5"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                            <nil key="textColor"/>
+                            <nil key="highlightedColor"/>
+                        </label>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Labelasdsa" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="10" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="res-VG-Xed">
-                            <rect key="frame" x="15" y="15" width="345" height="100"/>
+                            <rect key="frame" x="15" y="35.5" width="345" height="100"/>
                             <constraints>
                                 <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="100" id="tLC-Ih-Zcd"/>
                             </constraints>
@@ -38,11 +44,14 @@
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
                         <constraint firstItem="yW1-hu-xGj" firstAttribute="leading" secondItem="leb-yM-heq" secondAttribute="leading" id="05d-mY-ida"/>
-                        <constraint firstItem="res-VG-Xed" firstAttribute="top" secondItem="leb-yM-heq" secondAttribute="top" constant="15" id="6JD-I7-9Od"/>
+                        <constraint firstItem="odI-as-032" firstAttribute="leading" secondItem="leb-yM-heq" secondAttribute="leading" constant="15" id="Eaa-HP-JGa"/>
                         <constraint firstItem="yW1-hu-xGj" firstAttribute="top" relation="greaterThanOrEqual" secondItem="res-VG-Xed" secondAttribute="bottom" constant="15" id="GT5-4C-dcb"/>
                         <constraint firstItem="res-VG-Xed" firstAttribute="leading" secondItem="leb-yM-heq" secondAttribute="leading" constant="15" id="P4I-j9-FAI"/>
                         <constraint firstAttribute="trailing" secondItem="yW1-hu-xGj" secondAttribute="trailing" id="WqX-Xe-3RM"/>
+                        <constraint firstItem="odI-as-032" firstAttribute="top" secondItem="leb-yM-heq" secondAttribute="top" constant="15" id="eD1-Ph-QUI"/>
                         <constraint firstAttribute="trailing" secondItem="res-VG-Xed" secondAttribute="trailing" constant="15" id="jGP-2e-Qyo"/>
+                        <constraint firstAttribute="trailing" secondItem="odI-as-032" secondAttribute="trailing" constant="15" id="tpf-Tq-mG5"/>
+                        <constraint firstItem="res-VG-Xed" firstAttribute="top" secondItem="odI-as-032" secondAttribute="bottom" id="xfj-6w-s7s"/>
                         <constraint firstAttribute="bottom" secondItem="yW1-hu-xGj" secondAttribute="bottom" id="y6k-sO-BAn"/>
                     </constraints>
                 </view>
@@ -57,7 +66,8 @@
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
                 <outlet property="containerView" destination="leb-yM-heq" id="yzY-3F-NLq"/>
-                <outlet property="forumLabel" destination="res-VG-Xed" id="F9g-Bc-IEx"/>
+                <outlet property="forumDateLabel" destination="odI-as-032" id="G4G-LD-D6N"/>
+                <outlet property="forumTextLabel" destination="res-VG-Xed" id="sJw-j0-a44"/>
                 <outlet property="seperator" destination="yW1-hu-xGj" id="Y4S-Ck-Kzq"/>
             </connections>
             <point key="canvasLocation" x="138.40000000000001" y="-51.27436281859071"/>

@@ -10,14 +10,16 @@ import UIKit
 
 class CFCommentsTableHeaderView: UITableViewHeaderFooterView, Reusable {
     
-    @IBOutlet weak var forumLabel: UILabel!
+    @IBOutlet weak var forumTextLabel: UILabel!
+    @IBOutlet weak var forumDateLabel: UILabel!
     @IBOutlet weak var containerView: UIView!
     @IBOutlet weak var seperator: UIView!
     
     override func awakeFromNib() {
         super.awakeFromNib()
         
-        self.forumLabel.textColor = UIColor.white
+        self.forumTextLabel.textColor = .white
+        self.forumDateLabel.textColor = .white
     }
 
     static var nib: UINib? {

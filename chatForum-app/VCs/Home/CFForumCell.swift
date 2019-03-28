@@ -10,13 +10,15 @@ import UIKit
 
 class CFForumCell: UITableViewCell, Reusable {
     @IBOutlet weak var forumTextLabel: UILabel!
+    @IBOutlet weak var forumDateLabel: UILabel!
     @IBOutlet weak var seperator: UIView!
     
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
         
-        self.forumTextLabel.textColor = UIColor.white
+        self.forumTextLabel.textColor = .white
+        self.forumDateLabel.textColor = .white
     }
     
     static var nib: UINib? {

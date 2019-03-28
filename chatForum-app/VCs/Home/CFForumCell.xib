@@ -18,8 +18,14 @@
                 <rect key="frame" x="0.0" y="0.0" width="442" height="197.5"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oG2-GD-lnZ">
+                        <rect key="frame" x="15" y="15" width="412" height="21"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Labelasdsa" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="10" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SD5-MW-qfN">
-                        <rect key="frame" x="15" y="15" width="412" height="100"/>
+                        <rect key="frame" x="15" y="36" width="412" height="100"/>
                         <constraints>
                             <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="100" id="eVT-wy-RkK"/>
                         </constraints>
@@ -38,14 +44,18 @@
                 <constraints>
                     <constraint firstItem="kjD-BD-62s" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="5BO-ve-vX8"/>
                     <constraint firstAttribute="trailing" secondItem="SD5-MW-qfN" secondAttribute="trailing" constant="15" id="9Fu-GN-N95"/>
+                    <constraint firstItem="oG2-GD-lnZ" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="15" id="BL9-ob-Xy6"/>
+                    <constraint firstItem="oG2-GD-lnZ" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="15" id="CWu-xI-x4A"/>
                     <constraint firstItem="kjD-BD-62s" firstAttribute="top" relation="greaterThanOrEqual" secondItem="SD5-MW-qfN" secondAttribute="bottom" constant="15" id="EwC-Dk-FHa"/>
+                    <constraint firstItem="SD5-MW-qfN" firstAttribute="top" secondItem="oG2-GD-lnZ" secondAttribute="bottom" id="F8J-y1-Xvq"/>
                     <constraint firstAttribute="bottom" secondItem="kjD-BD-62s" secondAttribute="bottom" id="Pnz-eB-0hq"/>
                     <constraint firstItem="SD5-MW-qfN" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="15" id="cbM-Ns-IfM"/>
+                    <constraint firstAttribute="trailing" secondItem="oG2-GD-lnZ" secondAttribute="trailing" constant="15" id="k6C-xe-Xag"/>
                     <constraint firstAttribute="trailing" secondItem="kjD-BD-62s" secondAttribute="trailing" id="nW4-0j-q5h"/>
-                    <constraint firstItem="SD5-MW-qfN" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="15" id="xUc-sY-NDM"/>
                 </constraints>
             </tableViewCellContentView>
             <connections>
+                <outlet property="forumDateLabel" destination="oG2-GD-lnZ" id="55G-kv-2mE"/>
                 <outlet property="forumTextLabel" destination="SD5-MW-qfN" id="xow-jt-aWz"/>
                 <outlet property="seperator" destination="kjD-BD-62s" id="Pxh-9Q-eu0"/>
             </connections>
