@@ -30,6 +30,7 @@ class CFCommentTableView: CFBaseTableView {
         cell.forumDateLabel.text = comment.timeAgo()
         cell.backgroundColor = UIColor.clear
         cell.backgroundView = UIView()
+        cell.forumCommentView.isHidden = true
         cell.seperator.isHidden = true
         
         return cell
@@ -45,6 +46,11 @@ class CFCommentTableView: CFBaseTableView {
         header.forumTextLabel.text = self.post?.text
         header.forumDateLabel.text = self.post?.timeAgo()
         header.containerView.backgroundColor = UIColor(hexString: self.post?.backgroundColorHex ?? "")
+        
+        if let numberOfComments = self.post?.numberOfComments {
+            header.forumCommentView.isHidden = numberOfComments == 0
+            header.forumNumberOfCommentsLabel.text = "\(numberOfComments)"
+        }
         
         return header
     }

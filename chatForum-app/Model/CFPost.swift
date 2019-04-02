@@ -12,6 +12,7 @@ class CFPost : NSObject, NSCoding, Mappable{
 	var text : String?
 	var updatedAt : String?
     var backgroundColorHex : String?
+    var numberOfComments: Int?
 
 	class func newInstance(map: Map) -> Mappable?{
 		return CFPost()
@@ -25,6 +26,7 @@ class CFPost : NSObject, NSCoding, Mappable{
 		text <- map["text"]
 		updatedAt <- map["updatedAt"]
 		backgroundColorHex <- map["backgroundColorHex"]
+        numberOfComments <- map["numberOfComments"]
 	}
     
     /**
@@ -34,10 +36,11 @@ class CFPost : NSObject, NSCoding, Mappable{
         if json.isEmpty{
             return
         }
+        backgroundColorHex = json["backgroundColorHex"].stringValue
         id = json["id"].stringValue
+        numberOfComments = json["numberOfComments"].intValue
         text = json["text"].stringValue
         updatedAt = json["updatedAt"].stringValue
-        backgroundColorHex = json["backgroundColorHex"].stringValue
     }
     
     /**
@@ -46,17 +49,20 @@ class CFPost : NSObject, NSCoding, Mappable{
     func toDictionary() -> [String:Any]
     {
         var dictionary = [String:Any]()
+        if backgroundColorHex != nil{
+            dictionary["backgroundColorHex"] = backgroundColorHex
+        }
         if id != nil{
             dictionary["id"] = id
+        }
+        if numberOfComments != nil{
+            dictionary["numberOfComments"] = numberOfComments
         }
         if text != nil{
             dictionary["text"] = text
         }
         if updatedAt != nil{
             dictionary["updatedAt"] = updatedAt
-        }
-        if backgroundColorHex != nil{
-            dictionary["backgroundColorHex"] = backgroundColorHex
         }
         return dictionary
     }
@@ -71,6 +77,7 @@ class CFPost : NSObject, NSCoding, Mappable{
          text = aDecoder.decodeObject(forKey: "text") as? String
          updatedAt = aDecoder.decodeObject(forKey: "updatedAt") as? String
         backgroundColorHex = aDecoder.decodeObject(forKey: "backgroundColorHex") as? String
+        numberOfComments = aDecoder.decodeObject(forKey: "numberOfComments") as? Int
 	}
 
     /**
@@ -90,6 +97,9 @@ class CFPost : NSObject, NSCoding, Mappable{
 		}
         if backgroundColorHex != nil{
             aCoder.encode(backgroundColorHex, forKey: "backgroundColorHex")
+        }
+        if numberOfComments != nil{
+            aCoder.encode(numberOfComments, forKey: "numberOfComments")
         }
 	}
 }

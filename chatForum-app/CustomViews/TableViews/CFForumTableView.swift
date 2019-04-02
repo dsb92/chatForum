@@ -32,6 +32,12 @@ class CFForumTableView: CFBaseTableView {
         let post = self.posts[indexPath.row]
         cell.forumTextLabel.text = post.text
         cell.forumDateLabel.text = post.timeAgo()
+        
+        if let numberOfComments = post.numberOfComments {
+            cell.forumCommentView.isHidden = numberOfComments == 0
+            cell.forumNumberOfCommentsLabel.text = "\(numberOfComments)"
+        }
+
         cell.backgroundColor = UIColor(hexString: post.backgroundColorHex ?? "")
         
         return cell
