@@ -7,11 +7,13 @@ final class Post: Content {
     var text: String
     var updatedAt: String
     var backgroundColorHex: String
+    var numberOfComments: Int?
     
-    init(text: String, updatedAt: String, backgroundColorHex: String) {
+    init(text: String, updatedAt: String, backgroundColorHex: String, numberOfComments: Int?) {
         self.text = text
         self.updatedAt = updatedAt
         self.backgroundColorHex = backgroundColorHex
+        self.numberOfComments = numberOfComments
     }
 }
 

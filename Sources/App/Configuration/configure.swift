@@ -60,7 +60,8 @@ _ services: inout Services
     
 //    migrations.add(migration: PostAddUpdatedAt.self, database: .psql)
 //    migrations.add(migration: CommentAddUpdatedAt.self, database: .psql)
-    migrations.add(migration: PostAddBackgroundColorHex.self, database: .psql)
+//    migrations.add(migration: PostAddBackgroundColorHex.self, database: .psql)
+    migrations.add(migration: PostAddNumberOfComments.self, database: .psql)
     
     services.register(migrations)
     
