@@ -50,10 +50,13 @@ class CFCreatePostVC: CFBaseVC {
         post.updatedAt = updatedAt
         post.backgroundColorHex = self.view.backgroundColor?.toHexString()
         
-        self.dataCon.postPost(post) { (post) in
-            self.dismiss(animated: true, completion: {
-                self.delegate?.createPostVcDidCreatePost(post, sender: self)
-            })
+        self.dataCon.uploadImage { (imageId) in
+            post.imageId = imageId.uuidString
+            self.dataCon.postPost(post) { (post) in
+                self.dismiss(animated: true, completion: {
+                    self.delegate?.createPostVcDidCreatePost(post, sender: self)
+                })
+            }
         }
     }
 }

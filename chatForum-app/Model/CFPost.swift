@@ -13,6 +13,7 @@ class CFPost : NSObject, NSCoding, Mappable{
 	var updatedAt : String?
     var backgroundColorHex : String?
     var numberOfComments: Int?
+    var imageId : String?
 
 	class func newInstance(map: Map) -> Mappable?{
 		return CFPost()
@@ -27,6 +28,7 @@ class CFPost : NSObject, NSCoding, Mappable{
 		updatedAt <- map["updatedAt"]
 		backgroundColorHex <- map["backgroundColorHex"]
         numberOfComments <- map["numberOfComments"]
+        imageId <- map["imageId"]
 	}
     
     /**
@@ -41,6 +43,7 @@ class CFPost : NSObject, NSCoding, Mappable{
         numberOfComments = json["numberOfComments"].intValue
         text = json["text"].stringValue
         updatedAt = json["updatedAt"].stringValue
+        imageId = json["imageId"].stringValue
     }
     
     /**
@@ -64,6 +67,9 @@ class CFPost : NSObject, NSCoding, Mappable{
         if updatedAt != nil{
             dictionary["updatedAt"] = updatedAt
         }
+        if imageId != nil{
+            dictionary["imageId"] = imageId
+        }
         return dictionary
     }
 
@@ -78,6 +84,7 @@ class CFPost : NSObject, NSCoding, Mappable{
          updatedAt = aDecoder.decodeObject(forKey: "updatedAt") as? String
         backgroundColorHex = aDecoder.decodeObject(forKey: "backgroundColorHex") as? String
         numberOfComments = aDecoder.decodeObject(forKey: "numberOfComments") as? Int
+        imageId = aDecoder.decodeObject(forKey: "imageId") as? String
 	}
 
     /**
@@ -100,6 +107,9 @@ class CFPost : NSObject, NSCoding, Mappable{
         }
         if numberOfComments != nil{
             aCoder.encode(numberOfComments, forKey: "numberOfComments")
+        }
+        if imageId != nil{
+            aCoder.encode(imageId, forKey: "imageId")
         }
 	}
 }

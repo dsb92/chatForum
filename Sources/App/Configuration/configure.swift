@@ -1,5 +1,6 @@
 import FluentPostgreSQL
 import Vapor
+import Storage
 
 /// Called before your application initializes.
 public func configure(
@@ -57,17 +58,22 @@ _ services: inout Services
 //    migrations.add(model: Post.self, database: .psql)
 //    migrations.add(model: Comment.self, database: .psql)
     migrations.add(model: Color.self, database: .psql)
+    migrations.add(model: Image.self, database: .psql)
     
 //    migrations.add(migration: PostAddUpdatedAt.self, database: .psql)
 //    migrations.add(migration: CommentAddUpdatedAt.self, database: .psql)
 //    migrations.add(migration: PostAddBackgroundColorHex.self, database: .psql)
-    migrations.add(migration: PostAddNumberOfComments.self, database: .psql)
+//    migrations.add(migration: PostAddNumberOfComments.self, database: .psql)
+    migrations.add(migration: PostAddImageId.self, database: .psql)
     
     services.register(migrations)
     
     var commands = CommandConfig.default()
     commands.useFluentCommands()
     services.register(commands)
+    
+    // There is a default limit of 1 million bytes for incoming requests. Override it her
+    services.register(NIOServerConfig.default(maxBodySize: 20_000_000))
     
     Post.defaultDatabase = .psql
     Comment.defaultDatabase = .psql

@@ -18,6 +18,7 @@ class CFDataController: NSObject {
     typealias PostPostCallback = (CFPost) -> ()
     typealias GetCommentsCallback = ([CFComment]) -> ()
     typealias PostCommentCallback = (CFComment) -> ()
+    typealias PostUploadImage = (UUID) -> ()
     
     lazy var dateFormatter: DateFormatter = {
         let df = DateFormatter()
@@ -28,7 +29,8 @@ class CFDataController: NSObject {
     var colors: [UIColor] = [UIColor]()
     
     struct Urls {
-        static let baseUrl = "https://chatforum-production.vapor.cloud/"
+//        static let baseUrl = "https://chatforum-production.vapor.cloud/"
+        static let baseUrl = "http://localhost:8080/"
         static let settings = CFDataController.Urls.baseUrl.grouped("settings")
         static let posts = CFDataController.Urls.baseUrl.grouped("posts")
         static let comments = CFDataController.Urls.baseUrl.grouped("comments")
@@ -100,5 +102,42 @@ class CFDataController: NSObject {
                     callback(parser)
                 }
         }
+    }
+    
+    // MARK: - Image upload
+    func uploadImage(callback: @escaping PostUploadImage) {
+        let url = "http://localhost:8080/upload/image"
+        
+        guard let image = UIImage(named: "IMG_0321"), let imageData: Data = image.pngData() else { return }
+        
+        let headers = [
+            "Content-Type": "application/form-data"
+        ]
+        
+        let parameters = [
+            "imageRaw": imageData
+        ]
+        
+        Alamofire.upload(multipartFormData:{ multipartFormData in
+            multipartFormData.append(imageData, withName: "imageRaw")},
+                         usingThreshold:UInt64.init(),
+                         to: url,
+                         method:.post,
+                         headers:headers,
+                         encodingCompletion: { encodingResult in
+                            switch encodingResult {
+                            case .success(let upload, _, _):
+                                upload.responseJSON { response in
+                                    debugPrint(response)
+                                    if let jsonDict = response.result.value as? NSDictionary, let imageId: String = jsonDict.object(forKey: "id") as? String {
+                                        if let uuid = UUID(uuidString: imageId) {
+                                            callback(uuid)
+                                        }
+                                    }
+                                }
+                            case .failure(let encodingError):
+                                print(encodingError)
+                            }
+        })
     }
 }
