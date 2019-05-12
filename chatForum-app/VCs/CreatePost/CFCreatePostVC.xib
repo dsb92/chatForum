@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina5_9" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -13,6 +13,7 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CFCreatePostVC" customModule="chatForum_app" customModuleProvider="target">
             <connections>
                 <outlet property="multilineTextField" destination="9Nx-Xm-2Jb" id="d1H-BE-9iO"/>
+                <outlet property="startAVSessionButton" destination="T9X-Qx-vvu" id="Ja7-H2-nQL"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
         </placeholder>
@@ -27,12 +28,25 @@
                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                     <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                 </textView>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="T9X-Qx-vvu">
+                    <rect key="frame" x="265" y="668" width="80" height="80"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="80" id="cgQ-r4-kqK"/>
+                        <constraint firstAttribute="height" constant="80" id="yKs-Ih-xGh"/>
+                    </constraints>
+                    <state key="normal" title="Tag billede"/>
+                    <connections>
+                        <action selector="didTapStartAvSessionButton:" destination="-1" eventType="touchUpInside" id="Fa3-bJ-cR0"/>
+                    </connections>
+                </button>
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
                 <constraint firstItem="fnl-2z-Ty3" firstAttribute="bottom" secondItem="9Nx-Xm-2Jb" secondAttribute="bottom" constant="15" id="Bhl-F5-wsC"/>
                 <constraint firstItem="9Nx-Xm-2Jb" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" constant="15" id="IXf-38-beT"/>
                 <constraint firstItem="9Nx-Xm-2Jb" firstAttribute="top" secondItem="fnl-2z-Ty3" secondAttribute="top" constant="15" id="KNx-fm-GSZ"/>
+                <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="T9X-Qx-vvu" secondAttribute="trailing" constant="30" id="TAs-Fa-jNx"/>
+                <constraint firstItem="fnl-2z-Ty3" firstAttribute="bottom" secondItem="T9X-Qx-vvu" secondAttribute="bottom" constant="30" id="qXw-fH-CES"/>
                 <constraint firstItem="fnl-2z-Ty3" firstAttribute="trailing" secondItem="9Nx-Xm-2Jb" secondAttribute="trailing" constant="15" id="rQT-cC-Xbb"/>
             </constraints>
             <viewLayoutGuide key="safeArea" id="fnl-2z-Ty3"/>

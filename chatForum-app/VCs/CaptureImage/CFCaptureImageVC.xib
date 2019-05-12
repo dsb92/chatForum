@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CFCaptureImageVC" customModule="chatForum_app" customModuleProvider="target">
+            <connections>
+                <outlet property="captureButton" destination="Oog-Pl-PW6" id="CTA-kc-pIO"/>
+                <outlet property="capturePreviewView" destination="3v7-my-WXS" id="Kbh-7e-a9U"/>
+                <outlet property="photoModeButton" destination="dFp-ta-euc" id="NU9-WE-N7T"/>
+                <outlet property="toggleCameraButton" destination="pCu-5X-fLy" id="lFC-YN-OSx"/>
+                <outlet property="toggleFlashButton" destination="u3B-KT-VlF" id="f4i-Hv-TqF"/>
+                <outlet property="videoModeButton" destination="0LX-2b-mB3" id="t6l-vE-FGB"/>
+                <outlet property="view" destination="eIV-2U-l7E" id="QFj-iQ-lfA"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="eIV-2U-l7E">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3v7-my-WXS">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                    <subviews>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="u3B-KT-VlF">
+                            <rect key="frame" x="354" y="16" width="44" height="44"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="44" id="1fP-nK-cXP"/>
+                                <constraint firstAttribute="width" constant="44" id="mJs-zv-BzE"/>
+                            </constraints>
+                            <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <state key="normal" image="Flash Off Icon"/>
+                            <connections>
+                                <action selector="toggleFlash:" destination="-1" eventType="touchUpInside" id="3wf-Me-DhG"/>
+                            </connections>
+                        </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pCu-5X-fLy">
+                            <rect key="frame" x="354" y="60" width="44" height="44"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="44" id="1lt-mY-s9H"/>
+                                <constraint firstAttribute="height" constant="44" id="sxE-Ci-YjV"/>
+                            </constraints>
+                            <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <state key="normal" image="Rear Camera Icon"/>
+                            <connections>
+                                <action selector="switchCameras:" destination="-1" eventType="touchUpInside" id="A7J-Lv-ka3"/>
+                            </connections>
+                        </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dFp-ta-euc">
+                            <rect key="frame" x="16" y="792" width="44" height="44"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="44" id="fUe-0f-7cn"/>
+                                <constraint firstAttribute="width" constant="44" id="jaX-77-60W"/>
+                            </constraints>
+                            <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <state key="normal" image="Photo Camera Icon"/>
+                        </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0LX-2b-mB3">
+                            <rect key="frame" x="16" y="836" width="44" height="44"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="44" id="Uwv-vZ-UuL"/>
+                                <constraint firstAttribute="height" constant="44" id="Z1z-xG-pw3"/>
+                            </constraints>
+                            <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <state key="normal" image="Video Camera Icon"/>
+                        </button>
+                    </subviews>
+                    <color key="backgroundColor" white="0.33333333329999998" alpha="1" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstItem="0LX-2b-mB3" firstAttribute="top" secondItem="dFp-ta-euc" secondAttribute="bottom" id="0tJ-Rr-oB4"/>
+                        <constraint firstAttribute="trailing" secondItem="pCu-5X-fLy" secondAttribute="trailing" constant="16" id="Hsf-zi-kho"/>
+                        <constraint firstAttribute="trailing" secondItem="u3B-KT-VlF" secondAttribute="trailing" constant="16" id="Nlz-mN-WTu"/>
+                        <constraint firstItem="u3B-KT-VlF" firstAttribute="top" secondItem="3v7-my-WXS" secondAttribute="top" constant="16" id="U1D-ZK-lJ5"/>
+                        <constraint firstItem="0LX-2b-mB3" firstAttribute="top" secondItem="dFp-ta-euc" secondAttribute="bottom" id="dXm-d7-FHu"/>
+                        <constraint firstItem="0LX-2b-mB3" firstAttribute="leading" secondItem="3v7-my-WXS" secondAttribute="leading" constant="16" id="ks5-yD-P0x"/>
+                        <constraint firstItem="pCu-5X-fLy" firstAttribute="top" secondItem="u3B-KT-VlF" secondAttribute="bottom" id="m7L-GP-uN7"/>
+                        <constraint firstAttribute="bottom" secondItem="0LX-2b-mB3" secondAttribute="bottom" constant="16" id="naw-3K-v31"/>
+                        <constraint firstItem="dFp-ta-euc" firstAttribute="leading" secondItem="3v7-my-WXS" secondAttribute="leading" constant="16" id="zLg-ca-beL"/>
+                    </constraints>
+                </view>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Oog-Pl-PW6">
+                    <rect key="frame" x="179.5" y="791" width="55" height="55"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="55" id="BLb-85-tjb"/>
+                        <constraint firstAttribute="width" constant="55" id="ULU-9d-Z7G"/>
+                    </constraints>
+                    <connections>
+                        <action selector="captureImage:" destination="-1" eventType="touchUpInside" id="eEq-Jm-aZ9"/>
+                    </connections>
+                </button>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="2SP-vP-0nv" firstAttribute="bottom" secondItem="Oog-Pl-PW6" secondAttribute="bottom" constant="16" id="0dQ-0A-sb3"/>
+                <constraint firstAttribute="bottom" secondItem="3v7-my-WXS" secondAttribute="bottom" id="Ccn-6u-PAF"/>
+                <constraint firstItem="2SP-vP-0nv" firstAttribute="trailing" secondItem="3v7-my-WXS" secondAttribute="trailing" id="YSq-CR-doT"/>
+                <constraint firstItem="3v7-my-WXS" firstAttribute="leading" secondItem="2SP-vP-0nv" secondAttribute="leading" id="fbD-8t-U1C"/>
+                <constraint firstItem="3v7-my-WXS" firstAttribute="top" secondItem="eIV-2U-l7E" secondAttribute="top" id="hTl-qH-dRu"/>
+                <constraint firstItem="Oog-Pl-PW6" firstAttribute="centerX" secondItem="2SP-vP-0nv" secondAttribute="centerX" id="pp1-1e-tBL"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="2SP-vP-0nv"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="Flash Off Icon" width="16" height="16"/>
+        <image name="Photo Camera Icon" width="16" height="16"/>
+        <image name="Rear Camera Icon" width="16" height="16"/>
+        <image name="Video Camera Icon" width="16" height="16"/>
+    </resources>
+</document>

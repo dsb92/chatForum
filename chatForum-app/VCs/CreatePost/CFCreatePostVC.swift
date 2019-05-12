@@ -15,8 +15,11 @@ protocol CFCreatePostVCDelegate: class {
 
 class CFCreatePostVC: CFBaseVC {
     @IBOutlet weak var multilineTextField: MultilineTextField!
+    @IBOutlet weak var startAVSessionButton: UIButton!
     
     weak var delegate: CFCreatePostVCDelegate?
+    
+    var capturedImage: UIImage?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -50,14 +53,28 @@ class CFCreatePostVC: CFBaseVC {
         post.updatedAt = updatedAt
         post.backgroundColorHex = self.view.backgroundColor?.toHexString()
         
-        self.dataCon.uploadImage { (imageId) in
-            post.imageId = imageId.uuidString
-            self.dataCon.postPost(post) { (post) in
+        if let capturedImage = self.capturedImage {
+            self.dataCon.uploadImage(capturedImage) { imageId in
+                post.imageId = imageId.uuidString
+                self.dataCon.postPost(post) { post in
+                    self.dismiss(animated: true, completion: {
+                        self.delegate?.createPostVcDidCreatePost(post, sender: self)
+                    })
+                }
+            }
+        } else {
+            self.dataCon.postPost(post) { post in
                 self.dismiss(animated: true, completion: {
                     self.delegate?.createPostVcDidCreatePost(post, sender: self)
                 })
             }
         }
+    }
+    
+    @IBAction func didTapStartAvSessionButton(_ sender: Any) {
+        let createPostVc = CFCaptureImageVC()
+        createPostVc.delegate = self
+        navigationController?.present(createPostVc, animated: true, completion: nil)
     }
 }
 
@@ -67,5 +84,12 @@ extension CFCreatePostVC: UITextViewDelegate {
         let newLines = text.components(separatedBy: CharacterSet.newlines)
         let linesAfterChange = existingLines.count + newLines.count - 1
         return linesAfterChange <= 10
+    }
+}
+
+extension CFCreatePostVC: CFCaptureImageVCDelegate {
+    func captureImageVcDidCaptureImage(_ image: UIImage) {
+        self.capturedImage = image
+        dismiss(animated: true, completion: nil)
     }
 }

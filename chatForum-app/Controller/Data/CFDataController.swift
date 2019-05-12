@@ -46,9 +46,9 @@ class CFDataController: NSObject {
             })
         }
         
-        uploadImage { (id) in
-            
-        }
+//        uploadImage { (id) in
+//
+//        }
         
 //        getImage()
     }
@@ -112,10 +112,11 @@ class CFDataController: NSObject {
     }
     
     // MARK: - Image upload
-    func uploadImage(callback: @escaping PostUploadImage) {
+    func uploadImage(_ image: UIImage, callback: @escaping PostUploadImage) {
         let url = "http://localhost:8080/upload/image"
         
-        guard let image = UIImage(named: "IMG_0321"), let imageData: Data = image.pngData() else { return }
+//        guard let image = UIImage(named: "IMG_0321"), let imageData: Data = image.pngData() else { return }
+        guard let imageData: Data = image.pngData() else { return }
         let imageName = "testImage.jpg"
         
         Alamofire.upload(multipartFormData: { multipartFormData in
