@@ -9,6 +9,7 @@
 import UIKit
 import Alamofire
 import AlamofireObjectMapper
+import AlamofireImage
 
 class CFDataController: NSObject {
     static let shared = CFDataController()
@@ -44,6 +45,12 @@ class CFDataController: NSObject {
                 self.colors.append(UIColor(hexString: cfColor.hexString ?? ""))
             })
         }
+        
+        uploadImage { (id) in
+            
+        }
+        
+//        getImage()
     }
     
     // MARK: - Settings
@@ -109,35 +116,45 @@ class CFDataController: NSObject {
         let url = "http://localhost:8080/upload/image"
         
         guard let image = UIImage(named: "IMG_0321"), let imageData: Data = image.pngData() else { return }
+        let imageName = "testImage.jpg"
         
-        let headers = [
-            "Content-Type": "application/form-data"
-        ]
-        
-        let parameters = [
-            "imageRaw": imageData
-        ]
-        
-        Alamofire.upload(multipartFormData:{ multipartFormData in
-            multipartFormData.append(imageData, withName: "imageRaw")},
-                         usingThreshold:UInt64.init(),
-                         to: url,
-                         method:.post,
-                         headers:headers,
-                         encodingCompletion: { encodingResult in
-                            switch encodingResult {
-                            case .success(let upload, _, _):
-                                upload.responseJSON { response in
-                                    debugPrint(response)
-                                    if let jsonDict = response.result.value as? NSDictionary, let imageId: String = jsonDict.object(forKey: "id") as? String {
-                                        if let uuid = UUID(uuidString: imageId) {
-                                            callback(uuid)
-                                        }
-                                    }
-                                }
-                            case .failure(let encodingError):
-                                print(encodingError)
+        Alamofire.upload(multipartFormData: { multipartFormData in
+            multipartFormData.append(imageData, withName: "file",fileName: imageName, mimeType: "image/jpeg") }, to:url) { (result) in
+                switch result {
+                    
+                case .success(let upload, _, _):
+                    
+                    upload.uploadProgress(closure: { (progress) in
+                        print("Upload Progress: \(progress.fractionCompleted)")
+                    })
+                    
+                    upload.responseJSON { response in
+                        print("response.result :\(String(describing: response.result.value))")
+                        
+                        if let responseDic = response.result.value as? [String: Any] {
+                            if let imageId = responseDic["id"] as? String, let imageGuid = UUID(uuidString: imageId) {
+                                callback(imageGuid)
                             }
-        })
+                        }
+                    }
+                    
+                case .failure(let encodingError):
+                    print(encodingError)
+                }
+        }
+    }
+    
+    func getImage() {
+        let url = "http://localhost:8080/upload/image/89C2C13D-D8B6-4B69-AD10-3E3B7955E6C2"
+        
+        Alamofire.request(url, method: .get)
+        .validate()
+            .responseData { data in
+                if let d = data.data {
+                    if let image = UIImage(data: d) {
+                        print(image)
+                    }
+                }
+        }
     }
 }

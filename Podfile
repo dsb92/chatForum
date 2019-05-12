@@ -10,6 +10,8 @@ target 'chatForum-app' do
   # Pods for chatForum-app
 pod 'Alamofire'
 pod 'AlamofireObjectMapper'
+pod 'AlamofireImage'
+pod 'Kingfisher'
 pod 'SnapKit'
 pod 'MultilineTextField'
 pod 'GrowingTextView'

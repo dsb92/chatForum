@@ -1,10 +1,13 @@
 PODS:
   - Alamofire (4.8.1)
+  - AlamofireImage (3.5.0):
+    - Alamofire (~> 4.8)
   - AlamofireObjectMapper (5.2.0):
     - Alamofire (~> 4.7)
     - ObjectMapper (~> 3.4)
   - GrowingTextView (0.6.1)
   - IQKeyboardManager (6.2.0)
+  - Kingfisher (5.2.0)
   - MultilineTextField (0.2.3)
   - ObjectMapper (3.4.2)
   - SnapKit (4.2.0)
@@ -12,9 +15,11 @@ PODS:
 
 DEPENDENCIES:
   - Alamofire
+  - AlamofireImage
   - AlamofireObjectMapper
   - GrowingTextView
   - IQKeyboardManager
+  - Kingfisher
   - MultilineTextField
   - SnapKit
   - SwiftyJSON
@@ -22,9 +27,11 @@ DEPENDENCIES:
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - Alamofire
+    - AlamofireImage
     - AlamofireObjectMapper
     - GrowingTextView
     - IQKeyboardManager
+    - Kingfisher
     - MultilineTextField
     - ObjectMapper
     - SnapKit
@@ -32,14 +39,16 @@ SPEC REPOS:
 
 SPEC CHECKSUMS:
   Alamofire: 16ce2c353fb72865124ddae8a57c5942388f4f11
+  AlamofireImage: 1aea346f4dda2f6c67622fa5a89fcbb80d79cc16
   AlamofireObjectMapper: 92b6ce2423a9d159e686f6a1d514a009bf903ddc
   GrowingTextView: 335aefa45df7df06b01edede1363414d6ee5d6bc
   IQKeyboardManager: 6194101620b73af5e67900b8f89707a99de0b804
+  Kingfisher: 07067cfacf371117330dceb4b4b8f5c4b691ab42
   MultilineTextField: 10965d9c3e05a182181bd7971eb009c7607001ae
   ObjectMapper: 0d4402610f4e468903ae64629eec4784531e5c51
   SnapKit: fe8a619752f3f27075cc9a90244d75c6c3f27e2a
   SwiftyJSON: c4bcba26dd9ec7a027fc8eade48e2c911f229e96
 
-PODFILE CHECKSUM: 9480483fc8183bf956816075dc9b3287222cbf73
+PODFILE CHECKSUM: fafe15631e7c05c193c8856d1a944c791fd9afdc
 
 COCOAPODS: 1.6.1
