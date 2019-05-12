@@ -23,11 +23,6 @@ final class ImageController: RouteCollection {
     
     // POST IMAGE
     func postImage(_ request: Request)throws -> Future<ImageResponse> {
-//        return image.create(on: request).map(to: ImageResponse.self) { i in
-//            print(i.imageRaw)
-//            return ImageResponse(id: i.id!)
-//        }
-        
         let directory = DirectoryConfig.detect()
         let workPath = directory.workDir
         
@@ -62,8 +57,5 @@ final class ImageController: RouteCollection {
         } catch {
             return Future.map(on: request) { request.response("image not available") }
         }
-//        return try request.content.decode(Image.self).map { payload in
-//
-//        }
     }
 }

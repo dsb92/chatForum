@@ -11,7 +11,6 @@ target 'chatForum-app' do
 pod 'Alamofire'
 pod 'AlamofireObjectMapper'
 pod 'AlamofireImage'
-pod 'Kingfisher'
 pod 'SnapKit'
 pod 'MultilineTextField'
 pod 'GrowingTextView'

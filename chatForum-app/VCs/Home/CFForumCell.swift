@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import Kingfisher
+import AlamofireImage
 
 class CFForumCell: UITableViewCell, Reusable {
     @IBOutlet weak var forumTextLabel: UILabel!
@@ -33,7 +33,7 @@ class CFForumCell: UITableViewCell, Reusable {
     override func prepareForReuse() {
         super.prepareForReuse()
         
-        forumImageView.kf.cancelDownloadTask()
+        forumImageView.af_cancelImageRequest()
         forumImageView.image = nil
     }
     

@@ -57,8 +57,7 @@ _ services: inout Services
     var migrations = MigrationConfig()
 //    migrations.add(model: Post.self, database: .psql)
 //    migrations.add(model: Comment.self, database: .psql)
-    migrations.add(model: Color.self, database: .psql)
-    migrations.add(model: Image.self, database: .psql)
+//    migrations.add(model: Color.self, database: .psql)
     
 //    migrations.add(migration: PostAddUpdatedAt.self, database: .psql)
 //    migrations.add(migration: CommentAddUpdatedAt.self, database: .psql)

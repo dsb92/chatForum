@@ -7,7 +7,6 @@ PODS:
     - ObjectMapper (~> 3.4)
   - GrowingTextView (0.6.1)
   - IQKeyboardManager (6.2.0)
-  - Kingfisher (5.2.0)
   - MultilineTextField (0.2.3)
   - ObjectMapper (3.4.2)
   - SnapKit (4.2.0)
@@ -19,7 +18,6 @@ DEPENDENCIES:
   - AlamofireObjectMapper
   - GrowingTextView
   - IQKeyboardManager
-  - Kingfisher
   - MultilineTextField
   - SnapKit
   - SwiftyJSON
@@ -31,7 +29,6 @@ SPEC REPOS:
     - AlamofireObjectMapper
     - GrowingTextView
     - IQKeyboardManager
-    - Kingfisher
     - MultilineTextField
     - ObjectMapper
     - SnapKit
@@ -43,12 +40,11 @@ SPEC CHECKSUMS:
   AlamofireObjectMapper: 92b6ce2423a9d159e686f6a1d514a009bf903ddc
   GrowingTextView: 335aefa45df7df06b01edede1363414d6ee5d6bc
   IQKeyboardManager: 6194101620b73af5e67900b8f89707a99de0b804
-  Kingfisher: 07067cfacf371117330dceb4b4b8f5c4b691ab42
   MultilineTextField: 10965d9c3e05a182181bd7971eb009c7607001ae
   ObjectMapper: 0d4402610f4e468903ae64629eec4784531e5c51
   SnapKit: fe8a619752f3f27075cc9a90244d75c6c3f27e2a
   SwiftyJSON: c4bcba26dd9ec7a027fc8eade48e2c911f229e96
 
-PODFILE CHECKSUM: fafe15631e7c05c193c8856d1a944c791fd9afdc
+PODFILE CHECKSUM: d33e79d75e3c540f2db792c25094d64e91dd8c8f
 
 COCOAPODS: 1.6.1
