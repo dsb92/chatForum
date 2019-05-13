@@ -30,8 +30,9 @@ class CFDataController: NSObject {
     var colors: [UIColor] = [UIColor]()
     
     struct Urls {
-//        static let baseUrl = "https://chatforum-production.vapor.cloud/"
-        static let baseUrl = "http://localhost:8080/"
+        static let baseUrl = "https://chatforum-production.vapor.cloud/"
+//        static let baseUrl = "http://localhost:8080/"
+        static let imageUpload = CFDataController.Urls.baseUrl.grouped("upload/image")
         static let settings = CFDataController.Urls.baseUrl.grouped("settings")
         static let posts = CFDataController.Urls.baseUrl.grouped("posts")
         static let comments = CFDataController.Urls.baseUrl.grouped("comments")
@@ -46,9 +47,9 @@ class CFDataController: NSObject {
             })
         }
         
-//        uploadImage { (id) in
-//
-//        }
+        uploadImage(UIImage(named: "IMG_0321")!) { id in
+            
+        }
         
 //        getImage()
     }
@@ -113,14 +114,12 @@ class CFDataController: NSObject {
     
     // MARK: - Image upload
     func uploadImage(_ image: UIImage, callback: @escaping PostUploadImage) {
-        let url = "http://localhost:8080/upload/image"
-        
 //        guard let image = UIImage(named: "IMG_0321"), let imageData: Data = image.pngData() else { return }
         guard let imageData: Data = image.pngData() else { return }
         let imageName = "testImage.jpg"
         
         Alamofire.upload(multipartFormData: { multipartFormData in
-            multipartFormData.append(imageData, withName: "file",fileName: imageName, mimeType: "image/jpeg") }, to:url) { (result) in
+            multipartFormData.append(imageData, withName: "file",fileName: imageName, mimeType: "image/jpeg") }, to:Urls.imageUpload) { (result) in
                 switch result {
                     
                 case .success(let upload, _, _):
