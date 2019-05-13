@@ -39,7 +39,10 @@ class CFForumTableView: CFBaseTableView {
         }
 
         cell.backgroundColor = UIColor(hexString: post.backgroundColorHex ?? "")
-        cell.forumImageView.af_setImage(withURL: URL(string: "http://localhost:8080/upload/image/89C2C13D-D8B6-4B69-AD10-3E3B7955E6C2")!)
+        
+        if let imageUrl = CFDataController.shared.getImageUrl(from: "2103E6EC-CE61-4D3A-BAB2-113EAB1CBED4") {
+            cell.forumImageView.af_setImage(withURL: imageUrl)
+        }
         
         return cell
     }

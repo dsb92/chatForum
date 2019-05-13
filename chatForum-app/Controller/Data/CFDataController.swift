@@ -144,17 +144,7 @@ class CFDataController: NSObject {
         }
     }
     
-    func getImage() {
-        let url = "http://localhost:8080/upload/image/89C2C13D-D8B6-4B69-AD10-3E3B7955E6C2"
-        
-        Alamofire.request(url, method: .get)
-        .validate()
-            .responseData { data in
-                if let d = data.data {
-                    if let image = UIImage(data: d) {
-                        print(image)
-                    }
-                }
-        }
+    func getImageUrl(from imageId: String) -> URL? {
+        return URL(string: Urls.imageUpload + "/" + imageId)
     }
 }
