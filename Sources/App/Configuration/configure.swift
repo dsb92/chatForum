@@ -1,6 +1,5 @@
 import FluentPostgreSQL
 import Vapor
-import Storage
 
 /// Called before your application initializes.
 public func configure(
