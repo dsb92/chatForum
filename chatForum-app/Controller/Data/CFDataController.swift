@@ -30,9 +30,12 @@ class CFDataController: NSObject {
     var colors: [UIColor] = [UIColor]()
     
     struct Urls {
-        static let baseUrl = "https://chatforum-production.vapor.cloud/"
-//        static let baseUrl = "http://localhost:8080/"
+//        static let baseUrl = "https://chatforum-production.vapor.cloud/"
+        static let baseUrl = "http://localhost:8080/"
         static let imageUpload = CFDataController.Urls.baseUrl.grouped("upload/image")
+        static let imageUrl = CFDataController.Urls.baseUrl.grouped("images")
+        static let videoUpload = CFDataController.Urls.baseUrl.grouped("upload/video")
+        static let videoUrl = CFDataController.Urls.baseUrl.grouped("videos")
         static let settings = CFDataController.Urls.baseUrl.grouped("settings")
         static let posts = CFDataController.Urls.baseUrl.grouped("posts")
         static let comments = CFDataController.Urls.baseUrl.grouped("comments")
@@ -48,10 +51,13 @@ class CFDataController: NSObject {
         }
         
         uploadImage(UIImage(named: "IMG_0321")!) { id in
-            
+
         }
         
 //        getImage()
+        
+//        uploadVideo()
+//        getVideo()
     }
     
     // MARK: - Settings
@@ -116,10 +122,10 @@ class CFDataController: NSObject {
     func uploadImage(_ image: UIImage, callback: @escaping PostUploadImage) {
 //        guard let image = UIImage(named: "IMG_0321"), let imageData: Data = image.pngData() else { return }
         guard let imageData: Data = image.pngData() else { return }
-        let imageName = "testImage.jpg"
+        let imageName = "testImage.png"
         
         Alamofire.upload(multipartFormData: { multipartFormData in
-            multipartFormData.append(imageData, withName: "file",fileName: imageName, mimeType: "image/jpeg") }, to:Urls.imageUpload) { (result) in
+            multipartFormData.append(imageData, withName: "file",fileName: imageName, mimeType: "image/png") }, to:Urls.imageUpload) { (result) in
                 switch result {
                     
                 case .success(let upload, _, _):
@@ -145,6 +151,60 @@ class CFDataController: NSObject {
     }
     
     func getImageUrl(from imageId: String) -> URL? {
-        return URL(string: Urls.imageUpload + "/" + imageId)
+        return URL(string: Urls.imageUrl + "/" + imageId + ".png")
+    }
+    
+    // MARK: - Video upload
+    func uploadVideo() {
+        let url = "http://localhost:8080/upload/video"
+        
+        guard let videoUrl = Bundle.main.path(forResource: "video", ofType: "mp4") else { debugPrint("video not found"); return }
+        
+        do {
+            let data = try Data(contentsOf: URL(fileURLWithPath: videoUrl), options: .mappedIfSafe)
+            
+            Alamofire.upload( multipartFormData: { multipartFormData in
+                multipartFormData.append(data, withName: "file", fileName: "video.mp4", mimeType: "video/mp4")
+                
+            }, to: url, encodingCompletion: { encodingResult in
+                switch encodingResult {
+                case .success(let upload, _, _):
+                    
+                    upload.uploadProgress(closure: { (progress) in
+                        print("Upload Progress: \(progress.fractionCompleted)")
+                    })
+                    
+                    upload.responseJSON { response in
+                        print("response.result :\(String(describing: response.result.value))")
+                        
+                        if let responseDic = response.result.value as? [String: Any] {
+                            if let videoId = responseDic["id"] as? String, let videoGUID = UUID(uuidString: videoId) {
+                                print(videoId)
+                            }
+                        } else {
+                            print(response)
+                        }
+                    }
+                case .failure(let encodingError):
+                    print(encodingError)
+                }
+            })
+        } catch  {
+            debugPrint(error.localizedDescription)
+        }
+    }
+    
+    func getVideo() {
+        guard let url = getVideoUrl(from: "D4C0CE6A-D64D-4F74-9545-021FA8676F4F") else { debugPrint("Not an url"); return }
+        
+        Alamofire.request(url, method: .get)
+            .validate()
+            .responseData { data in
+                print(data)
+        }
+    }
+    
+    func getVideoUrl(from videoId: String) -> URL? {
+        return URL(string: Urls.videoUrl + "/" + videoId + ".mp4")
     }
 }

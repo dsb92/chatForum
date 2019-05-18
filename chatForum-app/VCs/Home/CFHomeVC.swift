@@ -8,6 +8,8 @@
 
 import UIKit
 import SnapKit
+import AVKit
+import AVFoundation
 
 class CFHomeVC: CFBaseVC {
     @IBOutlet weak var forumTableView: CFForumTableView!
@@ -41,6 +43,23 @@ class CFHomeVC: CFBaseVC {
             
             make.width.height.equalTo(60)
         }
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+//        let url = dataCon.getVideoUrl(from: "D4C0CE6A-D64D-4F74-9545-021FA8676F4F")!
+//        
+//        playVideo(url: url)
+    }
+    
+    func playVideo(url: URL) {
+        let player = AVPlayer(url: url)
+        
+        let vc = AVPlayerViewController()
+        vc.player = player
+        
+        self.present(vc, animated: true) { vc.player?.play() }
     }
     
     // MARK: - Actions

@@ -14,8 +14,11 @@ _ services: inout Services
     try routes(router)
     services.register(router, as: Router.self)
     
-    let middlewares = MiddlewareConfig.default()
+    var middlewares = MiddlewareConfig.default()
+    middlewares.use(StreamableFileMiddleware.self) // Serve files from Public directory
+    
     services.register(middlewares)
+    services.register(StreamableFileMiddleware.self)
     
     // Configure a database
     var databases = DatabasesConfig()
