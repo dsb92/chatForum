@@ -30,8 +30,8 @@ class CFDataController: NSObject {
     var colors: [UIColor] = [UIColor]()
     
     struct Urls {
-//        static let baseUrl = "https://chatforum-production.vapor.cloud/"
-        static let baseUrl = "http://localhost:8080/"
+        static let baseUrl = "https://chatforum-production.vapor.cloud/"
+//        static let baseUrl = "http://localhost:8080/"
         static let imageUpload = CFDataController.Urls.baseUrl.grouped("upload/image")
         static let imageUrl = CFDataController.Urls.baseUrl.grouped("images")
         static let videoUpload = CFDataController.Urls.baseUrl.grouped("upload/video")

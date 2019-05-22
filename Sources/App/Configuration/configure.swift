@@ -16,9 +16,11 @@ _ services: inout Services
     
     var middlewares = MiddlewareConfig.default()
     middlewares.use(StreamableFileMiddleware.self) // Serve files from Public directory
+    middlewares.use(SecretMiddleware.self)
     
     services.register(middlewares)
     services.register(StreamableFileMiddleware.self)
+    services.register(SecretMiddleware.self)
     
     // Configure a database
     var databases = DatabasesConfig()
