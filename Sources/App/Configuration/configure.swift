@@ -1,5 +1,6 @@
 import FluentPostgreSQL
 import Vapor
+import Authentication
 
 /// Called before your application initializes.
 public func configure(
@@ -21,6 +22,7 @@ _ services: inout Services
     services.register(middlewares)
     services.register(StreamableFileMiddleware.self)
     services.register(SecretMiddleware.self)
+    try services.register(AuthenticationProvider())
     
     // Configure a database
     var databases = DatabasesConfig()
@@ -61,13 +63,16 @@ _ services: inout Services
     var migrations = MigrationConfig()
 //    migrations.add(model: Post.self, database: .psql)
 //    migrations.add(model: Comment.self, database: .psql)
-    migrations.add(model: Color.self, database: .psql)
+//    migrations.add(model: Color.self, database: .psql)
+    migrations.add(model: Token.self, database: .psql)
+    migrations.add(model: User.self, database: .psql)
     
 //    migrations.add(migration: PostAddUpdatedAt.self, database: .psql)
 //    migrations.add(migration: CommentAddUpdatedAt.self, database: .psql)
 //    migrations.add(migration: PostAddBackgroundColorHex.self, database: .psql)
 //    migrations.add(migration: PostAddNumberOfComments.self, database: .psql)
     migrations.add(migration: PostAddImageId.self, database: .psql)
+    migrations.add(migration: PostAddVideoId.self, database: .psql)
     
     services.register(migrations)
     
@@ -80,4 +85,7 @@ _ services: inout Services
     
     Post.defaultDatabase = .psql
     Comment.defaultDatabase = .psql
+    Color.defaultDatabase = .psql
+    Token.defaultDatabase = .psql
+    User.defaultDatabase = .psql
 }

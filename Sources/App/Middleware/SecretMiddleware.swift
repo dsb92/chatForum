@@ -12,16 +12,21 @@ final class SecretMiddleware: Middleware {
     
     func respond(to request: Request, chainingTo next: Responder) throws -> Future<Response> {
         
-        guard let basicAuthorization = request.http.headers.basicAuthorization else {
-            throw Abort(.unauthorized, reason: "Missing authorization")
-        }
-        
-        guard basicAuthorization.username == username else {
-            throw Abort(.unauthorized, reason: "Wrong username")
-        }
-        
-        guard basicAuthorization.password == password else {
-            throw Abort(.unauthorized, reason: "Wrong password")
+        // Basic auth OR bearer is OK.
+        guard let _ = request.http.headers.bearerAuthorization else {
+            guard let basicAuthorization = request.http.headers.basicAuthorization else {
+                throw Abort(.unauthorized, reason: "Missing authorization")
+            }
+            
+            guard basicAuthorization.username == username else {
+                throw Abort(.unauthorized, reason: "Wrong username")
+            }
+            
+            guard basicAuthorization.password == password else {
+                throw Abort(.unauthorized, reason: "Wrong password")
+            }
+            
+            return try next.respond(to: request)
         }
         
         return try next.respond(to: request)

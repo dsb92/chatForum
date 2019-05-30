@@ -25,3 +25,10 @@ extension Comment: Model {
         return \.id
     }
 }
+
+extension Comment {
+    // this comment's related Post
+    var post: Parent<Comment, Post> {
+        return parent(\.postID)
+    }
+}

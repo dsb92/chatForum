@@ -9,13 +9,15 @@ final class Post: Content {
     var backgroundColorHex: String
     var numberOfComments: Int?
     var imageId: UUID?
+    var videoId: UUID?
     
-    init(text: String, updatedAt: String, backgroundColorHex: String, numberOfComments: Int?, imageId: UUID?) {
+    init(text: String, updatedAt: String, backgroundColorHex: String, numberOfComments: Int?, imageId: UUID?, videosId: UUID?) {
         self.text = text
         self.updatedAt = updatedAt
         self.backgroundColorHex = backgroundColorHex
         self.numberOfComments = numberOfComments
         self.imageId = imageId
+        self.videoId = videosId
     }
 }
 
@@ -34,12 +36,5 @@ extension Post {
     // this post's related comments
     var comments: Children<Post, Comment> {
         return children(\.postID)
-    }
-}
-
-extension Comment {
-    // this comment's related Post
-    var post: Parent<Comment, Post> {
-        return parent(\.postID)
     }
 }
