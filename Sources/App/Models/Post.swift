@@ -8,16 +8,16 @@ final class Post: Content {
     var updatedAt: String
     var backgroundColorHex: String
     var numberOfComments: Int?
-    var imageId: UUID?
-    var videoId: UUID?
+    var imageIds: [UUID]?
+    var videoIds: [UUID]?
     
-    init(text: String, updatedAt: String, backgroundColorHex: String, numberOfComments: Int?, imageId: UUID?, videosId: UUID?) {
+    init(text: String, updatedAt: String, backgroundColorHex: String, numberOfComments: Int?, imageIds: [UUID]?, videosId: [UUID]?) {
         self.text = text
         self.updatedAt = updatedAt
         self.backgroundColorHex = backgroundColorHex
         self.numberOfComments = numberOfComments
-        self.imageId = imageId
-        self.videoId = videosId
+        self.imageIds = imageIds
+        self.videoIds = videosId
     }
 }
 
