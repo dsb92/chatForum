@@ -13,6 +13,11 @@ import AlamofireImage
 import AlamofireActivityLogger
 import SwiftyJSON
 
+enum CFMimeType: String {
+    case imagePng = "image/png"
+    case videoMp4 = "video/mp4"
+}
+
 class CFDataController: NSObject {
     static let shared = CFDataController()
     
@@ -69,8 +74,13 @@ class CFDataController: NSObject {
     }
     
     func postPost(_ post: CFPost, callback: @escaping PostPostCallback) {
-        makeRequest(urlString: Urls.posts, httpMethod: .post, parameters: JSON(post).dictionary) { (responsePost: CFPost) in
-            callback(responsePost)
+        do {
+            let data = try JSON(data: JSONEncoder().encode(post))
+            makeRequest(urlString: Urls.posts, httpMethod: .post, parameters: data.dictionaryObject) { (responsePost: CFPost) in
+                callback(responsePost)
+            }
+        } catch {
+            print(error.localizedDescription)
         }
     }
     
@@ -97,32 +107,7 @@ class CFDataController: NSObject {
     func uploadImage(_ image: UIImage, callback: @escaping PostUploadImage) {
 //        guard let image = UIImage(named: "IMG_0321"), let imageData: Data = image.pngData() else { return }
         guard let imageData: Data = image.pngData() else { return }
-        let imageName = "testImage.png"
-        
-        Alamofire.upload(multipartFormData: { multipartFormData in
-            multipartFormData.append(imageData, withName: "file",fileName: imageName, mimeType: "image/png") }, to:Urls.imageUpload) { (result) in
-                switch result {
-                    
-                case .success(let upload, _, _):
-                    
-                    upload.uploadProgress(closure: { (progress) in
-                        print("Upload Progress: \(progress.fractionCompleted)")
-                    })
-                    
-                    upload.responseJSON { response in
-                        print("response.result :\(String(describing: response.result.value))")
-                        
-                        if let responseDic = response.result.value as? [String: Any] {
-                            if let imageId = responseDic["id"] as? String, let imageGuid = UUID(uuidString: imageId) {
-                                callback(imageGuid)
-                            }
-                        }
-                    }
-                    
-                case .failure(let encodingError):
-                    print(encodingError)
-                }
-        }
+        uploadRequest(urlString: Urls.imageUpload, data: imageData, name: "file", fileName: "testImage.png", mimeType: .imagePng)
     }
     
     func getImageUrl(from imageId: String) -> URL? {
@@ -131,39 +116,11 @@ class CFDataController: NSObject {
     
     // MARK: - Video upload
     func uploadVideo() {
-        let url = "http://localhost:8080/upload/video"
-        
         guard let videoUrl = Bundle.main.path(forResource: "video", ofType: "mp4") else { debugPrint("video not found"); return }
-        
         do {
             let data = try Data(contentsOf: URL(fileURLWithPath: videoUrl), options: .mappedIfSafe)
             
-            Alamofire.upload( multipartFormData: { multipartFormData in
-                multipartFormData.append(data, withName: "file", fileName: "video.mp4", mimeType: "video/mp4")
-                
-            }, to: url, encodingCompletion: { encodingResult in
-                switch encodingResult {
-                case .success(let upload, _, _):
-                    
-                    upload.uploadProgress(closure: { (progress) in
-                        print("Upload Progress: \(progress.fractionCompleted)")
-                    })
-                    
-                    upload.responseJSON { response in
-                        print("response.result :\(String(describing: response.result.value))")
-                        
-                        if let responseDic = response.result.value as? [String: Any] {
-                            if let videoId = responseDic["id"] as? String, let videoGUID = UUID(uuidString: videoId) {
-                                print(videoId)
-                            }
-                        } else {
-                            print(response)
-                        }
-                    }
-                case .failure(let encodingError):
-                    print(encodingError)
-                }
-            })
+            uploadRequest(urlString: Urls.videoUpload, data: data, name: "file", fileName: "video.mp4", mimeType: .videoMp4)
         } catch  {
             debugPrint(error.localizedDescription)
         }
@@ -183,7 +140,34 @@ class CFDataController: NSObject {
         return URL(string: Urls.videoUrl + "/" + videoId + ".mp4")
     }
     
-    func makeRequest<T: Codable>(urlString: String, httpMethod: HTTPMethod, parameters: Parameters? = nil, encoding: ParameterEncoding = JSONEncoding.default, authorizationHeader: HTTPHeaders? = nil, completion: @escaping (T) -> ()) {
+    private func uploadRequest(urlString: String, data: Data, name: String, fileName: String, mimeType: CFMimeType) {
+        Alamofire.upload( multipartFormData: { multipartFormData in
+            multipartFormData.append(data, withName: name, fileName: fileName, mimeType: mimeType.rawValue)}, to: urlString, encodingCompletion: { encodingResult in
+                switch encodingResult {
+                case .success(let upload, _, _):
+                    
+                    upload.uploadProgress(closure: { (progress) in
+                        print("Upload Progress: \(progress.fractionCompleted)")
+                    })
+                    
+                    upload.responseJSON { response in
+                        print("response.result :\(String(describing: response.result.value))")
+                        
+                        if let responseDic = response.result.value as? [String: Any] {
+                            if let uuidString = responseDic["id"] as? String, let uuid = UUID(uuidString: uuidString) {
+                                print(uuid)
+                            }
+                        } else {
+                            print(response)
+                        }
+                    }
+                case .failure(let encodingError):
+                    print(encodingError)
+                }
+        })
+    }
+    
+    private func makeRequest<T: Codable>(urlString: String, httpMethod: HTTPMethod, parameters: Parameters? = nil, encoding: ParameterEncoding = JSONEncoding.default, authorizationHeader: HTTPHeaders? = nil, completion: @escaping (T) -> ()) {
         guard let secretJSON = getSecretJSON() else { return }
         
         var headers = authorizationHeader
