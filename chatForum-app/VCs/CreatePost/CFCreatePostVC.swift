@@ -47,15 +47,21 @@ class CFCreatePostVC: CFBaseVC {
         dateFormatter.locale = Locale(identifier: "en_US_POSIX") // set locale to reliable US_POSIX
         
         let updatedAt: String = dateFormatter.string(from: Date())
-        
-        let post = CFPost()
-        post.text = self.multilineTextField.text
-        post.updatedAt = updatedAt
-        post.backgroundColorHex = self.view.backgroundColor?.toHexString()
+        var post = CFPost(backgroundColorHex: self.view.backgroundColor?.toHexString(),
+                      id: nil,
+                      text: self.multilineTextField.text,
+                      updatedAt: updatedAt,
+                      numberOfComments: nil,
+                      imageIds: nil)
         
         if let capturedImage = self.capturedImage {
             self.dataCon.uploadImage(capturedImage) { imageId in
-                post.imageId = imageId.uuidString
+                post = CFPost(backgroundColorHex: self.view.backgroundColor?.toHexString(),
+                              id: nil,
+                              text: self.multilineTextField.text,
+                              updatedAt: updatedAt,
+                              numberOfComments: nil,
+                              imageIds: [UUID(uuidString: imageId.uuidString)!])
                 self.dataCon.postPost(post) { post in
                     self.dismiss(animated: true, completion: {
                         self.delegate?.createPostVcDidCreatePost(post, sender: self)

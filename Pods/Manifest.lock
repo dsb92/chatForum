@@ -1,5 +1,7 @@
 PODS:
   - Alamofire (4.8.1)
+  - AlamofireActivityLogger (2.5.0):
+    - Alamofire (~> 4.7)
   - AlamofireImage (3.5.0):
     - Alamofire (~> 4.8)
   - AlamofireObjectMapper (5.2.0):
@@ -14,6 +16,7 @@ PODS:
 
 DEPENDENCIES:
   - Alamofire
+  - AlamofireActivityLogger
   - AlamofireImage
   - AlamofireObjectMapper
   - GrowingTextView
@@ -25,6 +28,7 @@ DEPENDENCIES:
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - Alamofire
+    - AlamofireActivityLogger
     - AlamofireImage
     - AlamofireObjectMapper
     - GrowingTextView
@@ -36,6 +40,7 @@ SPEC REPOS:
 
 SPEC CHECKSUMS:
   Alamofire: 16ce2c353fb72865124ddae8a57c5942388f4f11
+  AlamofireActivityLogger: 4dbb52cbd9a26590775df5d4d0284fa81f9b9b5b
   AlamofireImage: 1aea346f4dda2f6c67622fa5a89fcbb80d79cc16
   AlamofireObjectMapper: 92b6ce2423a9d159e686f6a1d514a009bf903ddc
   GrowingTextView: 335aefa45df7df06b01edede1363414d6ee5d6bc
@@ -45,6 +50,6 @@ SPEC CHECKSUMS:
   SnapKit: fe8a619752f3f27075cc9a90244d75c6c3f27e2a
   SwiftyJSON: c4bcba26dd9ec7a027fc8eade48e2c911f229e96
 
-PODFILE CHECKSUM: d33e79d75e3c540f2db792c25094d64e91dd8c8f
+PODFILE CHECKSUM: ab238e8eaa4f621d40810de2162e1dd6b7218cd1
 
-COCOAPODS: 1.6.1
+COCOAPODS: 1.7.0

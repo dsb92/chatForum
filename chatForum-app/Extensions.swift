@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Alamofire
 
 protocol Reusable: class {
     static var reuseIdentifier: String { get }

@@ -30,7 +30,12 @@ final class CommentController: RouteCollection {
     func postComment(_ request: Request, _ comments: Comment)throws -> Future<Comment> {
         let _ = Post.find(comments.postID, on: request).flatMap(to: Post.self) { post in
             guard let post = post else { throw Abort.init(HTTPStatus.notFound) }
-            post.numberOfComments! += 1
+            if var numberOfComments = post.numberOfComments {
+                numberOfComments += 1
+                post.numberOfComments = numberOfComments
+            } else {
+                post.numberOfComments = 1
+            }
             
             return post.update(on: request)
         }

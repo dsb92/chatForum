@@ -10,6 +10,8 @@ import UIKit
 import Alamofire
 import AlamofireObjectMapper
 import AlamofireImage
+import AlamofireActivityLogger
+import SwiftyJSON
 
 class CFDataController: NSObject {
     static let shared = CFDataController()
@@ -30,7 +32,7 @@ class CFDataController: NSObject {
     var colors: [UIColor] = [UIColor]()
     
     struct Urls {
-        static let baseUrl = "https://chatforum-production.vapor.cloud/"
+        static let baseUrl = "http://chatforum-app.vapor.red:8000/"
 //        static let baseUrl = "http://localhost:8080/"
         static let imageUpload = CFDataController.Urls.baseUrl.grouped("upload/image")
         static let imageUrl = CFDataController.Urls.baseUrl.grouped("images")
@@ -49,72 +51,45 @@ class CFDataController: NSObject {
                 self.colors.append(UIColor(hexString: cfColor.hexString ?? ""))
             })
         }
-        
-        uploadImage(UIImage(named: "IMG_0321")!) { id in
-
-        }
-        
-//        getImage()
-        
-//        uploadVideo()
-//        getVideo()
     }
     
     // MARK: - Settings
     func getSettings(_ callback: @escaping GetSettingsCallback) {
-        Alamofire.request(Urls.settings, method: .get)
-            .validate()
-            .responseObject { (response: DataResponse<CFSettingsParser>) in
-                
-                if let parser = response.result.value {
-                    callback(parser)
-                }
+        makeRequest(urlString: Urls.settings, httpMethod: HTTPMethod.get) { (parser: CFSettingsParser) in
+            callback(parser)
         }
     }
     
     // MARK: - Posts
     func getPosts(_ callback: @escaping GetPostsCallback) {
-        Alamofire.request(Urls.posts, method: .get)
-            .validate()
-            .responseObject { (response: DataResponse<CFPostsParser>) in
-                
-                if let parser = response.result.value, let posts = parser.posts {
-                    callback(posts)
-                }
+        makeRequest(urlString: Urls.posts, httpMethod: .get) { (parser: CFPostParser) in
+            guard let posts = parser.posts else { return }
+            callback(posts)
         }
     }
     
     func postPost(_ post: CFPost, callback: @escaping PostPostCallback) {
-        Alamofire.request(Urls.posts, method: .post, parameters: post.toDictionary(), encoding: JSONEncoding.default)
-            .validate()
-            .responseObject { (response: DataResponse<CFPost>) in
-                
-                if let parser = response.result.value {
-                    callback(parser)
-                }
+        makeRequest(urlString: Urls.posts, httpMethod: .post, parameters: JSON(post).dictionary) { (responsePost: CFPost) in
+            callback(responsePost)
         }
     }
     
     // MARK: - Comments
     func getComments(from postId: String, callback: @escaping GetCommentsCallback) {
-        Alamofire.request(Urls.posts + "/\(postId)/comments", method: .get)
-            .validate()
-            .responseObject { (response: DataResponse<CFCommentsParser>) in
-                
-                if let parser = response.result.value, let comments = parser.comments {
-                    callback(comments)
-                }
+        makeRequest(urlString: Urls.posts + "/\(postId)/comments", httpMethod: .get) { (parser: CFCommentsParser) in
+            guard let comments = parser.comments else { return }
+            callback(comments)
         }
     }
     
     func postComment(_ comment: CFComment, callback: @escaping PostCommentCallback) {
-        Alamofire.request(Urls.comments, method: .post, parameters: comment.toDictionary(), encoding: JSONEncoding.default)
-            .validate()
-            .responseObject { (response: DataResponse<CFComment>) in
-                
-                if let parser = response.result.value {
-                    callback(parser)
-                }
+        do {
+            let data = try JSON(data: JSONEncoder().encode(comment))
+            makeRequest(urlString: Urls.comments, httpMethod: .post, parameters: data.dictionaryObject) { (comment: CFComment) in
+                callback(comment)
+            }
+        } catch {
+            print(error.localizedDescription)
         }
     }
     
@@ -206,5 +181,59 @@ class CFDataController: NSObject {
     
     func getVideoUrl(from videoId: String) -> URL? {
         return URL(string: Urls.videoUrl + "/" + videoId + ".mp4")
+    }
+    
+    func makeRequest<T: Codable>(urlString: String, httpMethod: HTTPMethod, parameters: Parameters? = nil, encoding: ParameterEncoding = JSONEncoding.default, authorizationHeader: HTTPHeaders? = nil, completion: @escaping (T) -> ()) {
+        guard let secretJSON = getSecretJSON() else { return }
+        
+        var headers = authorizationHeader
+        
+        if headers == nil {
+            let username = secretJSON["BASIC_AUTH_USER"].stringValue
+            let password = secretJSON["BASIC_AUTH_PASS"].stringValue
+            if let auth = Request.authorizationHeader(user: username, password: password) {
+                let key = auth.0
+                let value = auth.1
+                
+                headers = [key: value, "Content-Type": "application/json"]
+            }
+        }
+        
+        Alamofire.request(urlString, method: httpMethod, parameters: parameters, encoding: encoding, headers: headers)
+            .validate()
+            .log()
+            .response { response in
+                
+            guard response.error == nil else {
+                print("error calling on \(urlString)")
+                return
+            }
+            
+            guard let data = response.data else {
+                print("there was an error with the data")
+                return
+            }
+            
+            do {
+                let model = try JSONDecoder().decode(T.self, from: data)
+                completion(model)
+            } catch let jsonErr {
+                print("failed to decode, \(jsonErr)")
+            }
+        }
+    }
+    
+    private func getSecretJSON() -> JSON? {
+        let location = "secret"
+        let fileType = "json"
+        if let path = Bundle.main.path(forResource: location, ofType: fileType) {
+            do {
+                let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .alwaysMapped)
+                return try JSON(data: data)
+            } catch let error {
+                print(error.localizedDescription)
+            }}
+        
+        return nil
     }
 }

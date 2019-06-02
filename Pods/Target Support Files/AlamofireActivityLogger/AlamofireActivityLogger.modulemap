@@ -1,0 +1,6 @@
+framework module AlamofireActivityLogger {
+  umbrella header "AlamofireActivityLogger-umbrella.h"
+
+  export *
+  module * { export * }
+}

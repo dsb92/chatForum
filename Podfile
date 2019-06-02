@@ -16,5 +16,6 @@ pod 'MultilineTextField'
 pod 'GrowingTextView'
 pod 'IQKeyboardManager'
 pod 'SwiftyJSON'
+pod 'AlamofireActivityLogger'
 
 end

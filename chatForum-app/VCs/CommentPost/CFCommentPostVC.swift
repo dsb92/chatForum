@@ -83,10 +83,7 @@ class CFCommentPostVC: CFBaseVC {
         
         let updatedAt: String = dateFormatter.string(from: Date())
         
-        let comment = CFComment()
-        comment.comment = text
-        comment.updatedAt = updatedAt
-        comment.postID = postId
+        let comment = CFComment(comment: text, id: nil, postID: postId, updatedAt: updatedAt)
         
         self.dataCon.postComment(comment) { (comment) in
             self.commentsTableView.beginUpdates()
