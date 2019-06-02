@@ -60,12 +60,12 @@ _ services: inout Services
     services.register(databases)
     
     // Migrations
-//    var migrations = MigrationConfig()
-//    migrations.add(model: Post.self, database: .psql)
-//    migrations.add(model: Comment.self, database: .psql)
-//    migrations.add(model: Color.self, database: .psql)
-//    migrations.add(model: Token.self, database: .psql)
-//    migrations.add(model: User.self, database: .psql)
+    var migrations = MigrationConfig()
+    migrations.add(model: Post.self, database: .psql)
+    migrations.add(model: Comment.self, database: .psql)
+    migrations.add(model: Color.self, database: .psql)
+    migrations.add(model: Token.self, database: .psql)
+    migrations.add(model: User.self, database: .psql)
     
 //    migrations.add(migration: PostAddUpdatedAt.self, database: .psql)
 //    migrations.add(migration: CommentAddUpdatedAt.self, database: .psql)
@@ -76,7 +76,7 @@ _ services: inout Services
 //    migrations.add(migration: PostAddVideoIds.self, database: .psql)
     
     
-//    services.register(migrations)
+    services.register(migrations)
     
     var commands = CommandConfig.default()
     commands.useFluentCommands()
