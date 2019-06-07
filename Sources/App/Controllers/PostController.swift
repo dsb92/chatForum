@@ -11,7 +11,6 @@ final class PostController: RouteCollection {
     func boot(router: Router) throws {
         let posts = router.grouped("posts")
         
-//        posts.post(Post.self, use: postPost)
         posts.put(Post.self, use: putPost)
         posts.get(Post.parameter, "comments") { request -> Future<CommentsResponse> in
             return try request.parameters.next(Post.self).flatMap(to: CommentsResponse.self) { (post) in
@@ -26,8 +25,8 @@ final class PostController: RouteCollection {
         posts.get(Post.parameter, use: getPost)
         posts.delete(Post.parameter, use: deletePost)
         
-        posts.authenticated.get(use: getPosts)
-        posts.authenticated.post(Post.self, use: postPost)
+        posts.get(use: getPosts)
+        posts.post(Post.self, use: postPost)
     }
     
     // GET POSTS
@@ -54,8 +53,6 @@ final class PostController: RouteCollection {
     
     // POST POST
     func postPost(_ request: Request, _ post: Post)throws -> Future<Post> {
-        try request.authenticate()
-        
         return post.create(on: request)
     }
     
