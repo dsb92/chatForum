@@ -103,8 +103,10 @@ final class CommentController: RouteCollection {
     func getComments(_ request: Request)throws -> Future<CommentsResponse> {
         let val = Comment.query(on: request).all()
         return val.flatMap { comments in
-            let all = CommentsResponse(comments: comments)
-            return Future.map(on: request) {return all }
+            let all = CommentsResponse(comments: comments.sorted(by: { (l, r) -> Bool in
+                return l < r
+            }))
+            return Future.map(on: request) { return all }
         }
     }
     

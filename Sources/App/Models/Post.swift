@@ -51,3 +51,13 @@ extension Post {
         var numberOfDislikes: Int
     }
 }
+
+extension Post: Comparable {
+    static func < (lhs: Post, rhs: Post) -> Bool {
+        return lhs.updatedAt.toDate().compare(rhs.updatedAt.toDate()) == .orderedAscending
+    }
+    
+    static func == (lhs: Post, rhs: Post) -> Bool {
+        return lhs.updatedAt.toDate().compare(rhs.updatedAt.toDate()) == .orderedSame
+    }
+}

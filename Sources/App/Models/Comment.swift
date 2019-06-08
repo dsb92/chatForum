@@ -45,3 +45,13 @@ extension Comment {
         var numberOfDislikes: Int
     }
 }
+
+extension Comment: Comparable {
+    static func < (lhs: Comment, rhs: Comment) -> Bool {
+        return lhs.updatedAt.toDate().compare(rhs.updatedAt.toDate()) == .orderedAscending
+    }
+    
+    static func == (lhs: Comment, rhs: Comment) -> Bool {
+        return lhs.updatedAt.toDate().compare(rhs.updatedAt.toDate()) == .orderedSame
+    }
+}
