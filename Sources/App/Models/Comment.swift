@@ -7,11 +7,15 @@ final class Comment: Content {
     var postID: UUID
     var comment: String
     var updatedAt: String
+    var numberOfLikes: Int?
+    var numberOfDislikes: Int?
     
-    init(postID: UUID, comment: String, updatedAt: String) {
+    init(postID: UUID, comment: String, updatedAt: String, numberOfLikes: Int?, numberOfDislikes: Int?) {
         self.postID = postID
         self.comment = comment
         self.updatedAt = updatedAt
+        self.numberOfLikes = numberOfLikes
+        self.numberOfDislikes = numberOfDislikes
     }
 }
 
@@ -30,5 +34,14 @@ extension Comment {
     // this comment's related Post
     var post: Parent<Comment, Post> {
         return parent(\.postID)
+    }
+}
+
+extension Comment {
+    struct Likes: Content {
+        var numberOfLikes: Int
+    }
+    struct Dislikes: Content {
+        var numberOfDislikes: Int
     }
 }

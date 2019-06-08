@@ -60,7 +60,7 @@ _ services: inout Services
     services.register(databases)
     
     // Migrations
-//    var migrations = MigrationConfig()
+    var migrations = MigrationConfig()
 //    migrations.add(model: Post.self, database: .psql)
 //    migrations.add(model: Comment.self, database: .psql)
 //    migrations.add(model: Color.self, database: .psql)
@@ -75,8 +75,12 @@ _ services: inout Services
 //    migrations.add(migration: PostAddImageIds.self, database: .psql)
 //    migrations.add(migration: PostAddVideoIds.self, database: .psql)
     
+    migrations.add(migration: PostAddNumberOfLikes.self, database: .psql)
+    migrations.add(migration: PostAddNumberOfDislikes.self, database: .psql)
+    migrations.add(migration: CommentAddNumberOfLikes.self, database: .psql)
+    migrations.add(migration: CommentAddNumberOfDislikes.self, database: .psql)
     
-//    services.register(migrations)
+    services.register(migrations)
     
     var commands = CommandConfig.default()
     commands.useFluentCommands()

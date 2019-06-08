@@ -24,9 +24,91 @@ final class PostController: RouteCollection {
         posts.get(use: getPosts)
         posts.get(Post.parameter, use: getPost)
         posts.delete(Post.parameter, use: deletePost)
-        
-        posts.get(use: getPosts)
         posts.post(Post.self, use: postPost)
+        posts.post(Post.parameter, "like", use: postLike)
+        posts.delete(Post.parameter, "like", use: deleteLike)
+        posts.post(Post.parameter, "dislike", use: postDislike)
+        posts.delete(Post.parameter, "dislike", use: deleteDislike)
+    }
+    
+    // LIKES
+    func postLike(_ request: Request)throws -> Future<Post.Likes> {
+        return try request.parameters.next(Post.self).flatMap { post in
+            if var numberOfLikes = post.numberOfLikes {
+                numberOfLikes += 1
+                post.numberOfLikes = numberOfLikes
+            } else {
+                post.numberOfLikes = 1
+            }
+            
+            return post.update(on: request).map { post in
+                return Post.Likes(
+                    numberOfLikes: post.numberOfLikes ?? 0
+                )
+            }
+        }
+    }
+    
+    func deleteLike(_ request: Request)throws -> Future<Post.Likes> {
+        return try request.parameters.next(Post.self).flatMap { post in
+            if var numberOfLikes = post.numberOfLikes {
+                numberOfLikes -= 1
+                
+                if numberOfLikes < 0 {
+                    numberOfLikes = 0
+                }
+                
+                post.numberOfLikes = numberOfLikes
+            } else {
+                post.numberOfLikes = 0
+            }
+            
+            return post.update(on: request).map { post in
+                return Post.Likes(
+                    numberOfLikes: post.numberOfLikes ?? 0
+                )
+            }
+        }
+    }
+    
+    // DISLIKES
+    func postDislike(_ request: Request)throws -> Future<Post.Dislikes> {
+        return try request.parameters.next(Post.self).flatMap { post in
+            if var numberOfDislikes = post.numberOfDislikes {
+                numberOfDislikes += 1
+                post.numberOfDislikes = numberOfDislikes
+            } else {
+                post.numberOfDislikes = 1
+            }
+            
+            return post.update(on: request).map { post in
+                return Post.Dislikes(
+                    numberOfDislikes: post.numberOfDislikes ?? 0
+                )
+            }
+        }
+    }
+    
+    func deleteDislike(_ request: Request)throws -> Future<Post.Dislikes> {
+        return try request.parameters.next(Post.self).flatMap { post in
+            if var numberOfDislikes = post.numberOfDislikes {
+                numberOfDislikes -= 1
+                
+                if numberOfDislikes < 0 {
+                    numberOfDislikes = 0
+                }
+                
+                post.numberOfDislikes = numberOfDislikes
+            } else {
+                post.numberOfDislikes = 0
+            }
+            
+            return post.update(on: request).map { post in
+                return Post.Dislikes(
+                    numberOfDislikes: post.numberOfDislikes ?? 0
+                )
+            }
+        }
     }
     
     // GET POSTS
