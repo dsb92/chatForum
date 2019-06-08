@@ -36,9 +36,11 @@ extension CFCameraController {
         
         func configureCaptureDevices() throws {
             
-            let session = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInDualCamera], mediaType: AVMediaType.video, position: .unspecified)
+            let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes:
+                [.builtInTrueDepthCamera, .builtInDualCamera, .builtInWideAngleCamera],
+                                                                    mediaType: .video, position: .unspecified)
             
-            let cameras = session.devices.compactMap { $0 }
+            let cameras = discoverySession.devices.compactMap { $0 }
             guard !cameras.isEmpty else { throw CameraControllerError.noCamerasAvailable }
             
             for camera in cameras {
@@ -83,7 +85,7 @@ extension CFCameraController {
             guard let captureSession = self.captureSession else { throw CameraControllerError.captureSessionIsMissing }
             
             self.photoOutput = AVCapturePhotoOutput()
-            self.photoOutput!.setPreparedPhotoSettingsArray([AVCapturePhotoSettings(format: [AVVideoCodecKey : AVVideoCodecJPEG])], completionHandler: nil)
+            self.photoOutput!.setPreparedPhotoSettingsArray([AVCapturePhotoSettings(format: [AVVideoCodecKey : AVVideoCodecType.jpeg])], completionHandler: nil)
             
             if captureSession.canAddOutput(self.photoOutput!) { captureSession.addOutput(self.photoOutput!) }
             captureSession.startRunning()
@@ -196,7 +198,7 @@ extension CFCameraController: AVCapturePhotoCaptureDelegate {
         else if let buffer = photoSampleBuffer, let data = AVCapturePhotoOutput.jpegPhotoDataRepresentation(forJPEGSampleBuffer: buffer, previewPhotoSampleBuffer: nil),
             let image = UIImage(data: data) {
             
-            self.photoCaptureCompletionBlock?(image, nil)
+            self.photoCaptureCompletionBlock?(image.fixedOrientation(), nil)
         }
             
         else {

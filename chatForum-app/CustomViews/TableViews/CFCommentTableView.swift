@@ -8,10 +8,17 @@
 
 import UIKit
 
+protocol CFCommentTableViewDelegate: class {
+    func didLikeComment(_ comment: CFComment, liked: Bool, sender: CFCommentTableView)
+    func didDislikeComment(_ comment: CFComment, disliked: Bool, sender: CFCommentTableView)
+}
+
 class CFCommentTableView: CFBaseTableView {
 
     var post: CFPost?
     var comments = [CFComment]()
+    
+    weak var commentTableViewDelegate: CFCommentTableViewDelegate?
     
     override func registerCells() {
         self.registerReusableCell(CFForumCell.self)
@@ -33,6 +40,21 @@ class CFCommentTableView: CFBaseTableView {
         cell.forumCommentView.isHidden = true
         cell.seperator.isHidden = true
         
+        cell.forumNumberOfLikesLabel.isHidden = comment.numberOfLikes == nil || comment.numberOfLikes == 0
+        if let numberOfLikes = comment.numberOfLikes {
+            cell.forumNumberOfLikesLabel.text = "\(numberOfLikes)"
+        }
+        
+        cell.forumNumberOfDislikesLabel.isHidden = comment.numberOfDislikes == nil || comment.numberOfDislikes == 0
+        if let numberOfDislikes = comment.numberOfDislikes {
+            cell.forumNumberOfDislikesLabel.text = "\(numberOfDislikes)"
+        }
+        
+        cell.forumLikeButton.isSelected = CFDataController.shared.liked.first { $0 == comment.id } != nil
+        cell.forumDislikeButton.isSelected = CFDataController.shared.disliked.first { $0 == comment.id } != nil
+        
+        cell.delegate = self
+        cell.comment = comment
         return cell
     }
     
@@ -53,5 +75,17 @@ class CFCommentTableView: CFBaseTableView {
         }
         
         return header
+    }
+}
+
+extension CFCommentTableView: CFForumCellDelegate {
+    func didTapLikeButton(liked: Bool, sender: CFForumCell) {
+        guard let comment = sender.comment else { return }
+        commentTableViewDelegate?.didLikeComment(comment, liked: liked, sender: self)
+    }
+    
+    func didTapDislikeButton(disliked: Bool, sender: CFForumCell) {
+        guard let comment = sender.comment else { return }
+        commentTableViewDelegate?.didDislikeComment(comment, disliked: disliked, sender: self)
     }
 }

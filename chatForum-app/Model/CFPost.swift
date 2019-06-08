@@ -10,5 +10,8 @@ struct CFPost : Codable {
 	let text : String?
 	let updatedAt : String?
     let numberOfComments: Int?
-    let imageIds: [UUID]?
+    var numberOfLikes: Int?
+    var numberOfDislikes: Int?
+    var imageIds: [UUID]?
+    var videoIds: [UUID]?
 }

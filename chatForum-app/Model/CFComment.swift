@@ -10,4 +10,6 @@ struct CFComment : Codable {
 	let id : String?
 	let postID : String?
 	let updatedAt : String?
+    var numberOfLikes: Int?
+    var numberOfDislikes: Int?
 }

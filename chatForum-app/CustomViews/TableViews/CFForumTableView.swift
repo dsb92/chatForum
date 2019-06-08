@@ -10,6 +10,8 @@ import UIKit
 
 protocol CFForumTableViewDelegate: class {
     func didSelectPost(_ post: CFPost, sender: CFForumTableView)
+    func didLikePost(_ post: CFPost, liked: Bool, sender: CFForumTableView)
+    func didDislikePost(_ post: CFPost, disliked: Bool, sender: CFForumTableView)
 }
 
 class CFForumTableView: CFBaseTableView {
@@ -33,17 +35,32 @@ class CFForumTableView: CFBaseTableView {
         cell.forumTextLabel.text = post.text
         cell.forumDateLabel.text = post.timeAgo()
         
+        cell.forumCommentView.isHidden = post.numberOfComments == nil || post.numberOfComments == 0
         if let numberOfComments = post.numberOfComments {
-            cell.forumCommentView.isHidden = numberOfComments == 0
             cell.forumNumberOfCommentsLabel.text = "\(numberOfComments)"
         }
+        
+        cell.forumNumberOfLikesLabel.isHidden = post.numberOfLikes == nil || post.numberOfLikes == 0
+        if let numberOfLikes = post.numberOfLikes {
+            cell.forumNumberOfLikesLabel.text = "\(numberOfLikes)"
+        }
+        
+        cell.forumNumberOfDislikesLabel.isHidden = post.numberOfDislikes == nil || post.numberOfDislikes == 0
+        if let numberOfDislikes = post.numberOfDislikes {
+            cell.forumNumberOfDislikesLabel.text = "\(numberOfDislikes)"
+        }
+        
+        cell.forumLikeButton.isSelected = CFDataController.shared.liked.first { $0 == post.id } != nil
+        cell.forumDislikeButton.isSelected = CFDataController.shared.disliked.first { $0 == post.id } != nil
 
         cell.backgroundColor = UIColor(hexString: post.backgroundColorHex ?? "")
         
-        if let imageUrl = CFDataController.shared.getImageUrl(from: "9E2A87F0-747F-420E-88C2-17FE5D7AA9E5") {
+        if let imageId = post.imageIds?.first?.uuidString, let imageUrl = CFDataController.shared.getImageUrl(from: imageId) {
             cell.forumImageView.af_setImage(withURL: imageUrl)
         }
         
+        cell.delegate = self
+        cell.post = post
         return cell
     }
     
@@ -60,4 +77,18 @@ class CFForumTableView: CFBaseTableView {
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return 0.001
     }
+}
+
+extension CFForumTableView: CFForumCellDelegate {
+    func didTapLikeButton(liked: Bool, sender: CFForumCell) {
+        guard let post = sender.post else { return }
+        forumTableViewDelegate?.didLikePost(post, liked: liked, sender: self)
+    }
+    
+    func didTapDislikeButton(disliked: Bool, sender: CFForumCell) {
+        guard let post = sender.post else { return }
+        forumTableViewDelegate?.didDislikePost(post, disliked: disliked, sender: self)
+    }
+    
+ 
 }

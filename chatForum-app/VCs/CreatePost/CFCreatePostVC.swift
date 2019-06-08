@@ -52,7 +52,10 @@ class CFCreatePostVC: CFBaseVC {
                       text: self.multilineTextField.text,
                       updatedAt: updatedAt,
                       numberOfComments: nil,
-                      imageIds: nil)
+                      numberOfLikes: nil,
+                      numberOfDislikes: nil,
+                      imageIds: nil,
+                      videoIds: nil)
         
         if let capturedImage = self.capturedImage {
             self.dataCon.uploadImage(capturedImage) { imageId in
@@ -61,7 +64,10 @@ class CFCreatePostVC: CFBaseVC {
                               text: self.multilineTextField.text,
                               updatedAt: updatedAt,
                               numberOfComments: nil,
-                              imageIds: [UUID(uuidString: imageId.uuidString)!])
+                              numberOfLikes: nil,
+                              numberOfDislikes: nil,
+                              imageIds: [UUID(uuidString: imageId.uuidString)!],
+                              videoIds: nil)
                 self.dataCon.postPost(post) { post in
                     self.dismiss(animated: true, completion: {
                         self.delegate?.createPostVcDidCreatePost(post, sender: self)

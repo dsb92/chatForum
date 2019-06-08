@@ -95,6 +95,82 @@ extension CFHomeVC: CFCreatePostVCDelegate {
 }
 
 extension CFHomeVC: CFForumTableViewDelegate {
+    func didLikePost(_ post: CFPost, liked: Bool, sender: CFForumTableView) {
+        guard let id = post.id, let uuid = UUID(uuidString: id) else { return }
+        
+        let index = sender.posts.firstIndex(where: { post -> Bool in
+            post.id == id
+        })
+        
+        if liked {
+            self.dataCon.postLikePost(postID: uuid) { numberOfLikes in
+                self.dataCon.liked.append(uuid.uuidString)
+       
+                let newPost = CFPost(backgroundColorHex: post.backgroundColorHex, id: post.id, text: post.text, updatedAt: post.updatedAt, numberOfComments: post.numberOfComments, numberOfLikes: numberOfLikes, numberOfDislikes: post.numberOfDislikes, imageIds: post.imageIds, videoIds: post.videoIds)
+                
+                if let index = index {
+                    sender.beginUpdates()
+                    sender.posts.remove(at: index)
+                    sender.posts.insert(newPost, at: index)
+                    sender.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
+                    sender.endUpdates()
+                }
+            }
+        } else {
+            self.dataCon.deleteLikePost(postID: uuid) { numberOfLikes in
+                self.dataCon.liked = self.dataCon.liked.filter { $0 != uuid.uuidString }
+                
+                let newPost = CFPost(backgroundColorHex: post.backgroundColorHex, id: post.id, text: post.text, updatedAt: post.updatedAt, numberOfComments: post.numberOfComments, numberOfLikes: numberOfLikes, numberOfDislikes: post.numberOfDislikes, imageIds: post.imageIds, videoIds: post.videoIds)
+                
+                if let index = index {
+                    sender.beginUpdates()
+                    sender.posts.remove(at: index)
+                    sender.posts.insert(newPost, at: index)
+                    sender.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
+                    sender.endUpdates()
+                }
+            }
+        }
+    }
+    
+    func didDislikePost(_ post: CFPost, disliked: Bool, sender: CFForumTableView) {
+        guard let id = post.id, let uuid = UUID(uuidString: id) else { return }
+        
+        let index = sender.posts.firstIndex(where: { post -> Bool in
+            post.id == id
+        })
+        
+        if disliked {
+            self.dataCon.postDislikePost(postID: uuid) { numberOfDislikes in
+                self.dataCon.disliked.append(uuid.uuidString)
+                
+                let newPost = CFPost(backgroundColorHex: post.backgroundColorHex, id: post.id, text: post.text, updatedAt: post.updatedAt, numberOfComments: post.numberOfComments, numberOfLikes: post.numberOfLikes, numberOfDislikes: numberOfDislikes, imageIds: post.imageIds, videoIds: post.videoIds)
+                
+                if let index = index {
+                    sender.beginUpdates()
+                    sender.posts.remove(at: index)
+                    sender.posts.insert(newPost, at: index)
+                    sender.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
+                    sender.endUpdates()
+                }
+            }
+        } else {
+            self.dataCon.deleteDislikePost(postID: uuid) { numberOfDislikes in
+                self.dataCon.disliked = self.dataCon.disliked.filter { $0 != uuid.uuidString }
+                
+                let newPost = CFPost(backgroundColorHex: post.backgroundColorHex, id: post.id, text: post.text, updatedAt: post.updatedAt, numberOfComments: post.numberOfComments, numberOfLikes: post.numberOfLikes, numberOfDislikes: numberOfDislikes, imageIds: post.imageIds, videoIds: post.videoIds)
+                
+                if let index = index {
+                    sender.beginUpdates()
+                    sender.posts.remove(at: index)
+                    sender.posts.insert(newPost, at: index)
+                    sender.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
+                    sender.endUpdates()
+                }
+            }
+        }
+    }
+    
     func didSelectPost(_ post: CFPost, sender: CFForumTableView) {
         self.navigationController?.pushViewController(CFCommentPostVC(post: post), animated: true)
     }

@@ -42,6 +42,7 @@ class CFCommentPostVC: CFBaseVC {
         self.commentsTableView.addSubview(self.refreshControl)
         self.commentsTableView.post = post
         self.commentsTableView.backgroundColor = UIColor(hexString: post?.backgroundColorHex ?? "")
+        self.commentsTableView.commentTableViewDelegate = self
         
         self.refreshData()
         
@@ -83,7 +84,7 @@ class CFCommentPostVC: CFBaseVC {
         
         let updatedAt: String = dateFormatter.string(from: Date())
         
-        let comment = CFComment(comment: text, id: nil, postID: postId, updatedAt: updatedAt)
+        let comment = CFComment(comment: text, id: nil, postID: postId, updatedAt: updatedAt, numberOfLikes: 0, numberOfDislikes: 0)
         
         self.dataCon.postComment(comment) { (comment) in
             self.commentsTableView.beginUpdates()
@@ -118,5 +119,79 @@ extension CFCommentPostVC: UITextViewDelegate {
                         self.messageComposerStackView.layoutIfNeeded()
         },
                        completion: nil)
+    }
+}
+
+extension CFCommentPostVC: CFCommentTableViewDelegate {
+    func didLikeComment(_ comment: CFComment, liked: Bool, sender: CFCommentTableView) {
+        guard let id = comment.id, let uuid = UUID(uuidString: id) else { return }
+        
+        let index = sender.comments.firstIndex(where: { comment -> Bool in
+            comment.id == id
+        })
+        
+        if liked {
+            self.dataCon.postLikeComment(commentID: uuid) { numberOfLikes in
+                self.dataCon.liked.append(uuid.uuidString)
+                
+                let newComment = CFComment(comment: comment.comment, id: comment.id, postID: comment.postID, updatedAt: comment.updatedAt, numberOfLikes: numberOfLikes, numberOfDislikes: comment.numberOfDislikes)
+                
+                if let index = index {
+                    sender.comments.remove(at: index)
+                    sender.comments.insert(newComment, at: index)
+//                    sender.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
+                    sender.reloadData()
+                }
+            }
+        } else {
+            self.dataCon.deleteLikeComment(commentID: uuid) { numberOfLikes in
+                self.dataCon.liked = self.dataCon.liked.filter { $0 != uuid.uuidString }
+                
+                let newComment = CFComment(comment: comment.comment, id: comment.id, postID: comment.postID, updatedAt: comment.updatedAt, numberOfLikes: numberOfLikes, numberOfDislikes: comment.numberOfDislikes)
+                
+                if let index = index {
+                    sender.comments.remove(at: index)
+                    sender.comments.insert(newComment, at: index)
+//                    sender.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
+                    sender.reloadData()
+                }
+            }
+        }
+    }
+    
+    func didDislikeComment(_ comment: CFComment, disliked: Bool, sender: CFCommentTableView) {
+        guard let id = comment.id, let uuid = UUID(uuidString: id) else { return }
+        
+        let index = sender.comments.firstIndex(where: { comment -> Bool in
+            comment.id == id
+        })
+        
+        if disliked {
+            self.dataCon.postDislikeComment(commentID: uuid) { numberOfDislikes in
+                self.dataCon.disliked.append(uuid.uuidString)
+                
+                let newComment = CFComment(comment: comment.comment, id: comment.id, postID: comment.postID, updatedAt: comment.updatedAt, numberOfLikes: comment.numberOfLikes, numberOfDislikes: numberOfDislikes)
+                
+                if let index = index {
+                    sender.comments.remove(at: index)
+                    sender.comments.insert(newComment, at: index)
+//                    sender.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
+                    sender.reloadData()
+                }
+            }
+        } else {
+            self.dataCon.deleteDislikeComment(commentID: uuid) { numberOfDislikes in
+                self.dataCon.disliked = self.dataCon.disliked.filter { $0 != uuid.uuidString }
+                
+                let newComment = CFComment(comment: comment.comment, id: comment.id, postID: comment.postID, updatedAt: comment.updatedAt, numberOfLikes: comment.numberOfLikes, numberOfDislikes: numberOfDislikes)
+                
+                if let index = index {
+                    sender.comments.remove(at: index)
+                    sender.comments.insert(newComment, at: index)
+//                    sender.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
+                    sender.reloadData()
+                }
+            }
+        }
     }
 }
