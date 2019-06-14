@@ -17,7 +17,5 @@ pod 'GrowingTextView'
 pod 'IQKeyboardManager'
 pod 'SwiftyJSON'
 pod 'AlamofireActivityLogger'
-pod 'RxSwift', '~> 5'
-pod 'RxCocoa', '~> 5'
 
 end

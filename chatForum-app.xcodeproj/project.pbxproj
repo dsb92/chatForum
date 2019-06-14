@@ -62,7 +62,7 @@
 		4666517F22886D9C0013AF53 /* CFCaptureImageVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CFCaptureImageVC.swift; sourceTree = "<group>"; };
 		4666518022886D9C0013AF53 /* CFCaptureImageVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CFCaptureImageVC.xib; sourceTree = "<group>"; };
 		4666518422886E8B0013AF53 /* CFCameraController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CFCameraController.swift; sourceTree = "<group>"; };
-		46930B5822A425A000CA33E3 /* secret.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = secret.json; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.json; };
+		46930B5822A425A000CA33E3 /* secret.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = secret.json; path = ../secret.json; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.json; };
 		46930B5A22A42A7400CA33E3 /* CFColor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CFColor.swift; sourceTree = "<group>"; };
 		46930B5B22A42A7400CA33E3 /* CFSettingsParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CFSettingsParser.swift; sourceTree = "<group>"; };
 		46930B5E22A43BB600CA33E3 /* CFPost.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CFPost.swift; sourceTree = "<group>"; };
