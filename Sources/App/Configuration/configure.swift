@@ -61,11 +61,11 @@ _ services: inout Services
     
     // Migrations
     var migrations = MigrationConfig()
-//    migrations.add(model: Post.self, database: .psql)
-//    migrations.add(model: Comment.self, database: .psql)
-//    migrations.add(model: Color.self, database: .psql)
-//    migrations.add(model: Token.self, database: .psql)
-//    migrations.add(model: User.self, database: .psql)
+    migrations.add(model: Post.self, database: .psql)
+    migrations.add(model: Comment.self, database: .psql)
+    migrations.add(model: Color.self, database: .psql)
+    migrations.add(model: Token.self, database: .psql)
+    migrations.add(model: User.self, database: .psql)
     
 //    migrations.add(migration: PostAddUpdatedAt.self, database: .psql)
 //    migrations.add(migration: CommentAddUpdatedAt.self, database: .psql)
@@ -74,11 +74,10 @@ _ services: inout Services
 //    migrations.add(migration: PostAddImageId.self, database: .psql)
 //    migrations.add(migration: PostAddImageIds.self, database: .psql)
 //    migrations.add(migration: PostAddVideoIds.self, database: .psql)
-    
-    migrations.add(migration: PostAddNumberOfLikes.self, database: .psql)
-    migrations.add(migration: PostAddNumberOfDislikes.self, database: .psql)
-    migrations.add(migration: CommentAddNumberOfLikes.self, database: .psql)
-    migrations.add(migration: CommentAddNumberOfDislikes.self, database: .psql)
+//    migrations.add(migration: PostAddNumberOfLikes.self, database: .psql)
+//    migrations.add(migration: PostAddNumberOfDislikes.self, database: .psql)
+//    migrations.add(migration: CommentAddNumberOfLikes.self, database: .psql)
+//    migrations.add(migration: CommentAddNumberOfDislikes.self, database: .psql)
     
     services.register(migrations)
     
