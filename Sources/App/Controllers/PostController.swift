@@ -16,7 +16,8 @@ final class PostController: RouteCollection {
             return try request.parameters.next(Post.self).flatMap(to: CommentsResponse.self) { (post) in
                 let val = try post.comments.query(on: request).all()
                 return val.flatMap { comments in
-                    let all = CommentsResponse(comments: comments.sorted(by: { (l, r) -> Bool in
+                    let newComments = comments//.filter { $0.parentID == nil }
+                    let all = CommentsResponse(comments: newComments.sorted(by: { (l, r) -> Bool in
                         return l < r
                     }))
                     return Future.map(on: request) { return all }

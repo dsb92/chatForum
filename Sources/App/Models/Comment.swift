@@ -5,17 +5,21 @@ import Vapor
 final class Comment: Content {
     var id: UUID?
     var postID: UUID
+    var parentID: UUID?
     var comment: String
     var updatedAt: String
     var numberOfLikes: Int?
     var numberOfDislikes: Int?
+    var numberOfComments: Int?
     
-    init(postID: UUID, comment: String, updatedAt: String, numberOfLikes: Int?, numberOfDislikes: Int?) {
+    init(postID: UUID, parentID: UUID?, comment: String, updatedAt: String, numberOfLikes: Int?, numberOfDislikes: Int?, numberOfComments: Int?) {
+        self.parentID = parentID
         self.postID = postID
         self.comment = comment
         self.updatedAt = updatedAt
         self.numberOfLikes = numberOfLikes
         self.numberOfDislikes = numberOfDislikes
+        self.numberOfComments = numberOfComments
     }
 }
 
@@ -34,6 +38,19 @@ extension Comment {
     // this comment's related Post
     var post: Parent<Comment, Post> {
         return parent(\.postID)
+    }
+}
+
+extension Comment {
+    // this comment's related Post
+    var parent: Parent<Comment, Comment>? {
+        return parent(\.parentID)
+    }
+}
+
+extension Comment {
+    var comments: Children<Comment, Comment>? {
+        return children(\.parentID)
     }
 }
 
