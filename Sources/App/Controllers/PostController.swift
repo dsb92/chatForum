@@ -7,23 +7,16 @@ struct PostsResponse: Codable {
 
 extension PostsResponse: Content { }
 
-final class PostController: RouteCollection {
+final class PostController: RouteCollection, LikesManagable {
+    var likesManager: LikesManager!
+    
     func boot(router: Router) throws {
+        likesManager = LikesManager()
+        
         let posts = router.grouped("posts")
         
         posts.put(Post.self, use: putPost)
-        posts.get(Post.parameter, "comments") { request -> Future<CommentsResponse> in
-            return try request.parameters.next(Post.self).flatMap(to: CommentsResponse.self) { (post) in
-                let val = try post.comments.query(on: request).all()
-                return val.flatMap { comments in
-                    let newComments = comments.filter { $0.parentID == nil }
-                    let all = CommentsResponse(comments: newComments.sorted(by: { (l, r) -> Bool in
-                        return l < r
-                    }))
-                    return Future.map(on: request) { return all }
-                }
-            }
-        }
+        posts.get(Post.parameter, "comments", use: getComments)
         posts.get(use: getPosts)
         posts.get(Post.parameter, use: getPost)
         posts.delete(Post.parameter, use: deletePost)
@@ -34,83 +27,47 @@ final class PostController: RouteCollection {
         posts.delete(Post.parameter, "dislike", use: deleteDislike)
     }
     
+    // COMMENTS
+    func getComments(_ request: Request)throws -> Future<CommentsResponse> {
+        return try request.parameters.next(Post.self).flatMap(to: CommentsResponse.self) { (post) in
+            let val = try post.comments.query(on: request).all()
+            return val.flatMap { comments in
+                let newComments = comments.filter { $0.parentID == nil }
+                let all = CommentsResponse(comments: newComments.sorted(by: { (l, r) -> Bool in
+                    return l < r
+                }))
+                return Future.map(on: request) { return all }
+            }
+        }
+    }
+    
     // LIKES
     func postLike(_ request: Request)throws -> Future<Post.Likes> {
         return try request.parameters.next(Post.self).flatMap { post in
-            if var numberOfLikes = post.numberOfLikes {
-                numberOfLikes += 1
-                post.numberOfLikes = numberOfLikes
-            } else {
-                post.numberOfLikes = 1
-            }
-            
-            return post.update(on: request).map { post in
-                return Post.Likes(
-                    numberOfLikes: post.numberOfLikes ?? 0
-                )
-            }
+            self.likesManager.like(numberOfLikes: &post.numberOfLikes)
+            return self.updateLikes(request, post: post)
         }
     }
     
     func deleteLike(_ request: Request)throws -> Future<Post.Likes> {
         return try request.parameters.next(Post.self).flatMap { post in
-            if var numberOfLikes = post.numberOfLikes {
-                numberOfLikes -= 1
-                
-                if numberOfLikes < 0 {
-                    numberOfLikes = 0
-                }
-                
-                post.numberOfLikes = numberOfLikes
-            } else {
-                post.numberOfLikes = 0
-            }
-            
-            return post.update(on: request).map { post in
-                return Post.Likes(
-                    numberOfLikes: post.numberOfLikes ?? 0
-                )
-            }
+            self.likesManager.deleteLike(numberOfLikes: &post.numberOfLikes)
+            return self.updateLikes(request, post: post)
         }
     }
     
     // DISLIKES
     func postDislike(_ request: Request)throws -> Future<Post.Dislikes> {
         return try request.parameters.next(Post.self).flatMap { post in
-            if var numberOfDislikes = post.numberOfDislikes {
-                numberOfDislikes += 1
-                post.numberOfDislikes = numberOfDislikes
-            } else {
-                post.numberOfDislikes = 1
-            }
-            
-            return post.update(on: request).map { post in
-                return Post.Dislikes(
-                    numberOfDislikes: post.numberOfDislikes ?? 0
-                )
-            }
+            self.likesManager.dislike(numberOfDislikes: &post.numberOfDislikes)
+            return self.updateDislikes(request, post: post)
         }
     }
     
     func deleteDislike(_ request: Request)throws -> Future<Post.Dislikes> {
         return try request.parameters.next(Post.self).flatMap { post in
-            if var numberOfDislikes = post.numberOfDislikes {
-                numberOfDislikes -= 1
-                
-                if numberOfDislikes < 0 {
-                    numberOfDislikes = 0
-                }
-                
-                post.numberOfDislikes = numberOfDislikes
-            } else {
-                post.numberOfDislikes = 0
-            }
-            
-            return post.update(on: request).map { post in
-                return Post.Dislikes(
-                    numberOfDislikes: post.numberOfDislikes ?? 0
-                )
-            }
+            self.likesManager.deleteDislike(numberOfDislikes: &post.numberOfDislikes)
+            return self.updateDislikes(request, post: post)
         }
     }
     
@@ -143,5 +100,21 @@ final class PostController: RouteCollection {
     // DELETE POST
     func deletePost(_ request: Request)throws -> Future<HTTPStatus> {
         return try request.parameters.next(Post.self).delete(on: request).transform(to: .noContent)
+    }
+    
+    private func updateLikes(_ request: Request, post: Post) -> Future<Post.Likes> {
+        return post.update(on: request).map { post in
+            return Post.Likes(
+                numberOfLikes: post.numberOfLikes ?? 0
+            )
+        }
+    }
+    
+    private func updateDislikes(_ request: Request, post: Post) -> Future<Post.Dislikes> {
+        return post.update(on: request).map { post in
+            return Post.Dislikes(
+                numberOfDislikes: post.numberOfDislikes ?? 0
+            )
+        }
     }
 }
