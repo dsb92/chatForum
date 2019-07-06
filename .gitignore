@@ -84,3 +84,5 @@ iOSInjectionProject/
 
 # secrets
 secret.json
+# firebase keys
+tmp/
