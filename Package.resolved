@@ -47,6 +47,15 @@
         }
       },
       {
+        "package": "FCM",
+        "repositoryURL": "https://github.com/MihaelIsaev/FCM.git",
+        "state": {
+          "branch": null,
+          "revision": "9f277cb3f2436b0e75eb55d4b8987144e5c805e0",
+          "version": "0.7.1"
+        }
+      },
+      {
         "package": "Fluent",
         "repositoryURL": "https://github.com/vapor/fluent.git",
         "state": {
@@ -78,8 +87,17 @@
         "repositoryURL": "https://github.com/vapor/http.git",
         "state": {
           "branch": null,
-          "revision": "254a0a0cbf22a02b697a075a0d2ddbb448bb7c87",
-          "version": "3.2.0"
+          "revision": "3808ed0401379b6e9f4a053f03090ea9d658caa9",
+          "version": "3.2.1"
+        }
+      },
+      {
+        "package": "JWT",
+        "repositoryURL": "https://github.com/vapor/jwt.git",
+        "state": {
+          "branch": null,
+          "revision": "2e225c722bf26407c1c4bd11d341e48759f46095",
+          "version": "3.0.0"
         }
       },
       {

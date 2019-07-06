@@ -1,6 +1,7 @@
 import FluentPostgreSQL
 import Vapor
 import Authentication
+import FCM
 
 /// Called before your application initializes.
 public func configure(
@@ -66,6 +67,9 @@ _ services: inout Services
 //    migrations.add(model: Color.self, database: .psql)
 //    migrations.add(model: Token.self, database: .psql)
 //    migrations.add(model: User.self, database: .psql)
+    migrations.add(model: PushToken.self, database: .psql)
+    migrations.add(model: Notification.self, database: .psql)
+    migrations.add(model: NotificationEvent.self, database: .psql)
     
 //    migrations.add(migration: PostAddUpdatedAt.self, database: .psql)
 //    migrations.add(migration: CommentAddUpdatedAt.self, database: .psql)
@@ -95,4 +99,9 @@ _ services: inout Services
     Color.defaultDatabase = .psql
     Token.defaultDatabase = .psql
     User.defaultDatabase = .psql
+    
+    // Configure FCM
+    let directory = DirectoryConfig.detect()
+    let fcm = FCM(pathToServiceAccountKey: directory.workDir + "/tmp/chatforum-190fa-firebase-adminsdk-1a7j5-395f92428d.json")
+    services.register(fcm, as: FCM.self)
 }

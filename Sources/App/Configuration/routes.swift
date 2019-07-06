@@ -9,6 +9,8 @@ public func routes(_ router: Router) throws {
     try router.register(collection: VideoController())
     try router.register(collection: ColorController())
     try router.register(collection: SettingsController())
+    try router.register(collection: PushTokenController())
+    try router.register(collection: NotificationController())
     router.get { (request) in
         return "Running Vapor!"
     }
