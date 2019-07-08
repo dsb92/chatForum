@@ -89,7 +89,14 @@ final class PostController: RouteCollection, LikesManagable {
     
     // POST POST
     func postPost(_ request: Request, _ post: Post)throws -> Future<Post> {
-        return post.create(on: request)
+        return post.create(on: request).flatMap { newPost in
+            if let postID = newPost.id, let pushTokenID = newPost.pushTokenID {
+                let event = NotificationEvent(pushTokenID: pushTokenID, eventID: postID)
+                let _ = NotificationEvent.query(on: request).create(event)
+            }
+            
+            return Future.map(on: request) { return newPost }
+        }
     }
     
     // UPDATE POST

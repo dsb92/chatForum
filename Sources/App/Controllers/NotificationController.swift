@@ -2,9 +2,12 @@ import Vapor
 import Fluent
 import FCM
 
-final class NotificationController: RouteCollection {
+final class NotificationController: RouteCollection, PushManageable {
+    var pushProvider: PushProvider!
     
     func boot(router: Router) throws {
+        pushProvider = FCMProvider()
+        
         let notifications = router.grouped("notifications")
         
         notifications.post(Notification.self, use: postNotification)
@@ -12,13 +15,7 @@ final class NotificationController: RouteCollection {
     }
     
     func postNotification(_ request: Request, _ notification: Notification)throws -> Future<Notification> {
-        let fcm = try request.make(FCM.self)
-        let token = notification.token
-        let fcmNotification = FCMNotification(title: notification.title, body: notification.body)
-        let message = FCMMessage(token: token, notification: fcmNotification)
-        return try fcm.sendMessage(request.client(), message: message).flatMap(to: Notification.self) { response in
-            return notification.create(on: request)
-        }
+        return try pushProvider.sendPush(on: request, notification: notification)
     }
     
     func getNotifications(_ request: Request)throws -> Future<Notification.all> {

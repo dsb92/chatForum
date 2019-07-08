@@ -11,8 +11,9 @@ final class Comment: Content {
     var numberOfLikes: Int?
     var numberOfDislikes: Int?
     var numberOfComments: Int?
+    var pushTokenID: UUID?
     
-    init(postID: UUID, parentID: UUID?, comment: String, updatedAt: String, numberOfLikes: Int?, numberOfDislikes: Int?, numberOfComments: Int?) {
+    init(postID: UUID, parentID: UUID?, comment: String, updatedAt: String, numberOfLikes: Int?, numberOfDislikes: Int?, numberOfComments: Int?, pushTokenID: UUID?) {
         self.parentID = parentID
         self.postID = postID
         self.comment = comment
@@ -20,6 +21,7 @@ final class Comment: Content {
         self.numberOfLikes = numberOfLikes
         self.numberOfDislikes = numberOfDislikes
         self.numberOfComments = numberOfComments
+        self.pushTokenID = pushTokenID
     }
 }
 

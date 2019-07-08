@@ -12,8 +12,9 @@ final class Post: Content {
     var numberOfDislikes: Int?
     var imageIds: [UUID]?
     var videoIds: [UUID]?
+    var pushTokenID: UUID?
     
-    init(text: String, updatedAt: String, backgroundColorHex: String, numberOfComments: Int?, numberOfLikes: Int?, numberOfDislikes: Int?, imageIds: [UUID]?, videosId: [UUID]?) {
+    init(text: String, updatedAt: String, backgroundColorHex: String, numberOfComments: Int?, numberOfLikes: Int?, numberOfDislikes: Int?, imageIds: [UUID]?, videosId: [UUID]?, pushTokenID: UUID?) {
         self.text = text
         self.updatedAt = updatedAt
         self.backgroundColorHex = backgroundColorHex
@@ -22,6 +23,7 @@ final class Post: Content {
         self.numberOfDislikes = numberOfDislikes
         self.imageIds = imageIds
         self.videoIds = videosId
+        self.pushTokenID = pushTokenID
     }
 }
 
