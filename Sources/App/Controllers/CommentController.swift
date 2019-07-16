@@ -104,7 +104,7 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
                 if comment.parentID == nil {
                     // Check if comment is created by owner of Post. We don't want to send push to ourselves :)
                     if let pushTokenID = updatedPost.pushTokenID, pushTokenID != comment.pushTokenID {
-                        self.sendPush(on: request, eventID: postID, title: "You've a new comment on your post", body: comment.comment)
+                        self.sendPush(on: request, eventID: postID, title: LocalizationManager.newCommentOnPost, body: comment.comment)
                     }
                 }
                 return Future.map(on: request) { return updatedPost }
@@ -117,7 +117,7 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
                 self.commentsManager.comment(numberOfComments: &parentComment.numberOfComments)
                 return parentComment.update(on: request).flatMap { updatedComment in
                     if let pushTokenID = updatedComment.pushTokenID, pushTokenID != comment.pushTokenID {
-                        self.sendPush(on: request, eventID: parentID, title: "You've a new comment on your comment", body: comment.comment)
+                        self.sendPush(on: request, eventID: parentID, title: LocalizationManager.newCommentOnComment, body: comment.comment)
                     }
                     return Future.map(on: request) { return updatedComment }
                 }
@@ -126,8 +126,7 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
         
         return comment.create(on: request).flatMap { newComment in
             if let commentID = newComment.id, let pushTokenID = newComment.pushTokenID {
-                let event = NotificationEvent(pushTokenID: pushTokenID, eventID: commentID)
-                let _ = NotificationEvent.query(on: request).create(event)
+                NotificationEvent.create(on: request, pushTokenID: pushTokenID, eventID: commentID)
             }
             
             return Future.map(on: request) { return newComment }
@@ -147,23 +146,6 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
             return Comment.Dislikes(
                 numberOfDislikes: comment.numberOfDislikes ?? 0
             )
-        }
-    }
-    
-    private func sendPush(on request: Request, eventID: UUID, title: String, body: String) {
-        // Send push to any subscribers
-        let fetchedEvent = NotificationEvent
-            .query(on: request)
-            .filter(\.eventID, .equal, eventID)
-            .first()
-        let _ = fetchedEvent.flatMap { fetched -> EventLoopFuture<NotificationEvent?> in
-            if let fetched = fetched {
-                let _ = fetched.subscriber.get(on: request).flatMap { pushToken -> EventLoopFuture<PushToken> in
-                    let _ = try self.pushProvider.sendPush(on: request, notification: Notification(token: pushToken.token, title: title, body: body))
-                    return Future.map(on: request) { return pushToken }
-                }
-            }
-            return Future.map(on: request) { return fetched }
         }
     }
 }

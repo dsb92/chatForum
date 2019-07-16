@@ -63,3 +63,21 @@ extension Post: Comparable {
         return lhs.updatedAt.toDate().compare(rhs.updatedAt.toDate()) == .orderedSame
     }
 }
+
+extension Post: PushOnLikes {
+    var eventID: UUID? {
+        return self.id
+    }
+    
+    var newLikeMessage: String {
+        return LocalizationManager.newLikeOnPost.replacingOccurrences(of: "X", with: String(self.numberOfLikes ?? 0))
+    }
+    
+    var newDislikeMessage: String {
+        return LocalizationManager.newDislikeOnPost.replacingOccurrences(of: "X", with: String(self.numberOfDislikes ?? 0))
+    }
+    
+    var body: String {
+        return self.text
+    }
+}

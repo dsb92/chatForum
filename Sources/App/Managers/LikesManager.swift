@@ -20,4 +20,12 @@ struct LikesManager: NumberManagable {
     func deleteDislike(numberOfDislikes: inout Int?) {
         decrease(number: &numberOfDislikes)
     }
+    
+    func shouldSendPush(numberOfLikes: Int?) -> Bool {
+        return closest(to: numberOfLikes)
+    }
+    
+    func shouldSendPush(numberOfDislikes: Int?) -> Bool {
+        return closest(to: numberOfDislikes)
+    }
 }

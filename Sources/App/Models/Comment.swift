@@ -74,3 +74,21 @@ extension Comment: Comparable {
         return lhs.updatedAt.toDate().compare(rhs.updatedAt.toDate()) == .orderedSame
     }
 }
+
+extension Comment: PushOnLikes {
+    var eventID: UUID? {
+        return self.id
+    }
+    
+    var newLikeMessage: String {
+        return LocalizationManager.newLikeOnComment.replacingOccurrences(of: "X", with: String(self.numberOfLikes ?? 0))
+    }
+    
+    var newDislikeMessage: String {
+        return LocalizationManager.newDislikeOnComment.replacingOccurrences(of: "X", with: String(self.numberOfLikes ?? 0))
+    }
+    
+    var body: String {
+        return self.comment
+    }
+}

@@ -7,11 +7,13 @@ struct PostsResponse: Codable {
 
 extension PostsResponse: Content { }
 
-final class PostController: RouteCollection, LikesManagable {
+final class PostController: RouteCollection, LikesManagable, PushManageable {
+    var pushProvider: PushProvider!
     var likesManager: LikesManager!
     
     func boot(router: Router) throws {
         likesManager = LikesManager()
+        pushProvider = FCMProvider()
         
         let posts = router.grouped("posts")
         
@@ -45,6 +47,7 @@ final class PostController: RouteCollection, LikesManagable {
     func postLike(_ request: Request)throws -> Future<Post.Likes> {
         return try request.parameters.next(Post.self).flatMap { post in
             self.likesManager.like(numberOfLikes: &post.numberOfLikes)
+            self.sendPush(on: request, pushMessage: post, likesManager: self.likesManager)
             return self.updateLikes(request, post: post)
         }
     }
@@ -60,6 +63,7 @@ final class PostController: RouteCollection, LikesManagable {
     func postDislike(_ request: Request)throws -> Future<Post.Dislikes> {
         return try request.parameters.next(Post.self).flatMap { post in
             self.likesManager.dislike(numberOfDislikes: &post.numberOfDislikes)
+            self.sendPush(on: request, pushMessage: post, likesManager: self.likesManager)
             return self.updateDislikes(request, post: post)
         }
     }

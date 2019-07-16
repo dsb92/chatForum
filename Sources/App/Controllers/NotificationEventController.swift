@@ -7,6 +7,8 @@ final class NotificationEventController: RouteCollection {
         
         notEvents.post(NotificationEvent.self, use: postNotificationEvent)
         notEvents.get(use: getNotificationEvents)
+        notEvents.delete(NotificationEvent.parameter, use: deleteNotificationEvent)
+        notEvents.delete(use: deleteAllNotificationEvents)
     }
     
     func postNotificationEvent(_ request: Request, _ notificationEvent: NotificationEvent)throws -> Future<NotificationEvent> {
@@ -18,6 +20,18 @@ final class NotificationEventController: RouteCollection {
         return val.flatMap { notificationEvents in
             let all = NotificationEvent.all(notificationEvents: notificationEvents)
             return Future.map(on: request) { return all }
+        }
+    }
+    
+    func deleteNotificationEvent(_ request: Request) throws -> Future<HTTPStatus> {
+        return try request.parameters.next(NotificationEvent.self).delete(on: request).transform(to: .noContent)
+    }
+    
+    //FOR TESTING ONLY
+    func deleteAllNotificationEvents(_ request: Request) throws -> Future<HTTPStatus> {
+        return NotificationEvent.query(on: request).all().flatMap(to: HTTPStatus.self) { all in
+            all.forEach { let _ = $0.delete(on: request) }
+            return Future.map(on: request) { return HTTPStatus.noContent }
         }
     }
 }

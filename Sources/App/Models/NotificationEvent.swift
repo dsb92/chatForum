@@ -35,3 +35,10 @@ extension NotificationEvent {
         var notificationEvents: [NotificationEvent]
     }
 }
+
+extension NotificationEvent {
+    static func create(on request: Request, pushTokenID: UUID, eventID: UUID) {
+        let event = NotificationEvent(pushTokenID: pushTokenID, eventID: eventID)
+        let _ = NotificationEvent.query(on: request).save(event)
+    }
+}
