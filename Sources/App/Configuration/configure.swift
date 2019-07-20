@@ -10,7 +10,7 @@ _ env: inout Environment,
 _ services: inout Services
 ) throws {
     
-    // load enviroment if any
+    // Load enviroment if any
     Environment.dotenv()
     
     try services.register(FluentPostgreSQLProvider())
@@ -29,36 +29,9 @@ _ services: inout Services
     try services.register(AuthenticationProvider())
     
     // Configure a database
+    guard let databaseUrl = Environment.get("DATABASE_URL") else { throw Abort(.internalServerError, reason: "Missing database connection") }
     var databases = DatabasesConfig()
-    let databaseConfig: PostgreSQLDatabaseConfig
-    
-    if let url = Environment.get("DATABASE_URL") {
-        databaseConfig = PostgreSQLDatabaseConfig(url: url)!
-    } else {
-        let hostname = Environment.get("DATABASE_HOSTNAME") ?? "localhost"
-        let username = Environment.get("DATABASE_USER") ?? "davidbuhauer"
-        let password = Environment.get("DATABASE_PASSWORD") ?? "password"
-        let databaseName: String
-        let databasePort: Int
-        if (env == .testing) {
-            databaseName = "vapor-test"
-            if let testPort = Environment.get("DATABASE_PORT") {
-                databasePort = Int(testPort) ?? 5433
-            } else {
-                databasePort = 5433
-            }
-        } else {
-            databaseName = Environment.get("DATABASE_DB") ?? "chatForum"
-            databasePort = 5432
-        }
-        
-        databaseConfig = PostgreSQLDatabaseConfig(
-            hostname: hostname,
-            port: databasePort,
-            username: username,
-            database: databaseName,
-            password: hostname == "localhost" ? nil : password)
-    }
+    let databaseConfig = PostgreSQLDatabaseConfig(url: databaseUrl)!
     let database = PostgreSQLDatabase(config: databaseConfig)
     databases.add(database: database, as: .psql)
     services.register(databases)
@@ -121,10 +94,8 @@ _ services: inout Services
         
         // Create tmp file
         let path = dir + "/chatforum-190fa-firebase-adminsdk-1a7j5-395f92428d.json"
-        if(!FileManager.default.fileExists(atPath:path)){
+        if !FileManager.default.fileExists(atPath:path){
             FileManager.default.createFile(atPath: path, contents: nil, attributes: nil)
-        }else{
-            print("File is already created")
         }
         
         try decodedString.write(toFile: path, atomically: true, encoding: .utf8)
