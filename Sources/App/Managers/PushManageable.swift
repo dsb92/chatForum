@@ -2,6 +2,13 @@ import Vapor
 import Fluent
 import FCM
 
+enum PushType: String {
+    case newCommentOnPost
+    case newLikeOrDislikeOnPost
+    case newCommentOnComment
+    case newLikeOrDislkeOnComment
+}
+
 protocol PushMessage {
     var eventID: UUID? { get }
     var title: String { get }
@@ -31,12 +38,12 @@ protocol PushProvider {
 
 protocol PushManageable {
     var pushProvider: PushProvider! { get }
-    func sendPush(on request: Request, eventID: UUID, title: String, body: String)
-    func sendPush(on request: Request, pushMessage: PushOnLikes, likesManager: LikesManager)
+    func sendPush(on request: Request, eventID: UUID, title: String, body: String, category: String)
+    func sendPush(on request: Request, pushMessage: PushOnLikes, pushType: PushType, likesManager: LikesManager)
 }
 
 extension PushManageable {    
-    func sendPush(on request: Request, eventID: UUID, title: String, body: String) {
+    func sendPush(on request: Request, eventID: UUID, title: String, body: String, category: String) {
         // Send push to any subscribers
         let fetchedEvent = NotificationEvent
             .query(on: request)
@@ -45,7 +52,7 @@ extension PushManageable {
         let _ = fetchedEvent.flatMap { fetched -> EventLoopFuture<NotificationEvent?> in
             if let fetched = fetched {
                 let _ = fetched.subscriber.get(on: request).flatMap { pushToken -> EventLoopFuture<PushToken> in
-                    let _ = try self.pushProvider.sendPush(on: request, notification: Notification(token: pushToken.token, title: title, body: body))
+                    let _ = try self.pushProvider.sendPush(on: request, notification: Notification(token: pushToken.token, title: title, body: body, data: ["id": eventID.uuidString], category: category))
                     return Future.map(on: request) { return pushToken }
                 }
             }
@@ -53,12 +60,12 @@ extension PushManageable {
         }
     }
     
-    func sendPush(on request: Request, pushMessage: PushOnLikes, likesManager: LikesManager) {
+    func sendPush(on request: Request, pushMessage: PushOnLikes, pushType: PushType, likesManager: LikesManager) {
         if let eventID = pushMessage.eventID, likesManager.shouldSendPush(numberOfLikes: pushMessage.numberOfLikes) || likesManager.shouldSendPush(numberOfDislikes: pushMessage.numberOfDislikes) {
             let title = pushMessage.title
             let body = pushMessage.body
             
-            self.sendPush(on: request, eventID: eventID, title: title, body: body)
+            self.sendPush(on: request, eventID: eventID, title: title, body: body, category: pushType.rawValue)
         }
     }
 }

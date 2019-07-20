@@ -52,6 +52,7 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
     func postLike(_ request: Request)throws -> Future<Comment.Likes> {
         return try request.parameters.next(Comment.self).flatMap { comment in
             self.likesManager.like(numberOfLikes: &comment.numberOfLikes)
+            self.sendPush(on: request, pushMessage: comment, pushType: PushType.newLikeOrDislkeOnComment, likesManager: self.likesManager)
             return self.updateLikes(request, comment: comment)
         }
     }
@@ -67,6 +68,7 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
     func postDislike(_ request: Request)throws -> Future<Comment.Dislikes> {
         return try request.parameters.next(Comment.self).flatMap { comment in
             self.likesManager.dislike(numberOfDislikes: &comment.numberOfDislikes)
+            self.sendPush(on: request, pushMessage: comment, pushType: PushType.newLikeOrDislkeOnComment, likesManager: self.likesManager)
             return self.updateDislikes(request, comment: comment)
         }
     }
@@ -104,7 +106,7 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
                 if comment.parentID == nil {
                     // Check if comment is created by owner of Post. We don't want to send push to ourselves :)
                     if let pushTokenID = updatedPost.pushTokenID, pushTokenID != comment.pushTokenID {
-                        self.sendPush(on: request, eventID: postID, title: LocalizationManager.newCommentOnPost, body: comment.comment)
+                        self.sendPush(on: request, eventID: postID, title: LocalizationManager.newCommentOnPost, body: comment.comment, category: PushType.newCommentOnPost.rawValue)
                     }
                 }
                 return Future.map(on: request) { return updatedPost }
@@ -117,7 +119,7 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
                 self.commentsManager.comment(numberOfComments: &parentComment.numberOfComments)
                 return parentComment.update(on: request).flatMap { updatedComment in
                     if let pushTokenID = updatedComment.pushTokenID, pushTokenID != comment.pushTokenID {
-                        self.sendPush(on: request, eventID: parentID, title: LocalizationManager.newCommentOnComment, body: comment.comment)
+                        self.sendPush(on: request, eventID: parentID, title: LocalizationManager.newCommentOnComment, body: comment.comment, category: PushType.newCommentOnComment.rawValue)
                     }
                     return Future.map(on: request) { return updatedComment }
                 }

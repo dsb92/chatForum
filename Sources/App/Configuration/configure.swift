@@ -86,6 +86,7 @@ _ services: inout Services
     migrations.add(migration: CommentAddNumberOfComments.self, database: .psql)
     migrations.add(migration: CommentAddPushTokenID.self, database: .psql)
     migrations.add(migration: PostAddPushTokenID.self, database: .psql)
+    migrations.add(migration: NotificationAddMigration.self, database: .psql)
     
     services.register(migrations)
     
