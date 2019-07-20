@@ -10,6 +10,9 @@ _ env: inout Environment,
 _ services: inout Services
 ) throws {
     
+    // load enviroment if any
+    Environment.dotenv()
+    
     try services.register(FluentPostgreSQLProvider())
     
     let router = EngineRouter.default()
@@ -67,9 +70,9 @@ _ services: inout Services
 //    migrations.add(model: Color.self, database: .psql)
 //    migrations.add(model: Token.self, database: .psql)
 //    migrations.add(model: User.self, database: .psql)
-    migrations.add(model: PushToken.self, database: .psql)
-    migrations.add(model: Notification.self, database: .psql)
-    migrations.add(model: NotificationEvent.self, database: .psql)
+//    migrations.add(model: PushToken.self, database: .psql)
+//    migrations.add(model: Notification.self, database: .psql)
+//    migrations.add(model: NotificationEvent.self, database: .psql)
     
 //    migrations.add(migration: PostAddUpdatedAt.self, database: .psql)
 //    migrations.add(migration: CommentAddUpdatedAt.self, database: .psql)
@@ -82,11 +85,11 @@ _ services: inout Services
 //    migrations.add(migration: PostAddNumberOfDislikes.self, database: .psql)
 //    migrations.add(migration: CommentAddNumberOfLikes.self, database: .psql)
 //    migrations.add(migration: CommentAddNumberOfDislikes.self, database: .psql)
-    migrations.add(migration: CommentAddParentID.self, database: .psql)
-    migrations.add(migration: CommentAddNumberOfComments.self, database: .psql)
-    migrations.add(migration: CommentAddPushTokenID.self, database: .psql)
-    migrations.add(migration: PostAddPushTokenID.self, database: .psql)
-    migrations.add(migration: NotificationAddMigration.self, database: .psql)
+//    migrations.add(migration: CommentAddParentID.self, database: .psql)
+//    migrations.add(migration: CommentAddNumberOfComments.self, database: .psql)
+//    migrations.add(migration: CommentAddPushTokenID.self, database: .psql)
+//    migrations.add(migration: PostAddPushTokenID.self, database: .psql)
+//    migrations.add(migration: NotificationAddMigration.self, database: .psql)
     
     services.register(migrations)
     
@@ -105,6 +108,27 @@ _ services: inout Services
     
     // Configure FCM
     let directory = DirectoryConfig.detect()
-    let fcm = FCM(pathToServiceAccountKey: directory.workDir + "/tmp/chatforum-190fa-firebase-adminsdk-1a7j5-395f92428d.json")
-    services.register(fcm, as: FCM.self)
+    guard let fcmServiceAccountEncoded = Environment.get("FIREBASE_SERVICE_ACCOUNT_BASE64") else { throw Abort(.internalServerError, reason: "Missing Firebase service account setup") }
+    
+    if let decodedData = Data(base64Encoded: fcmServiceAccountEncoded), let decodedString = String(data: decodedData, encoding: .utf8) {
+        // Create tmp dir
+        let dir = directory.workDir + "tmp"
+        do {
+            try FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true, attributes: nil)
+        } catch {
+            print(error.localizedDescription)
+        }
+        
+        // Create tmp file
+        let path = dir + "/chatforum-190fa-firebase-adminsdk-1a7j5-395f92428d.json"
+        if(!FileManager.default.fileExists(atPath:path)){
+            FileManager.default.createFile(atPath: path, contents: nil, attributes: nil)
+        }else{
+            print("File is already created")
+        }
+        
+        try decodedString.write(toFile: path, atomically: true, encoding: .utf8)
+        let fcm = FCM(pathToServiceAccountKey: path)
+        services.register(fcm, as: FCM.self)
+    }
 }
