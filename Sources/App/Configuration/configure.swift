@@ -46,7 +46,7 @@ _ services: inout Services
 //    migrations.add(model: PushToken.self, database: .psql)
 //    migrations.add(model: Notification.self, database: .psql)
 //    migrations.add(model: NotificationEvent.self, database: .psql)
-//    migrations.add(model: Location.self, database: .psql)
+    migrations.add(model: Location.self, database: .psql)
 
 //    migrations.add(migration: PostAddUpdatedAt.self, database: .psql)
 //    migrations.add(migration: CommentAddUpdatedAt.self, database: .psql)
@@ -63,7 +63,7 @@ _ services: inout Services
 //    migrations.add(migration: CommentAddPushTokenID.self, database: .psql)
 //    migrations.add(migration: PostAddPushTokenID.self, database: .psql)
 //    migrations.add(migration: NotificationAddMigration.self, database: .psql)
-//    migrations.add(migration: PostAddLocation.self, database: .psql)
+    migrations.add(migration: PostAddLocation.self, database: .psql)
     
     services.register(migrations)
     
