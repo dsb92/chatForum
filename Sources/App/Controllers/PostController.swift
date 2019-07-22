@@ -7,13 +7,15 @@ struct PostsResponse: Codable {
 
 extension PostsResponse: Content { }
 
-final class PostController: RouteCollection, LikesManagable, PushManageable {
+class PostController: RouteCollection, LikesManagable, PushManageable, LocationManagable {
     var pushProvider: PushProvider!
     var likesManager: LikesManager!
+    var locationProvider: LocationProvider!
     
     func boot(router: Router) throws {
         likesManager = LikesManager()
         pushProvider = FCMProvider()
+        locationProvider = GMProvider()
         
         let posts = router.grouped("posts")
         
@@ -99,7 +101,35 @@ final class PostController: RouteCollection, LikesManagable, PushManageable {
                 let _ = NotificationEvent.query(on: request).create(event)
             }
             
-            return Future.map(on: request) { return newPost }
+            guard let coordinate2D = post.coordinate2D else {
+                return Future.map(on: request) { return newPost }
+            }
+            
+            let promisePost: Promise<Post> = request.eventLoop.newPromise()
+            
+            let _ = try self.locationProvider.getReverseGeocode(on: request, coordinate2D: coordinate2D).flatMap { geolocation -> EventLoopFuture<Post> in
+                guard let postID = newPost.id, let geo = geolocation, let country = geo.country else {
+                    promisePost.succeed(result: newPost)
+                    return Future.map(on: request) { return newPost }
+                }
+                
+                let location = Location(postID: postID, country: country)
+                let _ = Location.query(on: request).create(location)
+                
+                newPost.coordinate2D = nil
+                newPost.geolocation = geolocation
+                let _ = newPost.save(on: request).flatMap { savedPost in
+                    return Future.map(on: request) { () -> Post in
+                        promisePost.succeed(result: savedPost)
+                        return savedPost
+                    }
+                }
+                
+                
+                return Future.map(on: request) { return newPost }
+            }
+            
+            return promisePost.futureResult
         }
     }
     

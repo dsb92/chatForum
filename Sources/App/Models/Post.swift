@@ -2,6 +2,42 @@ import FluentPostgreSQL
 import Foundation
 import Vapor
 
+struct Coordinate2DPosition: Codable {
+    var latitude: Double
+    var longitude: Double
+}
+
+struct Geolocation: Codable {
+    var country: String?
+    var city: String?
+}
+
+extension Coordinate2DPosition: ReflectionDecodable, Equatable {
+    static var leftExample = Coordinate2DPosition(latitude: 54.0123, longitude: 53.04131)
+    static var rightExample = Coordinate2DPosition(latitude: 54.0123, longitude: 53.04131)
+    
+    static func reflectDecoded() throws -> (Coordinate2DPosition, Coordinate2DPosition) {
+        return (Coordinate2DPosition.leftExample, Coordinate2DPosition.rightExample)
+    }
+    
+    static func reflectDecodedIsLeft(_ item: Coordinate2DPosition) throws -> Bool {
+        return item == Coordinate2DPosition.leftExample
+    }
+}
+
+extension Geolocation: ReflectionDecodable, Equatable {
+    static var leftExample = Geolocation(country: nil, city: nil)
+    static var rightExample = Geolocation(country: "Danmark", city: "Aarhus")
+    
+    static func reflectDecoded() throws -> (Geolocation, Geolocation) {
+        return (Geolocation.leftExample, Geolocation.rightExample)
+    }
+    
+    static func reflectDecodedIsLeft(_ item: Geolocation) throws -> Bool {
+        return item == Geolocation.leftExample
+    }
+}
+
 final class Post: Content {
     var id: UUID?
     var text: String
@@ -13,8 +49,10 @@ final class Post: Content {
     var imageIds: [UUID]?
     var videoIds: [UUID]?
     var pushTokenID: UUID?
+    var coordinate2D: Coordinate2DPosition?
+    var geolocation: Geolocation?
     
-    init(text: String, updatedAt: String, backgroundColorHex: String, numberOfComments: Int?, numberOfLikes: Int?, numberOfDislikes: Int?, imageIds: [UUID]?, videosId: [UUID]?, pushTokenID: UUID?) {
+    init(text: String, updatedAt: String, backgroundColorHex: String, numberOfComments: Int?, numberOfLikes: Int?, numberOfDislikes: Int?, imageIds: [UUID]?, videosId: [UUID]?, pushTokenID: UUID?, coordinate2D: Coordinate2DPosition?, geolocation: Geolocation?) {
         self.text = text
         self.updatedAt = updatedAt
         self.backgroundColorHex = backgroundColorHex
@@ -24,6 +62,8 @@ final class Post: Content {
         self.imageIds = imageIds
         self.videoIds = videosId
         self.pushTokenID = pushTokenID
+        self.coordinate2D = coordinate2D
+        self.geolocation = geolocation
     }
 }
 
@@ -39,7 +79,6 @@ extension Post: Model {
 }
 
 extension Post {
-    // this post's related comments
     var comments: Children<Post, Comment> {
         return children(\.postID)
     }

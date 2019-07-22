@@ -28,7 +28,6 @@ final class Comment: Content {
 extension Comment: Migration {}
 extension Comment: Parameter {}
 extension Comment: Model {
-    // Need to declare which database
     typealias Database = PostgreSQLDatabase
     
     static var idKey: WritableKeyPath<Comment, UUID?> {
@@ -37,14 +36,12 @@ extension Comment: Model {
 }
 
 extension Comment {
-    // this comment's related Post
     var post: Parent<Comment, Post> {
         return parent(\.postID)
     }
 }
 
 extension Comment {
-    // this comment's related Post
     var parent: Parent<Comment, Comment>? {
         return parent(\.parentID)
     }
