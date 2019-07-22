@@ -16,21 +16,14 @@ final class PostFilterController: RouteCollection {
             throw Abort(.badRequest)
         }
         
-        return Location.query(on: request).filter(\Location.country, .equal, queryCountry).all().flatMap { locations in
-            var matches = [Post]()
-            let promisePosts: Promise<PostsResponse> = request.eventLoop.newPromise()
-            DispatchQueue.global().async {
-                locations.forEach { location in
-                    let _ = Post.find(location.postID, on: request).unwrap(or: Abort.init(HTTPResponseStatus.notFound)).flatMap { post -> EventLoopFuture<Post> in
-                        matches.append(post)
-                        return Future.map(on: request) { return post }
-                    }
+        return Post.query(on: request).all().flatMap(to: PostsResponse.self) { posts in
+            var match = [Post]()
+            posts.forEach { post in
+                if let geolocation = post.geolocation, let country = geolocation.country, country == queryCountry {
+                    match.append(post)
                 }
-                
-                promisePosts.succeed(result: PostsResponse(posts: matches))
             }
-            
-            return Future.map(on: request) { return PostsResponse(posts: matches) }
+            return Future.map(on: request) { return PostsResponse(posts: match) }
         }
     }
 }
