@@ -125,7 +125,6 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
                     }
                 }
                 
-                
                 return Future.map(on: request) { return newPost }
             }
             
