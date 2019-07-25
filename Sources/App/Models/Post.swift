@@ -9,6 +9,7 @@ struct Coordinate2DPosition: Codable {
 
 struct Geolocation: Codable {
     var country: String?
+    var flagURL: String?
     var city: String?
 }
 
@@ -26,8 +27,8 @@ extension Coordinate2DPosition: ReflectionDecodable, Equatable {
 }
 
 extension Geolocation: ReflectionDecodable, Equatable {
-    static var leftExample = Geolocation(country: nil, city: nil)
-    static var rightExample = Geolocation(country: "Danmark", city: "Aarhus")
+    static var leftExample = Geolocation(country: nil, flagURL: nil, city: nil)
+    static var rightExample = Geolocation(country: "Danmark", flagURL: "https://www.countryflags.io/be/shiny/64.png", city: "Aarhus")
     
     static func reflectDecoded() throws -> (Geolocation, Geolocation) {
         return (Geolocation.leftExample, Geolocation.rightExample)

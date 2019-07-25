@@ -7,7 +7,7 @@ struct PostsResponse: Codable {
 
 extension PostsResponse: Content { }
 
-class PostController: RouteCollection, LikesManagable, PushManageable, LocationManagable {
+final class PostController: RouteCollection, LikesManagable, PushManageable, LocationManagable {
     var pushProvider: PushProvider!
     var likesManager: LikesManager!
     var locationProvider: LocationProvider!
@@ -113,7 +113,7 @@ class PostController: RouteCollection, LikesManagable, PushManageable, LocationM
                     return Future.map(on: request) { return newPost }
                 }
                 
-                let location = Location(postID: postID, country: country)
+                let location = Location(postID: postID, country: country, flagURL: geo.flagURL, city: geo.city)
                 let _ = Location.query(on: request).create(location)
                 
                 newPost.coordinate2D = nil

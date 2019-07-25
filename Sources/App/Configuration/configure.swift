@@ -64,6 +64,7 @@ _ services: inout Services
 //    migrations.add(migration: PostAddPushTokenID.self, database: .psql)
 //    migrations.add(migration: NotificationAddMigration.self, database: .psql)
 //    migrations.add(migration: PostAddLocation.self, database: .psql)
+    migrations.add(migration: LocationAddFlagURLCity.self, database: .psql)
     
     services.register(migrations)
     

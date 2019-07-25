@@ -6,10 +6,14 @@ final class Location: Content {
     var id: UUID?
     var postID: UUID
     var country: String
+    var flagURL: String?
+    var city: String?
     
-    init(postID: UUID, country: String) {
+    init(postID: UUID, country: String, flagURL: String?, city: String?) {
         self.postID = postID
         self.country = country
+        self.flagURL = flagURL
+        self.city = city
     }
 }
 
