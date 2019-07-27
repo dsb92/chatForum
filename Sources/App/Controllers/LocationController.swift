@@ -9,7 +9,7 @@ extension LocationResponse: Content { }
 
 final class LocationController: RouteCollection {
     func boot(router: Router) throws {
-        let locs = router.grouped("posts/locations")
+        let locs = router.grouped("locations")
         
         locs.get(use: getLocations)
     }

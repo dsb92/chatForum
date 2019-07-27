@@ -18,12 +18,18 @@ final class PostFilterController: RouteCollection {
         
         return Post.query(on: request).all().flatMap(to: PostsResponse.self) { posts in
             var match = [Post]()
-            posts.forEach { post in
-                if let geolocation = post.geolocation, let country = geolocation.country, country == queryCountry {
-                    match.append(post)
+            let promise: Promise<PostsResponse> = request.eventLoop.newPromise()
+            DispatchQueue.global().async {
+                posts.forEach { post in
+                    if let geolocation = post.geolocation, let country = geolocation.country, country == queryCountry {
+                        match.append(post)
+                    }
                 }
+                
+                promise.succeed(result: PostsResponse(posts: match))
             }
-            return Future.map(on: request) { return PostsResponse(posts: match) }
+            
+            return promise.futureResult
         }
     }
 }

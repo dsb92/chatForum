@@ -14,6 +14,7 @@ public func routes(_ router: Router) throws {
     try router.register(collection: NotificationEventController())
     try router.register(collection: PostFilterController())
     try router.register(collection: LocationController())
+    try router.register(collection: ChannelController())
     router.get { (request) in
         return "Running Vapor!"
     }

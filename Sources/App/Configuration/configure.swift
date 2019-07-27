@@ -47,6 +47,7 @@ _ services: inout Services
 //    migrations.add(model: Notification.self, database: .psql)
 //    migrations.add(model: NotificationEvent.self, database: .psql)
 //    migrations.add(model: Location.self, database: .psql)
+    migrations.add(model: Channel.self, database: .psql)
 
 //    migrations.add(migration: PostAddUpdatedAt.self, database: .psql)
 //    migrations.add(migration: CommentAddUpdatedAt.self, database: .psql)
@@ -64,7 +65,8 @@ _ services: inout Services
 //    migrations.add(migration: PostAddPushTokenID.self, database: .psql)
 //    migrations.add(migration: NotificationAddMigration.self, database: .psql)
 //    migrations.add(migration: PostAddLocation.self, database: .psql)
-    migrations.add(migration: LocationAddFlagURLCity.self, database: .psql)
+//    migrations.add(migration: LocationAddFlagURLCity.self, database: .psql)
+    migrations.add(migration: PostAddChannelID.self, database: .psql)
     
     services.register(migrations)
     
@@ -84,6 +86,7 @@ _ services: inout Services
     Notification.defaultDatabase = .psql
     NotificationEvent.defaultDatabase = .psql
     Location.defaultDatabase = .psql
+    Channel.defaultDatabase = .psql
     
     // Configure FCM
     let directory = DirectoryConfig.detect()
