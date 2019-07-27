@@ -77,17 +77,6 @@ _ services: inout Services
     // There is a default limit of 1 million bytes for incoming requests. Override it her
     services.register(NIOServerConfig.default(maxBodySize: 20_000_000))
     
-    Post.defaultDatabase = .psql
-    Comment.defaultDatabase = .psql
-    Color.defaultDatabase = .psql
-    Token.defaultDatabase = .psql
-    User.defaultDatabase = .psql
-    PushToken.defaultDatabase = .psql
-    Notification.defaultDatabase = .psql
-    NotificationEvent.defaultDatabase = .psql
-    Location.defaultDatabase = .psql
-    Channel.defaultDatabase = .psql
-    
     // Configure FCM
     let directory = DirectoryConfig.detect()
     guard let fcmServiceAccountEncoded = Environment.get("FIREBASE_SERVICE_ACCOUNT_BASE64") else { throw Abort(.internalServerError, reason: "Missing Firebase service account setup") }

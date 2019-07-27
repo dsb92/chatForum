@@ -2,7 +2,7 @@ import FluentPostgreSQL
 import Foundation
 import Vapor
 
-final class Color: Content {
+final class Color: PostgreModel {
     var id: UUID?
     var hexString: String?
     
@@ -11,12 +11,7 @@ final class Color: Content {
     }
 }
 
-extension Color: Parameter {}
-extension Color: Migration {}
-
-extension Color: Model {
-    typealias Database = PostgreSQLDatabase
-    
+extension Color {
     static var idKey: WritableKeyPath<Color, UUID?> {
         return \.id
     }

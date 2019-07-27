@@ -2,7 +2,7 @@ import FluentPostgreSQL
 import Foundation
 import Vapor
 
-final class NotificationEvent: Content {
+final class NotificationEvent: PostgreModel {
     var id: UUID?
     var pushTokenID: UUID
     var eventID: UUID
@@ -13,12 +13,7 @@ final class NotificationEvent: Content {
     }
 }
 
-extension NotificationEvent: Migration {}
-extension NotificationEvent: Parameter {}
-extension NotificationEvent: Model {
-    // Need to declare which database
-    typealias Database = PostgreSQLDatabase
-    
+extension NotificationEvent {
     static var idKey: WritableKeyPath<NotificationEvent, UUID?> {
         return \.id
     }

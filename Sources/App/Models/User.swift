@@ -2,7 +2,7 @@ import FluentPostgreSQL
 import Vapor
 import Authentication
 
-final class User: Content {
+final class User: PostgreModel {
     var id: UUID?
     var email: String
     var password: String
@@ -13,16 +13,11 @@ final class User: Content {
     }
 }
 
-extension User: Parameter {}
-extension User: Migration {}
-
 extension User: TokenAuthenticatable {
     typealias TokenType = Token
 }
 
 extension User: Model {
-    typealias Database = PostgreSQLDatabase
-    
     static var idKey: WritableKeyPath<User, UUID?> {
         return \.id
     }

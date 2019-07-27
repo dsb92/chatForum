@@ -1,4 +1,6 @@
 import Foundation
+import Vapor
+import FluentPostgreSQL
 
 protocol LikesManagable {
     var likesManager: LikesManager! { get }

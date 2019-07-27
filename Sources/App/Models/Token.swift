@@ -3,7 +3,7 @@ import Foundation
 import Vapor
 import Authentication
 
-final class Token: Content {
+final class Token: PostgreModel {
     var id: UUID?
     var token: String
     var userID: User.ID
@@ -14,12 +14,7 @@ final class Token: Content {
     }
 }
 
-extension Token: Parameter {}
-extension Token: Migration {}
-
-extension Token: Model {
-    typealias Database = PostgreSQLDatabase
-    
+extension Token {
     static var idKey: WritableKeyPath<Token, UUID?> {
         return \.id
     }

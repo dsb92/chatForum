@@ -2,7 +2,7 @@ import FluentPostgreSQL
 import Foundation
 import Vapor
 
-final class Location: Content {
+final class Location: PostgreModel {
     var id: UUID?
     var postID: UUID
     var country: String
@@ -17,12 +17,7 @@ final class Location: Content {
     }
 }
 
-extension Location: Parameter {}
-extension Location: Migration {}
-
-extension Location: Model {
-    typealias Database = PostgreSQLDatabase
-    
+extension Location {
     static var idKey: WritableKeyPath<Location, UUID?> {
         return \.id
     }

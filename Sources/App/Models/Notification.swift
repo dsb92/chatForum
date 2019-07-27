@@ -4,7 +4,7 @@ import Vapor
 
 typealias NotificationPayload = [String: String]
 
-final class Notification: Content {
+final class Notification: PostgreModel {
     var id: UUID?
     var token: String
     var title: String
@@ -25,12 +25,7 @@ final class Notification: Content {
     }
 }
 
-extension Notification: Parameter {}
-extension Notification: Migration {}
-
-extension Notification: Model {
-    typealias Database = PostgreSQLDatabase
-    
+extension Notification {
     static var idKey: WritableKeyPath<Notification, UUID?> {
         return \.id
     }

@@ -39,7 +39,7 @@ extension Geolocation: ReflectionDecodable, Equatable {
     }
 }
 
-final class Post: Content {
+final class Post: PostgreModel {
     var id: UUID?
     var text: String
     var updatedAt: String
@@ -70,12 +70,7 @@ final class Post: Content {
     }
 }
 
-extension Post: Parameter {}
-extension Post: Migration {}
-
-extension Post: Model {
-    typealias Database = PostgreSQLDatabase
-    
+extension Post {
     static var idKey: WritableKeyPath<Post, UUID?> {
         return \.id
     }

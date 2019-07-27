@@ -1,7 +1,7 @@
 import Vapor
 import FluentPostgreSQL
 
-final class Channel: Content {
+final class Channel: PostgreModel {
     var id: UUID?
     var name: String
     
@@ -10,12 +10,7 @@ final class Channel: Content {
     }
 }
 
-extension Channel: Parameter {}
-extension Channel: Migration {}
-
-extension Channel: Model {
-    typealias Database = PostgreSQLDatabase
-    
+extension Channel {
     static var idKey: WritableKeyPath<Channel, UUID?> {
         return \.id
     }

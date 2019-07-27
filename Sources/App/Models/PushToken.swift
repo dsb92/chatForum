@@ -2,7 +2,7 @@ import FluentPostgreSQL
 import Foundation
 import Vapor
 
-final class PushToken: Content {
+final class PushToken: PostgreModel {
     var id: UUID?
     var token: String
     
@@ -11,12 +11,7 @@ final class PushToken: Content {
     }
 }
 
-extension PushToken: Parameter {}
-extension PushToken: Migration {}
-
-extension PushToken: Model {
-    typealias Database = PostgreSQLDatabase
-    
+extension PushToken {
     static var idKey: WritableKeyPath<PushToken, UUID?> {
         return \.id
     }

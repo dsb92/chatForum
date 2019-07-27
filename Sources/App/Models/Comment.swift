@@ -2,7 +2,7 @@ import FluentPostgreSQL
 import Foundation
 import Vapor
 
-final class Comment: Content {
+final class Comment: PostgreModel {
     var id: UUID?
     var postID: UUID
     var parentID: UUID?
@@ -25,11 +25,7 @@ final class Comment: Content {
     }
 }
 
-extension Comment: Migration {}
-extension Comment: Parameter {}
-extension Comment: Model {
-    typealias Database = PostgreSQLDatabase
-    
+extension Comment {
     static var idKey: WritableKeyPath<Comment, UUID?> {
         return \.id
     }
