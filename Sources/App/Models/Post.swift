@@ -87,15 +87,6 @@ extension Post {
     }
 }
 
-extension Post {
-    struct Likes: Content {
-        var numberOfLikes: Int
-    }
-    struct Dislikes: Content {
-        var numberOfDislikes: Int
-    }
-}
-
 extension Post: Comparable {
     static func < (lhs: Post, rhs: Post) -> Bool {
         return lhs.updatedAt.toDate().compare(rhs.updatedAt.toDate()) == .orderedAscending

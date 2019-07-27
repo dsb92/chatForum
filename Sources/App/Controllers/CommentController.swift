@@ -1,12 +1,6 @@
 import Vapor
 import Fluent
 
-struct CommentsResponse: Codable {
-    var comments: [Comment]
-}
-
-extension CommentsResponse: Content { }
-
 final class CommentController: RouteCollection, LikesManagable, CommentsManagable, PushManageable {
     var pushProvider: PushProvider!
     
@@ -49,7 +43,7 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
     }
     
     // LIKES
-    func postLike(_ request: Request)throws -> Future<Comment.Likes> {
+    func postLike(_ request: Request)throws -> Future<LikesResponse> {
         return try request.parameters.next(Comment.self).flatMap { comment in
             self.likesManager.like(numberOfLikes: &comment.numberOfLikes)
             self.sendPush(on: request, pushMessage: comment, pushType: PushType.newLikeOrDislkeOnComment, likesManager: self.likesManager)
@@ -57,7 +51,7 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
         }
     }
     
-    func deleteLike(_ request: Request)throws -> Future<Comment.Likes> {
+    func deleteLike(_ request: Request)throws -> Future<LikesResponse> {
         return try request.parameters.next(Comment.self).flatMap { comment in
             self.likesManager.deleteLike(numberOfLikes: &comment.numberOfLikes)
             return self.updateLikes(request, comment: comment)
@@ -65,7 +59,7 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
     }
     
     // DISLIKES
-    func postDislike(_ request: Request)throws -> Future<Comment.Dislikes> {
+    func postDislike(_ request: Request)throws -> Future<DislikesResponse> {
         return try request.parameters.next(Comment.self).flatMap { comment in
             self.likesManager.dislike(numberOfDislikes: &comment.numberOfDislikes)
             self.sendPush(on: request, pushMessage: comment, pushType: PushType.newLikeOrDislkeOnComment, likesManager: self.likesManager)
@@ -73,7 +67,7 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
         }
     }
     
-    func deleteDislike(_ request: Request)throws -> Future<Comment.Dislikes> {
+    func deleteDislike(_ request: Request)throws -> Future<DislikesResponse> {
         return try request.parameters.next(Comment.self).flatMap { comment in
             self.likesManager.deleteDislike(numberOfDislikes: &comment.numberOfDislikes)
             return self.updateDislikes(request, comment: comment)
@@ -135,17 +129,17 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
         }
     }
     
-    private func updateLikes(_ request: Request, comment: Comment) -> Future<Comment.Likes> {
+    private func updateLikes(_ request: Request, comment: Comment) -> Future<LikesResponse> {
         return comment.update(on: request).map { comment in
-            return Comment.Likes(
+            return LikesResponse(
                 numberOfLikes: comment.numberOfLikes ?? 0
             )
         }
     }
     
-    private func updateDislikes(_ request: Request, comment: Comment) -> Future<Comment.Dislikes> {
+    private func updateDislikes(_ request: Request, comment: Comment) -> Future<DislikesResponse> {
         return comment.update(on: request).map { post in
-            return Comment.Dislikes(
+            return DislikesResponse(
                 numberOfDislikes: comment.numberOfDislikes ?? 0
             )
         }

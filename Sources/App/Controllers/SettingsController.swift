@@ -1,12 +1,6 @@
 import Vapor
 import Fluent
 
-struct SettingsResponse: Codable {
-    var colors: [Color]
-}
-
-extension SettingsResponse: Content { }
-
 final class SettingsController: RouteCollection {
     // Register all 'users' routes
     func boot(router: Router) throws {

@@ -1,12 +1,6 @@
 import Vapor
 import Fluent
 
-struct ChannelsResponse: Codable {
-    var channels: [Channel]
-}
-
-extension ChannelsResponse: Content {}
-
 final class ChannelController: RouteCollection {
     func boot(router: Router) throws {
         let channels = router.grouped("channels")

@@ -18,10 +18,10 @@ final class NotificationController: RouteCollection, PushManageable {
         return try pushProvider.sendPush(on: request, notification: notification)
     }
     
-    func getNotifications(_ request: Request)throws -> Future<Notification.all> {
+    func getNotifications(_ request: Request)throws -> Future<NotificationsResponse> {
         let val = Notification.query(on: request).all()
         return val.flatMap { notifications in
-            let all = Notification.all(notifications: notifications)
+            let all = NotificationsResponse(notifications: notifications)
             return Future.map(on: request) { return all }
         }
     }

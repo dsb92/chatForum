@@ -35,9 +35,3 @@ extension Notification: Model {
         return \.id
     }
 }
-
-extension Notification {
-    struct all: Content {
-        var notifications: [Notification]
-    }
-}
