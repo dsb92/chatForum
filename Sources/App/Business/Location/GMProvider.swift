@@ -47,7 +47,7 @@ struct GMProvider: LocationProvider {
                 let city = cityComponent?.short_name
                 var flagURL: String?
                 if let countryCode = countryCode {
-                    flagURL = "https://www.countryflags.io/\(countryCode)/shiny/64.png"
+                    flagURL = "https://flagpedia.net/data/flags/normal/\(countryCode).png"
                 }
                 return Geolocation(country: country, flagURL: flagURL, city: city)
             }
