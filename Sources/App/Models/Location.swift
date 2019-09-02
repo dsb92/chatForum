@@ -28,3 +28,10 @@ extension Location {
         return parent(\.postID)
     }
 }
+
+extension Location {
+    struct DistinctCountry: Content {
+        let country: String
+        let flagURL: String?
+    }
+}
