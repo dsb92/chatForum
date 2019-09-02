@@ -2,41 +2,24 @@ import Vapor
 import Fluent
 
 final class LocationController: RouteCollection {
-    struct Params {
-        static let country = "country"
-    }
-    
     func boot(router: Router) throws {
         let locs = router.grouped("locations")
         
         locs.get(use: getLocations)
-        locs.get("/distinct", use: getDistinctLocationsByCountry)
+        locs.get("/distinctByCountry", use: getDistinctLocationsByCountry)
     }
     
     func getLocations(_ request: Request)throws -> Future<LocationsResponse> {
-        guard let queryCountry = request.query[String.self, at: Params.country] else {
-            let val = Location.query(on: request).all()
-            
-            return val.flatMap { locations in
-                return try self.sortedByCountryAscendingRequest(request: request, locations: locations)
-            }
-        }
+        let val = Location.query(on: request).all()
         
-        return try getLocationsByCountry(request, country: queryCountry)
-    }
-    
-    func getLocationsByCountry(_ request: Request, country: String)throws -> Future<LocationsResponse> {
-        return Location.query(on: request).filter(\Location.country, .equal, country).all().flatMap { locations in
-            return try self.sortedByCountryAscendingRequest(request: request, locations: locations)
+        return val.flatMap { locations in
+            let all = self.sortedByCountryAscending(locations: locations)
+            return Future.map(on: request) { return all }
         }
     }
     
     func getDistinctLocationsByCountry(_ request: Request)throws -> Future<LocationsDistinctCountryResponse> {
-        guard let queryCountry = request.query[String.self, at: Params.country] else {
-            throw Abort(HTTPStatus.notFound)
-        }
-        
-        return Location.query(on: request).filter(\Location.country, .equal, queryCountry).all().flatMap { locations in
+        return Location.query(on: request).all().flatMap { locations in
             var distinct = [Location.DistinctCountry]()
             let promise: Promise<LocationsDistinctCountryResponse> = request.eventLoop.newPromise()
             DispatchQueue.global().async {
@@ -53,11 +36,6 @@ final class LocationController: RouteCollection {
             
             return promise.futureResult
         }
-    }
-    
-    private func sortedByCountryAscendingRequest(request: Request, locations: [Location])throws -> Future<LocationsResponse> {
-        let all = sortedByCountryAscending(locations: locations)
-        return Future.map(on: request) { return all }
     }
     
     private func sortedByCountryAscending(locations: [Location]) -> LocationsResponse {
