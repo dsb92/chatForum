@@ -95,40 +95,23 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
                 let _ = NotificationEvent.query(on: request).create(event)
             }
             
-            guard let coordinate2D = post.coordinate2D else {
-                return Future.map(on: request) { return newPost }
-            }
-            
-            let promisePost: Promise<Post> = request.eventLoop.newPromise()
-            
-            let _ = try self.locationProvider.getReverseGeocode(on: request, coordinate2D: coordinate2D).flatMap { geolocation -> EventLoopFuture<Post> in
-                guard let postID = newPost.id, let geo = geolocation, let country = geo.country else {
-                    promisePost.succeed(result: newPost)
-                    return Future.map(on: request) { return newPost }
-                }
-                
-                let location = Location(postID: postID, country: country, flagURL: geo.flagURL, city: geo.city)
-                let _ = Location.query(on: request).create(location)
-                
+            return try self.getLocationFromPostByCoordinate2D(request: request, post: newPost).flatMap(to: Post.self) { location in
                 newPost.coordinate2D = nil
-                newPost.geolocation = geolocation
-                let _ = newPost.save(on: request).flatMap { savedPost in
-                    return Future.map(on: request) { () -> Post in
-                        promisePost.succeed(result: savedPost)
-                        return savedPost
-                    }
-                }
-                
-                return Future.map(on: request) { return newPost }
+                newPost.geolocation = Geolocation(country: location.country, flagURL: location.flagURL, city: location.city)
+                return newPost.save(on: request)
             }
-            
-            return promisePost.futureResult
         }
     }
     
     // UPDATE POST
     func putPost(_ request: Request, post: Post)throws -> Future<Post> {
-        return post.update(on: request)
+        return post.update(on: request).flatMap { newPost in
+            return try self.getLocationFromPostByCoordinate2D(request: request, post: newPost).flatMap(to: Post.self) { location in
+                newPost.coordinate2D = nil
+                newPost.geolocation = Geolocation(country: location.country, flagURL: location.flagURL, city: location.city)
+                return newPost.save(on: request)
+            }
+        }
     }
     
     // DELETE POST
