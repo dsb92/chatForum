@@ -105,11 +105,21 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     
     // UPDATE POST
     func putPost(_ request: Request, post: Post)throws -> Future<Post> {
-        return post.update(on: request).flatMap { newPost in
-            return try self.getLocationFromPostByCoordinate2D(request: request, post: newPost).flatMap(to: Post.self) { location in
-                newPost.coordinate2D = nil
-                newPost.geolocation = Geolocation(country: location.country, flagURL: location.flagURL, city: location.city)
-                return newPost.save(on: request)
+        return Post.query(on: request).filter(\Post.id, .equal, post.id).first().flatMap(to: Post.self) { fetchedPost in
+            guard let existingPost = fetchedPost else {
+                throw Abort(.badRequest)
+            }
+            
+            post.numberOfComments = existingPost.numberOfComments
+            post.numberOfLikes = existingPost.numberOfLikes
+            post.numberOfDislikes = existingPost.numberOfDislikes
+            
+            return post.update(on: request).flatMap { newPost in
+                return try self.getLocationFromPostByCoordinate2D(request: request, post: newPost).flatMap(to: Post.self) { location in
+                    newPost.coordinate2D = nil
+                    newPost.geolocation = Geolocation(country: location.country, flagURL: location.flagURL, city: location.city)
+                    return newPost.save(on: request)
+                }
             }
         }
     }
