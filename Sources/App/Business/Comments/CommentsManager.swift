@@ -5,7 +5,11 @@ protocol CommentsManagable {
 }
 
 struct CommentsManager: NumberManagable {
-    func comment(numberOfComments: inout Int?) {
+    func addComment(numberOfComments: inout Int?) {
         increase(number: &numberOfComments)
+    }
+    
+    func deleteComment(numberOfComments: inout Int?) {
+        decrease(number: &numberOfComments)
     }
 }

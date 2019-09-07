@@ -17,6 +17,7 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
         comments.get(Comment.parameter, "children", use: getChildren)
         comments.get(use: getComments)
         comments.get(Comment.parameter, use: getComment)
+        comments.delete(Comment.parameter, use: deleteComment)
         comments.post(Comment.self, use: postComment)
         comments.post(Comment.parameter, "like", use: postLike)
         comments.delete(Comment.parameter, "like", use: deleteLike)
@@ -94,7 +95,7 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
     func postComment(_ request: Request, _ comment: Comment)throws -> Future<Comment> {
         let _ = Post.find(comment.postID, on: request).flatMap(to: Post.self) { post in
             guard let post = post, let postID = post.id else { throw Abort.init(HTTPStatus.notFound) }
-            self.commentsManager.comment(numberOfComments: &post.numberOfComments)
+            self.commentsManager.addComment(numberOfComments: &post.numberOfComments)
             return post.update(on: request).flatMap() { updatedPost in
                 // Check if comment is on parent comment
                 if comment.parentID == nil {
@@ -110,7 +111,7 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
         if let parentID = comment.parentID {
             let _ = Comment.find(parentID, on: request).flatMap(to: Comment.self) { parentComment in
                 guard let parentComment = parentComment else { throw Abort.init(HTTPStatus.notFound) }
-                self.commentsManager.comment(numberOfComments: &parentComment.numberOfComments)
+                self.commentsManager.addComment(numberOfComments: &parentComment.numberOfComments)
                 return parentComment.update(on: request).flatMap { updatedComment in
                     if let pushTokenID = updatedComment.pushTokenID, pushTokenID != comment.pushTokenID {
                         self.sendPush(on: request, eventID: parentID, title: LocalizationManager.newCommentOnComment, body: comment.comment, category: PushType.newCommentOnComment.rawValue)
@@ -126,6 +127,16 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
             }
             
             return Future.map(on: request) { return newComment }
+        }
+    }
+    
+    // DELETE COMMENT
+    func deleteComment(_ request: Request)throws -> Future<HTTPStatus> {
+        return try request.parameters.next(Comment.self).delete(on: request).flatMap(to: HTTPStatus.self) { comment in
+            return comment.post.get(on: request).flatMap(to: HTTPStatus.self) { post in
+                self.commentsManager.deleteComment(numberOfComments: &post.numberOfComments)
+                return post.update(on: request).transform(to: HTTPStatus.noContent)
+            }
         }
     }
     
