@@ -95,6 +95,10 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
                 let _ = NotificationEvent.query(on: request).create(event)
             }
             
+            guard let _ = post.coordinate2D else {
+                return Future.map(on: request) { return newPost }
+            }
+            
             return try self.getLocationFromPostByCoordinate2D(request: request, post: newPost).flatMap(to: Post.self) { location in
                 newPost.coordinate2D = nil
                 newPost.geolocation = Geolocation(country: location.country, flagURL: location.flagURL, city: location.city)
@@ -115,6 +119,11 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
             post.numberOfDislikes = existingPost.numberOfDislikes
             
             return post.update(on: request).flatMap { newPost in
+                
+                guard let _ = post.coordinate2D else {
+                    return Future.map(on: request) { return newPost }
+                }
+                
                 return try self.getLocationFromPostByCoordinate2D(request: request, post: newPost).flatMap(to: Post.self) { location in
                     newPost.coordinate2D = nil
                     newPost.geolocation = Geolocation(country: location.country, flagURL: location.flagURL, city: location.city)
