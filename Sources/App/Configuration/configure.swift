@@ -102,7 +102,7 @@ _ services: inout Services
         }
         
         // Create tmp file
-        let path = dir + "/chatforum-190fa-firebase-adminsdk-1a7j5-395f92428d.json"
+        let path = dir + "/loomi-485e6-firebase-adminsdk-qc49a-b5a8814440.json"
         if !FileManager.default.fileExists(atPath:path){
             FileManager.default.createFile(atPath: path, contents: nil, attributes: nil)
         }
