@@ -38,15 +38,15 @@ _ services: inout Services
     
     // Migrations
     var migrations = MigrationConfig()
-//    migrations.add(model: Post.self, database: .psql)
-//    migrations.add(model: Comment.self, database: .psql)
-//    migrations.add(model: Color.self, database: .psql)
-//    migrations.add(model: Token.self, database: .psql)
-//    migrations.add(model: User.self, database: .psql)
-//    migrations.add(model: PushToken.self, database: .psql)
-//    migrations.add(model: Notification.self, database: .psql)
-//    migrations.add(model: NotificationEvent.self, database: .psql)
-//    migrations.add(model: Location.self, database: .psql)
+    migrations.add(model: Post.self, database: .psql)
+    migrations.add(model: Comment.self, database: .psql)
+    migrations.add(model: Color.self, database: .psql)
+    migrations.add(model: Token.self, database: .psql)
+    migrations.add(model: User.self, database: .psql)
+    migrations.add(model: PushToken.self, database: .psql)
+    migrations.add(model: Notification.self, database: .psql)
+    migrations.add(model: NotificationEvent.self, database: .psql)
+    migrations.add(model: Location.self, database: .psql)
     migrations.add(model: Channel.self, database: .psql)
 
 //    migrations.add(migration: PostAddUpdatedAt.self, database: .psql)
@@ -66,7 +66,7 @@ _ services: inout Services
 //    migrations.add(migration: NotificationAddMigration.self, database: .psql)
 //    migrations.add(migration: PostAddLocation.self, database: .psql)
 //    migrations.add(migration: LocationAddFlagURLCity.self, database: .psql)
-    migrations.add(migration: PostAddChannelID.self, database: .psql)
+//    migrations.add(migration: PostAddChannelID.self, database: .psql)
     
     services.register(migrations)
     
