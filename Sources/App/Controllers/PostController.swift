@@ -91,8 +91,7 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     func postPost(_ request: Request, _ post: Post)throws -> Future<Post> {
         return post.create(on: request).flatMap { newPost in
             if let postID = newPost.id, let pushTokenID = newPost.pushTokenID {
-                let event = NotificationEvent(pushTokenID: pushTokenID, eventID: postID)
-                let _ = NotificationEvent.query(on: request).create(event)
+                NotificationEvent.create(on: request, pushTokenID: pushTokenID, eventID: postID)
             }
             
             guard let _ = post.coordinate2D else {
@@ -135,7 +134,14 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     
     // DELETE POST
     func deletePost(_ request: Request)throws -> Future<HTTPStatus> {
-        return try request.parameters.next(Post.self).delete(on: request).transform(to: .noContent)
+        return try request.parameters.next(Post.self).delete(on: request).flatMap(to: HTTPStatus.self) { post in
+            if let postID = post.id {
+                // Delete associated notification events
+                let _ = NotificationEvent.query(on: request).filter(\NotificationEvent.eventID, .equal, postID).delete()
+            }
+            // Delete associated comments
+            return try post.comments.query(on: request).delete().transform(to: .noContent)
+        }
     }
     
     private func updateLikes(_ request: Request, post: Post) -> Future<LikesResponse> {

@@ -49,12 +49,13 @@ final class Post: PostgreModel {
     var numberOfDislikes: Int?
     var imageIds: [UUID]?
     var videoIds: [UUID]?
+    var deviceID: UUID?
     var pushTokenID: UUID?
     var coordinate2D: Coordinate2DPosition?
     var geolocation: Geolocation?
     var channelID: UUID?
     
-    init(text: String, updatedAt: String, backgroundColorHex: String, numberOfComments: Int?, numberOfLikes: Int?, numberOfDislikes: Int?, imageIds: [UUID]?, videosId: [UUID]?, pushTokenID: UUID?, coordinate2D: Coordinate2DPosition?, geolocation: Geolocation?, channelID: UUID?) {
+    init(text: String, updatedAt: String, backgroundColorHex: String, numberOfComments: Int?, numberOfLikes: Int?, numberOfDislikes: Int?, imageIds: [UUID]?, videosId: [UUID]?, deviceID: UUID?, pushTokenID: UUID?, coordinate2D: Coordinate2DPosition?, geolocation: Geolocation?, channelID: UUID?) {
         self.text = text
         self.updatedAt = updatedAt
         self.backgroundColorHex = backgroundColorHex
@@ -63,6 +64,7 @@ final class Post: PostgreModel {
         self.numberOfDislikes = numberOfDislikes
         self.imageIds = imageIds
         self.videoIds = videosId
+        self.deviceID = deviceID
         self.pushTokenID = pushTokenID
         self.coordinate2D = coordinate2D
         self.geolocation = geolocation

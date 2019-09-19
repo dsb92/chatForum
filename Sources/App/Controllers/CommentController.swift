@@ -93,8 +93,8 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
     
     // POST COMMENT
     func postComment(_ request: Request, _ comment: Comment)throws -> Future<Comment> {
-        let _ = Post.find(comment.postID, on: request).flatMap(to: Post.self) { post in
-            guard let post = post, let postID = post.id else { throw Abort.init(HTTPStatus.notFound) }
+        let _ = comment.post.get(on: request).flatMap(to: Post.self) { post in
+            guard let postID = post.id else { throw Abort.init(HTTPStatus.notFound) }
             self.commentsManager.addComment(numberOfComments: &post.numberOfComments)
             return post.update(on: request).flatMap() { updatedPost in
                 // Check if comment is on parent comment
@@ -133,6 +133,10 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
     // DELETE COMMENT
     func deleteComment(_ request: Request)throws -> Future<HTTPStatus> {
         return try request.parameters.next(Comment.self).delete(on: request).flatMap(to: HTTPStatus.self) { comment in
+            if let commentID = comment.id {
+                // Delete associated notification events
+                let _ = NotificationEvent.query(on: request).filter(\NotificationEvent.eventID, .equal, commentID).delete()
+            }
             return comment.post.get(on: request).flatMap(to: HTTPStatus.self) { post in
                 self.commentsManager.deleteComment(numberOfComments: &post.numberOfComments)
                 return post.update(on: request).transform(to: HTTPStatus.noContent)
