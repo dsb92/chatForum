@@ -48,8 +48,8 @@ _ services: inout Services
 //    migrations.add(model: NotificationEvent.self, database: .psql)
 //    migrations.add(model: Location.self, database: .psql)
 //    migrations.add(model: Channel.self, database: .psql)
-    migrations.add(model: Device.self, database: .psql)
-    migrations.add(model: BlockedDevice.self, database: .psql)
+//    migrations.add(model: Device.self, database: .psql)
+//    migrations.add(model: BlockedDevice.self, database: .psql)
 
 //    migrations.add(migration: PostAddUpdatedAt.self, database: .psql)
 //    migrations.add(migration: CommentAddUpdatedAt.self, database: .psql)
