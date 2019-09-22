@@ -20,6 +20,6 @@ final class BlockedDeviceController: RouteCollection {
     }
     
     func deleteBlockedDevice(_ request: Request)throws -> Future<HTTPStatus> {
-        return try request.parameters.next(Device.self).delete(on: request).transform(to: .noContent)
+        return try request.parameters.next(BlockedDevice.self).delete(on: request).transform(to: .noContent)
     }
 }

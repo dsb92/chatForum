@@ -1,7 +1,7 @@
 import Vapor
 import Fluent
 
-final class PostController: RouteCollection, LikesManagable, PushManageable, LocationManagable {
+final class PostController: RouteCollection, LikesManagable, PushManageable, LocationManagable, BlockManageable {
     var pushProvider: PushProvider!
     var likesManager: LikesManager!
     var locationProvider: LocationProvider!
@@ -27,8 +27,9 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     
     // COMMENTS
     func getComments(_ request: Request)throws -> Future<CommentsResponse> {
-        return try request.parameters.next(Post.self).flatMap(to: CommentsResponse.self) { (post) in
-            let val = try post.comments.query(on: request).all()
+        return try request.parameters.next(Post.self).flatMap(to: CommentsResponse.self) { post in
+            let val = try self.filteredBlockedCommentsOnRequest(request)
+            
             return val.flatMap { comments in
                 let newComments = comments.filter { $0.parentID == nil }
                 let all = CommentsResponse(comments: newComments.sorted(by: { (l, r) -> Bool in
@@ -73,7 +74,9 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     
     // GET POSTS
     func getPosts(_ request: Request)throws -> Future<PostsResponse> {
-        let val = Post.query(on: request).all()
+        let val = try filteredBlockedPostsOnRequest(request)
+        
+        //let val = Post.query(on: request).all()
         return val.flatMap { posts in
             let all = PostsResponse(posts: posts.sorted(by: { (l, r) -> Bool in
                 return l > r

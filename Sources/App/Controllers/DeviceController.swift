@@ -41,18 +41,8 @@ final class DeviceController: RouteCollection {
         }
     }
     
-    // DELETES ALL POSTS, COMMENTS AND NOTIFICATIONEVENTS FROM THIS DEVICEID
     func deleteDevice(_ request: Request)throws -> Future<HTTPStatus> {
-        return try request.parameters.next(Device.self).delete(on: request).flatMap(to: HTTPStatus.self) { device in
-            return try request.parameters.next(Post.self).delete(on: request).flatMap(to: HTTPStatus.self) { post in
-                if let postID = post.id {
-                    // Delete associated notification events
-                    let _ = NotificationEvent.query(on: request).filter(\NotificationEvent.eventID, .equal, postID).delete()
-                }
-                // Delete associated comments
-                return try post.comments.query(on: request).delete().transform(to: .noContent)
-            }
-        }
+        return try request.parameters.next(Device.self).delete(on: request).transform(to: .noContent)
     }
     
     func postDevice(_ request: Request, device: Device)throws -> Future<Device> {

@@ -4,6 +4,11 @@ import Vapor
 
 final class Device: PostgreModel {
     var id: UUID?
+    var deviceID: UUID
+    
+    init(deviceID: UUID) {
+        self.deviceID = deviceID
+    }
 }
 
 extension Device {

@@ -14,7 +14,16 @@ final class Comment: PostgreModel {
     var numberOfComments: Int?
     var pushTokenID: UUID?
     
-    init(postID: UUID, deviceID: UUID?, parentID: UUID?, comment: String, updatedAt: String, numberOfLikes: Int?, numberOfDislikes: Int?, numberOfComments: Int?, pushTokenID: UUID?) {
+    init(
+        postID: UUID,
+        deviceID: UUID?,
+        parentID: UUID?,
+        comment: String,
+        updatedAt: String,
+        numberOfLikes: Int?,
+        numberOfDislikes: Int?,
+        numberOfComments: Int?,
+        pushTokenID: UUID?) {
         self.deviceID = deviceID
         self.parentID = parentID
         self.postID = postID
