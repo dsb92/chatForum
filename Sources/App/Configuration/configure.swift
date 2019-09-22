@@ -91,6 +91,8 @@ _ services: inout Services
     NotificationEvent.defaultDatabase = .psql
     Location.defaultDatabase = .psql
     Channel.defaultDatabase = .psql
+    Device.defaultDatabase = .psql
+    BlockedDevice.defaultDatabase = .psql
     
     // Configure FCM
     let directory = DirectoryConfig.detect()

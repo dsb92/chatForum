@@ -6,6 +6,7 @@ final class DeviceController: RouteCollection {
         let devices = router.grouped("devices")
         devices.get(use: getDevices)
         devices.post(Device.self, use: postDevice)
+        devices.put(Device.self, use: putDevice)
         devices.get(Device.parameter, "posts", use: getPosts)
         devices.get(Device.parameter, "comments", use: getComments)
         devices.delete(Device.parameter, use: deleteDevice)
@@ -47,5 +48,9 @@ final class DeviceController: RouteCollection {
     
     func postDevice(_ request: Request, device: Device)throws -> Future<Device> {
         return device.create(on: request)
+    }
+    
+    func putDevice(_ request: Request, device: Device)throws -> Future<Device> {
+        return device.update(on: request)
     }
 }
