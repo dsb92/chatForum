@@ -7,6 +7,7 @@ final class DeviceController: RouteCollection {
         devices.get(use: getDevices)
         devices.post(Device.self, use: postDevice)
         devices.get(Device.parameter, "posts", use: getPosts)
+        devices.get(Device.parameter, "comments", use: getComments)
         devices.delete(Device.parameter, use: deleteDevice)
     }
     
@@ -28,10 +29,29 @@ final class DeviceController: RouteCollection {
         }
     }
     
+    func getComments(_ request: Request)throws -> Future<CommentsResponse> {
+        return try request.parameters.next(Device.self).flatMap(to: CommentsResponse.self) { device in
+            let val = try device.comments.query(on: request).all()
+            return val.flatMap { comments in
+                let all = CommentsResponse(comments: comments.sorted(by: { (l, r) -> Bool in
+                    return l > r
+                }))
+                return Future.map(on: request) { return all }
+            }
+        }
+    }
+    
+    // DELETES ALL POSTS, COMMENTS AND NOTIFICATIONEVENTS FROM THIS DEVICEID
     func deleteDevice(_ request: Request)throws -> Future<HTTPStatus> {
         return try request.parameters.next(Device.self).delete(on: request).flatMap(to: HTTPStatus.self) { device in
-            // Delete associated posts
-            return try device.posts.query(on: request).delete().transform(to: .noContent)
+            return try request.parameters.next(Post.self).delete(on: request).flatMap(to: HTTPStatus.self) { post in
+                if let postID = post.id {
+                    // Delete associated notification events
+                    let _ = NotificationEvent.query(on: request).filter(\NotificationEvent.eventID, .equal, postID).delete()
+                }
+                // Delete associated comments
+                return try post.comments.query(on: request).delete().transform(to: .noContent)
+            }
         }
     }
     

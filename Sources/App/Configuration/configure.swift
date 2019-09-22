@@ -69,6 +69,7 @@ _ services: inout Services
 //    migrations.add(migration: LocationAddFlagURLCity.self, database: .psql)
 //    migrations.add(migration: PostAddChannelID.self, database: .psql)
     migrations.add(migration: PostAddDeviceID.self, database: .psql)
+    migrations.add(migration: CommentAddDeviceID.self, database: .psql)
     
     services.register(migrations)
     

@@ -17,3 +17,9 @@ extension Device {
         return children(\.deviceID)
     }
 }
+
+extension Device {
+    var comments: Children<Device, Comment> {
+        return children(\.deviceID)
+    }
+}
