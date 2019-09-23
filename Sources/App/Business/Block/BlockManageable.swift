@@ -3,7 +3,7 @@ import Fluent
 
 protocol BlockManageable {
     func filteredBlockedPostsOnRequest(_ request: Request, deviceID: UUID) throws -> Future<[Post]>
-    func filteredBlockedCommentsOnRequest(_ request: Request, deviceID: UUID) throws -> Future<[Comment]>
+    func filteredBlockedCommentsOnRequest(_ request: Request, post: Post, deviceID: UUID) throws -> Future<[Comment]>
 }
 
 extension BlockManageable {
@@ -25,12 +25,12 @@ extension BlockManageable {
         return val
     }
     
-    func filteredBlockedCommentsOnRequest(_ request: Request, deviceID: UUID) throws -> Future<[Comment]>{
+    func filteredBlockedCommentsOnRequest(_ request: Request, post: Post, deviceID: UUID) throws -> Future<[Comment]>{
         // Filter out by devices that are blocked and not supposed to be seen by user with passed deviceID from header
         let blocked = Comment.query(on: request).join(\BlockedDevice.deviceID, to: \Comment.deviceID).filter(\BlockedDevice.blockedDeviceID == deviceID).all()
         
         let val = blocked.flatMap(to: [Comment].self) { blockedComments in
-            return Comment.query(on: request).all().flatMap(to: [Comment].self) { comments in
+            return try post.comments.query(on: request).all().flatMap(to: [Comment].self) { comments in
                 var match = comments
                 for blockedComment in blockedComments {
                     match.removeAll(where: { $0.id == blockedComment.id })

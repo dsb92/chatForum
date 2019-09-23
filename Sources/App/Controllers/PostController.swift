@@ -28,7 +28,7 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     // COMMENTS
     func getComments(_ request: Request)throws -> Future<CommentsResponse> {
         return try request.parameters.next(Post.self).flatMap(to: CommentsResponse.self) { post in
-            let val = try self.filteredBlockedCommentsOnRequest(request, deviceID: request.getUUIDFromHeader())
+            let val = try self.filteredBlockedCommentsOnRequest(request, post: post, deviceID: request.getUUIDFromHeader())
             
             return val.flatMap { comments in
                 let newComments = comments.filter { $0.parentID == nil }
