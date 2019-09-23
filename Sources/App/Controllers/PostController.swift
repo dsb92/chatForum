@@ -28,7 +28,7 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     // COMMENTS
     func getComments(_ request: Request)throws -> Future<CommentsResponse> {
         return try request.parameters.next(Post.self).flatMap(to: CommentsResponse.self) { post in
-            let val = try self.filteredBlockedCommentsOnRequest(request)
+            let val = try self.filteredBlockedCommentsOnRequest(request, deviceID: request.getUUIDFromHeader())
             
             return val.flatMap { comments in
                 let newComments = comments.filter { $0.parentID == nil }
@@ -74,9 +74,8 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     
     // GET POSTS
     func getPosts(_ request: Request)throws -> Future<PostsResponse> {
-        let val = try filteredBlockedPostsOnRequest(request)
+        let val = try filteredBlockedPostsOnRequest(request, deviceID: request.getUUIDFromHeader())
         
-        //let val = Post.query(on: request).all()
         return val.flatMap { posts in
             let all = PostsResponse(posts: posts.sorted(by: { (l, r) -> Bool in
                 return l > r
@@ -92,6 +91,8 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     
     // POST POST
     func postPost(_ request: Request, _ post: Post)throws -> Future<Post> {
+        post.deviceID = try request.getUUIDFromHeader()
+        
         return post.create(on: request).flatMap { newPost in
             if let postID = newPost.id, let pushTokenID = newPost.pushTokenID {
                 NotificationEvent.create(on: request, pushTokenID: pushTokenID, eventID: postID)
@@ -111,6 +112,8 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     
     // UPDATE POST
     func putPost(_ request: Request, post: Post)throws -> Future<Post> {
+        post.deviceID = try request.getUUIDFromHeader()
+        
         return Post.query(on: request).filter(\Post.id, .equal, post.id).first().flatMap(to: Post.self) { fetchedPost in
             guard let existingPost = fetchedPost else {
                 throw Abort(.badRequest)

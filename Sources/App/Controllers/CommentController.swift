@@ -82,7 +82,7 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
     
     // GET COMMENTS
     func getComments(_ request: Request)throws -> Future<CommentsResponse> {
-        guard let deviceIDString = request.http.headers["deviceID"].first, let deviceID = UUID(uuidString: deviceIDString) else { throw Abort.init(.badRequest) }
+        let deviceID = try request.getUUIDFromHeader()
         
         // Filter out by devices that are blocked and not supposed to be seen by user with passed deviceID from header
         let blocked = Comment.query(on: request).join(\BlockedDevice.deviceID, to: \Comment.deviceID).filter(\BlockedDevice.blockedDeviceID == deviceID).all()
@@ -108,6 +108,8 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
     
     // POST COMMENT
     func postComment(_ request: Request, _ comment: Comment)throws -> Future<Comment> {
+        comment.deviceID = try request.getUUIDFromHeader()
+        
         let _ = comment.post.get(on: request).flatMap(to: Post.self) { post in
             guard let postID = post.id else { throw Abort.init(HTTPStatus.notFound) }
             self.commentsManager.addComment(numberOfComments: &post.numberOfComments)

@@ -2,14 +2,12 @@ import Vapor
 import Fluent
 
 protocol BlockManageable {
-    func filteredBlockedPostsOnRequest(_ request: Request) throws -> Future<[Post]>
-    func filteredBlockedCommentsOnRequest(_ request: Request) throws -> Future<[Comment]>
+    func filteredBlockedPostsOnRequest(_ request: Request, deviceID: UUID) throws -> Future<[Post]>
+    func filteredBlockedCommentsOnRequest(_ request: Request, deviceID: UUID) throws -> Future<[Comment]>
 }
 
 extension BlockManageable {
-    func filteredBlockedPostsOnRequest(_ request: Request) throws -> Future<[Post]> {
-        guard let deviceIDString = request.http.headers["deviceID"].first, let deviceID = UUID(uuidString: deviceIDString) else { throw Abort.init(.badRequest) }
-        
+    func filteredBlockedPostsOnRequest(_ request: Request, deviceID: UUID) throws -> Future<[Post]> {
         // Filter out by devices that are blocked and not supposed to be seen by user with passed deviceID from header
         let blocked = Post.query(on: request).join(\BlockedDevice.deviceID, to: \Post.deviceID).filter(\BlockedDevice.blockedDeviceID == deviceID).all()
         
@@ -27,9 +25,7 @@ extension BlockManageable {
         return val
     }
     
-    func filteredBlockedCommentsOnRequest(_ request: Request) throws -> Future<[Comment]>{
-        guard let deviceIDString = request.http.headers["deviceID"].first, let deviceID = UUID(uuidString: deviceIDString) else { throw Abort.init(.badRequest) }
-        
+    func filteredBlockedCommentsOnRequest(_ request: Request, deviceID: UUID) throws -> Future<[Comment]>{
         // Filter out by devices that are blocked and not supposed to be seen by user with passed deviceID from header
         let blocked = Comment.query(on: request).join(\BlockedDevice.deviceID, to: \Comment.deviceID).filter(\BlockedDevice.blockedDeviceID == deviceID).all()
         
