@@ -16,6 +16,10 @@ final class BlockedDeviceController: RouteCollection {
     }
     
     func postBlockedDevice(_ request: Request, blockedDevice: BlockedDevice)throws -> Future<BlockedDevice> {
+        // Ignore blocking if deviceID and blockedDeviceID are identical (meaning trying to block yourself)
+        if blockedDevice.deviceID == blockedDevice.blockedDeviceID {
+            return Future.map(on: request) { blockedDevice }
+        }
         return blockedDevice.create(on: request)
     }
     
