@@ -5,11 +5,13 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     var pushProvider: PushProvider!
     var likesManager: LikesManager!
     var locationProvider: LocationProvider!
+    var fileRequester: FileRequester!
     
     func boot(router: Router) throws {
         likesManager = LikesManager()
         pushProvider = FCMProvider()
         locationProvider = GMProvider()
+        fileRequester = FileRequester()
         
         let posts = router.grouped("posts")
         
@@ -141,10 +143,16 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     // DELETE POST
     func deletePost(_ request: Request)throws -> Future<HTTPStatus> {
         return try request.parameters.next(Post.self).delete(on: request).flatMap(to: HTTPStatus.self) { post in
+            // Delete associated notification events
             if let postID = post.id {
-                // Delete associated notification events
                 let _ = NotificationEvent.query(on: request).filter(\NotificationEvent.eventID, .equal, postID).delete()
             }
+            
+            // Delete associated images
+            if let imageId = post.imageIds?.first {
+                let _ = try self.fileRequester.deleteFile(with: request, ext: .png, path: .images, id: imageId)
+            }
+            
             // Delete associated comments
             return try post.comments.query(on: request).delete().transform(to: .noContent)
         }
