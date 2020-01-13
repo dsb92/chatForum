@@ -22,10 +22,12 @@ _ services: inout Services
     var middlewares = MiddlewareConfig.default()
     middlewares.use(StreamableFileMiddleware.self) // Serve files from Public directory
     middlewares.use(SecretMiddleware.self)
+    middlewares.use(VersionMiddleware.self)
     
     services.register(middlewares)
     services.register(StreamableFileMiddleware.self)
     services.register(SecretMiddleware.self)
+    services.register(VersionMiddleware.self)
     try services.register(AuthenticationProvider())
     
     // Configure a database
@@ -50,6 +52,7 @@ _ services: inout Services
 //    migrations.add(model: Channel.self, database: .psql)
 //    migrations.add(model: Device.self, database: .psql)
 //    migrations.add(model: BlockedDevice.self, database: .psql)
+    migrations.add(model: AllowedDevice.self, database: .psql)
 
 //    migrations.add(migration: PostAddUpdatedAt.self, database: .psql)
 //    migrations.add(migration: CommentAddUpdatedAt.self, database: .psql)

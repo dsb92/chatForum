@@ -76,7 +76,8 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     
     // GET POSTS
     func getPosts(_ request: Request)throws -> Future<PostsResponse> {
-        let val = try filteredBlockedPostsOnRequest(request, deviceID: request.getUUIDFromHeader())
+        let deviceID = request.getUUIDFromHeader()
+        let val = try filteredBlockedPostsOnRequest(request, deviceID: deviceID)
         
         return val.flatMap { posts in
             let all = PostsResponse(posts: posts.sorted(by: { (l, r) -> Bool in
