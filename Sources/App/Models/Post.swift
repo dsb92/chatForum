@@ -1,6 +1,7 @@
 import FluentPostgreSQL
 import Foundation
 import Vapor
+import Pagination
 
 struct Coordinate2DPosition: Codable {
     var latitude: Double
@@ -39,7 +40,7 @@ extension Geolocation: ReflectionDecodable, Equatable {
     }
 }
 
-final class Post: PostgreModel {
+final class Post: PostgreModel, Identifiable {
     var id: UUID?
     var text: String
     var updatedAt: String
@@ -124,3 +125,5 @@ extension Post: PushOnLikes {
         return self.text
     }
 }
+
+extension Post: Paginatable {}

@@ -1,8 +1,9 @@
 import FluentPostgreSQL
 import Foundation
 import Vapor
+import Pagination
 
-final class Comment: PostgreModel {
+final class Comment: PostgreModel, Identifiable {
     var id: UUID?
     var postID: UUID
     var deviceID: UUID?
@@ -87,3 +88,5 @@ extension Comment: PushOnLikes {
         return self.comment
     }
 }
+
+extension Comment: Paginatable {}

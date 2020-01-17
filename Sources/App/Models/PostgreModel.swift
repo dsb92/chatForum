@@ -6,3 +6,6 @@ protocol IModel: Parameter, Migration, Content, Model {}
 protocol PostgreModel: IModel where Database == PostgreSQLDatabase {
     var id: UUID? { get }
 }
+protocol Identifiable {
+    var deviceID: UUID? { get }
+}
