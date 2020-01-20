@@ -1,6 +1,5 @@
 import Vapor
 import Fluent
-import Pagination
 
 final class PostController: RouteCollection, LikesManagable, PushManageable, LocationManagable, BlockManageable {
     var pushProvider: PushProvider!
@@ -19,7 +18,6 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
         posts.put(Post.self, use: putPost)
         posts.get(Post.parameter, "comments", use: getComments)
         posts.get(use: getPosts)
-        posts.get("/v2", use: getPostsV2)
         posts.get(Post.parameter, use: getPost)
         posts.delete(Post.parameter, use: deletePost)
         posts.post(Post.self, use: postPost)
@@ -32,7 +30,7 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     // COMMENTS
     func getComments(_ request: Request)throws -> Future<CommentsResponse> {
         return try request.parameters.next(Post.self).flatMap(to: CommentsResponse.self) { post in
-            let val = try Comment.queryBlocked(on: request, deviceID: request.getUUIDFromHeader()).all()
+            let val = try self.filteredBlockedCommentsOnRequest(request, post: post, deviceID: request.getUUIDFromHeader())
             
             return val.flatMap { comments in
                 let newComments = comments.filter { $0.parentID == nil }
@@ -78,28 +76,14 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     
     // GET POSTS
     func getPosts(_ request: Request)throws -> Future<PostsResponse> {
-        return try Post.queryBlocked(on: request, deviceID: request.getUUIDFromHeader()).all().flatMap(to: PostsResponse.self) { posts in
-            return self.removingBlocked(blocked: posts, request: request).flatMap { p in
-                return Future.map(on: request) {
-                    let sorted = p.sorted(by: { (l, r) -> Bool in
-                        return l > r
-                    })
-                    return PostsResponse(posts: sorted)
-                }
-            }
-        }
-    }
-    
-    func getPostsV2(_ request: Request)throws -> Future<Paginated<Post>> {
-        return try Post.queryBlocked(on: request, deviceID: request.getUUIDFromHeader()).all().flatMap(to: Paginated<Post>.self) { paginated in
-            return try self.removingBlockedPaginated(blocked: paginated, request: request).flatMap { p in
-                return Future.map(on: request) {
-                    let sorted = p.data.sorted(by: { (l, r) -> Bool in
-                        return l > r
-                    })
-                    return Paginated(page: p.page, data: sorted)
-                }
-            }
+        let val = try filteredBlockedPostsOnRequest(request, deviceID: request.getUUIDFromHeader())
+        
+        return val.flatMap { posts in
+            let all = PostsResponse(posts: posts.sorted(by: { (l, r) -> Bool in
+                return l > r
+            }))
+            
+            return Future.map(on: request) { return all }
         }
     }
     

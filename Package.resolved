@@ -110,15 +110,6 @@
         }
       },
       {
-        "package": "Pagination",
-        "repositoryURL": "https://github.com/vapor-community/pagination.git",
-        "state": {
-          "branch": null,
-          "revision": "0cd6a77687030fd28319bda1945004994c09d430",
-          "version": "1.0.9"
-        }
-      },
-      {
         "package": "PostgreSQL",
         "repositoryURL": "https://github.com/vapor/postgresql.git",
         "state": {
