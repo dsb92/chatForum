@@ -1,5 +1,6 @@
 import Vapor
 import Fluent
+import Pagination
 
 final class PostController: RouteCollection, LikesManagable, PushManageable, LocationManagable, BlockManageable {
     var pushProvider: PushProvider!
@@ -19,6 +20,7 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
         posts.get(Post.parameter, "comments", use: getComments)
         posts.get(use: getPosts)
         posts.get(Post.parameter, use: getPost)
+        posts.get("/v2", use: getPostsV2)
         posts.delete(Post.parameter, use: deletePost)
         posts.post(Post.self, use: postPost)
         posts.post(Post.parameter, "like", use: postLike)
@@ -77,13 +79,25 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     // GET POSTS
     func getPosts(_ request: Request)throws -> Future<PostsResponse> {
         let val = try filteredBlockedPostsOnRequest(request, deviceID: request.getUUIDFromHeader())
-        
         return val.flatMap { posts in
             let all = PostsResponse(posts: posts.sorted(by: { (l, r) -> Bool in
                 return l > r
             }))
             
             return Future.map(on: request) { return all }
+        }
+    }
+    
+    func getPostsV2(_ request: Request)throws -> Future<Paginated<Post>> {
+        let val = try filteredBlockedPostsOnRequestV2(request, deviceID: request.getUUIDFromHeader())
+        return val.flatMap(to: Paginated<Post>.self) { posts in
+            var sorted = posts
+            let all = sorted.data.sorted(by: { (l, r) -> Bool in
+                return l > r
+            })
+            sorted.data = all
+            
+            return Future.map(on: request) { return sorted }
         }
     }
     
