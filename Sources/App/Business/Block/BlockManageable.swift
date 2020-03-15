@@ -3,58 +3,38 @@ import Fluent
 import Pagination
 
 protocol BlockManageable {
-    func filteredBlockedPostsOnRequest(_ request: Request, deviceID: UUID) throws -> Future<[Post]>
-    func filteredBlockedPostsOnRequestV2(_ request: Request, deviceID: UUID) throws -> Future<Paginated<Post>>
-    func filteredBlockedCommentsOnRequest(_ request: Request, post: Post, deviceID: UUID) throws -> Future<[Comment]>
+    func removingBlocked<T>(blocked: [T], request: Request) -> Future<[T]> where T: PostgreModel
+    func removingBlockedPaginated<T>(blocked: [T], request: Request) throws -> Future<Paginated<T>> where T: PostgreModel & Paginatable
 }
 
 extension BlockManageable {
-    func filteredBlockedPostsOnRequest(_ request: Request, deviceID: UUID) throws -> Future<[Post]> {
-        // Filter out by devices that are blocked and not supposed to be seen by user with passed deviceID from header
-        let blocked = Post.query(on: request).join(\BlockedDevice.deviceID, to: \Post.deviceID).filter(\BlockedDevice.blockedDeviceID == deviceID).all()
-        let val = blocked.flatMap(to: [Post].self) { blockedPosts in
-            return Post.query(on: request).all().flatMap(to: [Post].self) { posts in
-                var match = posts
-                for blockedPost in blockedPosts {
-                    match.removeAll(where: { $0.id == blockedPost.id })
-                }
-                
-                return Future.map(on: request) { match }
-            }
+    // Filter out by devices that are blocked and not supposed to be seen by user with passed deviceID from header
+    func removingBlocked<T>(blocked: [T], request: Request) -> Future<[T]> where T: PostgreModel {
+        return T.query(on: request).all().flatMap(to: [T].self) { all in
+            return self.removingBlocked(blocked: blocked, all: all, request: request)
         }
-        
-        return val
     }
     
-    func filteredBlockedPostsOnRequestV2(_ request: Request, deviceID: UUID) throws -> Future<Paginated<Post>> {
-        // Filter out by devices that are blocked and not supposed to be seen by user with passed deviceID from header
-        return Post.query(on: request).join(\BlockedDevice.deviceID, to: \Post.deviceID).filter(\BlockedDevice.blockedDeviceID == deviceID).all().flatMap(to: Paginated<Post>.self) { blockedPosts in
-            return try Post.query(on: request).paginate(for: request).flatMap { posts in
-                var match = posts
-                for blockedPost in blockedPosts {
-                    match.data.removeAll(where: { $0.id == blockedPost.id })
-                }
-                
-                return Future.map(on: request) { match }
+    func removingBlockedPaginated<T>(blocked: [T], request: Request) throws -> Future<Paginated<T>> where T: PostgreModel & Paginatable {
+        return try T.query(on: request).paginate(for: request).flatMap(to: Paginated<T>.self) { all in
+            return self.removingBlocked(blocked: blocked, all: all.data, request: request).flatMap { data in
+                return Future.map(on: request) { Paginated(page: all.page, data: data) }
             }
         }
     }
-
-    func filteredBlockedCommentsOnRequest(_ request: Request, post: Post, deviceID: UUID) throws -> Future<[Comment]>{
-        // Filter out by devices that are blocked and not supposed to be seen by user with passed deviceID from header
-        let blocked = Comment.query(on: request).join(\BlockedDevice.deviceID, to: \Comment.deviceID).filter(\BlockedDevice.blockedDeviceID == deviceID).all()
-        
-        let val = blocked.flatMap(to: [Comment].self) { blockedComments in
-            return try post.comments.query(on: request).all().flatMap(to: [Comment].self) { comments in
-                var match = comments
-                for blockedComment in blockedComments {
-                    match.removeAll(where: { $0.id == blockedComment.id })
-                }
-                
-                return Future.map(on: request) { match }
-            }
+    
+    private func removingBlocked<T>(blocked: [T], all: [T], request: Request) -> Future<[T]> where T: PostgreModel  {
+        var match = all
+        for block in blocked {
+            match.removeAll(where: { $0.id == block.id })
         }
         
-        return val
+        return Future.map(on: request) { match }
+    }
+}
+
+extension PostgreModel where Self: Identifiable {
+    static func queryBlocked(on request: Request, deviceID: UUID) -> QueryBuilder<Database, Self> {
+        return self.query(on: request).join(\BlockedDevice.deviceID, to: \Self.deviceID).filter(\BlockedDevice.blockedDeviceID == deviceID)
     }
 }

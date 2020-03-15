@@ -40,7 +40,7 @@ extension Geolocation: ReflectionDecodable, Equatable {
     }
 }
 
-final class Post: PostgreModel, Paginatable {
+final class Post: PostgreModel, Identifiable {
     var id: UUID?
     var text: String
     var updatedAt: String
@@ -123,5 +123,13 @@ extension Post: PushOnLikes {
     
     var body: String {
         return self.text
+    }
+}
+
+extension Post: Paginatable {
+    static var defaultPageSorts: [PostgreSQLOrderBy] {
+        return [
+            Post.Database.querySort(Post.Database.queryField(.keyPath(\ Post.updatedAt)), Post.Database.querySortDirectionDescending)
+        ]
     }
 }

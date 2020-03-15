@@ -2,7 +2,7 @@ import FluentPostgreSQL
 import Foundation
 import Vapor
 
-final class Comment: PostgreModel {
+final class Comment: PostgreModel, Identifiable {
     var id: UUID?
     var postID: UUID
     var deviceID: UUID?
