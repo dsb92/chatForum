@@ -25,8 +25,8 @@ extension BlockManageable {
     
     private func removingBlocked<T>(blocked: [T], all: [T], request: Request) -> Future<[T]> where T: PostgreModel  {
         var match = all
-        for blockedPost in blocked {
-            match.removeAll(where: { $0.id == blockedPost.id })
+        for block in blocked {
+            match.removeAll(where: { $0.id == block.id })
         }
         
         return Future.map(on: request) { match }

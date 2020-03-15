@@ -92,14 +92,7 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     
     func getPostsV2(_ request: Request)throws -> Future<Paginated<Post>> {
         return try Post.queryBlocked(on: request, deviceID: request.getUUIDFromHeader()).all().flatMap(to: Paginated<Post>.self) { paginated in
-            return try self.removingBlockedPaginated(blocked: paginated, request: request).flatMap { p in
-                return Future.map(on: request) {
-                    let sorted = p.data.sorted(by: { (l, r) -> Bool in
-                        return l > r
-                    })
-                    return Paginated(page: p.page, data: sorted)
-                }
-            }
+            return try self.removingBlockedPaginated(blocked: paginated, request: request)
         }
     }
     
