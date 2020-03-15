@@ -32,14 +32,14 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     // COMMENTS
     func getComments(_ request: Request)throws -> Future<CommentsResponse> {
         return try request.parameters.next(Post.self).flatMap(to: CommentsResponse.self) { post in
-            let val = try Comment.queryBlocked(on: request, deviceID: request.getUUIDFromHeader()).all()
-            
-            return val.flatMap { comments in
-                let newComments = comments.filter { $0.parentID == nil }
-                let all = CommentsResponse(comments: newComments.sorted(by: { (l, r) -> Bool in
-                    return l < r
-                }))
-                return Future.map(on: request) { return all }
+            return try Comment.queryBlocked(on: request, deviceID: request.getUUIDFromHeader()).all().flatMap { blocked in
+                return try self.removingBlockedChildren(blocked: blocked, children: post.comments, request: request).flatMap { comments in
+                    let newComments = comments.filter { $0.parentID == nil }
+                    let all = CommentsResponse(comments: newComments.sorted(by: { (l, r) -> Bool in
+                        return l < r
+                    }))
+                    return Future.map(on: request) { return all }
+                }
             }
         }
     }

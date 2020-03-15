@@ -1,9 +1,11 @@
 import Vapor
 import Fluent
 import Pagination
+import FluentPostgreSQL
 
 protocol BlockManageable {
     func removingBlocked<T>(blocked: [T], request: Request) -> Future<[T]> where T: PostgreModel
+    func removingBlockedChildren<Parent, Child>(blocked: [Child], children: Children<Parent, Child>, request: Request) throws -> Future<[Child]> where Parent: PostgreModel, Child: PostgreModel
     func removingBlockedPaginated<T>(blocked: [T], request: Request) throws -> Future<Paginated<T>> where T: PostgreModel & Paginatable
 }
 
@@ -11,6 +13,12 @@ extension BlockManageable {
     // Filter out by devices that are blocked and not supposed to be seen by user with passed deviceID from header
     func removingBlocked<T>(blocked: [T], request: Request) -> Future<[T]> where T: PostgreModel {
         return T.query(on: request).all().flatMap(to: [T].self) { all in
+            return self.removingBlocked(blocked: blocked, all: all, request: request)
+        }
+    }
+    
+    func removingBlockedChildren<Parent, Child>(blocked: [Child], children: Children<Parent, Child>, request: Request) throws -> Future<[Child]> where Parent: PostgreModel, Child: PostgreModel {
+        return try children.query(on: request).all().flatMap(to: [Child].self) { all in
             return self.removingBlocked(blocked: blocked, all: all, request: request)
         }
     }
