@@ -89,4 +89,10 @@ extension Comment: PushOnLikes {
     }
 }
 
-extension Comment: Paginatable {}
+extension Comment: Paginatable {
+    static var defaultPageSorts: [PostgreSQLOrderBy] {
+        return [
+            Comment.Database.querySort(Comment.Database.queryField(.keyPath(\ Comment.updatedAt)), Post.Database.querySortDirectionDescending)
+        ]
+    }
+}

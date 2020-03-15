@@ -126,4 +126,10 @@ extension Post: PushOnLikes {
     }
 }
 
-extension Post: Paginatable {}
+extension Post: Paginatable {
+    static var defaultPageSorts: [PostgreSQLOrderBy] {
+        return [
+            Post.Database.querySort(Post.Database.queryField(.keyPath(\ Post.updatedAt)), Post.Database.querySortDirectionDescending)
+        ]
+    }
+}
