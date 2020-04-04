@@ -20,6 +20,7 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
         posts.get(Post.parameter, "comments", use: getComments)
         posts.get(Post.parameter, "comments/v2", use: getCommentsV2)
         posts.get(use: getPosts)
+        posts.get("/v2", use: getPostsV2)
         posts.get(Post.parameter, use: getPost)
         posts.delete(Post.parameter, use: deletePost)
         posts.post(Post.self, use: postPost)
@@ -95,6 +96,14 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     
     // GET POSTS
     func getPosts(_ request: Request)throws -> Future<Paginated<Post>> {
+        return try Post
+            .query(on: request)
+            .join(\BlockedDevice.deviceID, to: \Post.deviceID)
+            .filter(\BlockedDevice.blockedDeviceID != request.getUUIDFromHeader())
+            .paginate(for: request)
+    }
+    
+    func getPostsV2(_ request: Request)throws -> Future<Paginated<Post>> {
         return try Post
             .query(on: request)
             .join(\BlockedDevice.deviceID, to: \Post.deviceID)
