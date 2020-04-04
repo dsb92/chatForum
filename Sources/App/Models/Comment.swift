@@ -1,6 +1,7 @@
 import FluentPostgreSQL
 import Foundation
 import Vapor
+import Pagination
 
 final class Comment: PostgreModel, Identifiable {
     var id: UUID?
@@ -85,5 +86,13 @@ extension Comment: PushOnLikes {
     
     var body: String {
         return self.comment
+    }
+}
+
+extension Comment: Paginatable {
+    static var defaultPageSorts: [PostgreSQLOrderBy] {
+        return [
+            Comment.Database.querySort(Comment.Database.queryField(.keyPath(\ Comment.updatedAt)), Comment.Database.querySortDirectionAscending)
+        ]
     }
 }

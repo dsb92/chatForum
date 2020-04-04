@@ -2,7 +2,7 @@ import Vapor
 import Fluent
 import Pagination
 
-final class PostController: RouteCollection, LikesManagable, PushManageable, LocationManagable, BlockManageable {
+final class PostController: RouteCollection, LikesManagable, PushManageable, LocationManagable {
     var pushProvider: PushProvider!
     var likesManager: LikesManager!
     var locationProvider: LocationProvider!
@@ -18,8 +18,8 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
         
         posts.put(Post.self, use: putPost)
         posts.get(Post.parameter, "comments", use: getComments)
+        posts.get(Post.parameter, "comments/v2", use: getCommentsV2)
         posts.get(use: getPosts)
-        posts.get("/v2", use: getPostsV2)
         posts.get(Post.parameter, use: getPost)
         posts.delete(Post.parameter, use: deletePost)
         posts.post(Post.self, use: postPost)
@@ -32,15 +32,32 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     // COMMENTS
     func getComments(_ request: Request)throws -> Future<CommentsResponse> {
         return try request.parameters.next(Post.self).flatMap(to: CommentsResponse.self) { post in
-            return try Comment.queryBlocked(on: request, deviceID: request.getUUIDFromHeader()).all().flatMap { blocked in
-                return try self.removingBlockedChildren(blocked: blocked, children: post.comments, request: request).flatMap { comments in
+            return try post.comments
+                .query(on: request)
+                .join(\BlockedDevice.deviceID, to: \Comment.deviceID)
+                .filter(\BlockedDevice.blockedDeviceID != request.getUUIDFromHeader())
+                .all()
+                .flatMap { comments in
                     let newComments = comments.filter { $0.parentID == nil }
                     let all = CommentsResponse(comments: newComments.sorted(by: { (l, r) -> Bool in
                         return l < r
                     }))
                     return Future.map(on: request) { return all }
                 }
-            }
+        }
+    }
+    
+    func getCommentsV2(_ request: Request)throws -> Future<Paginated<Comment>> {
+        return try request.parameters.next(Post.self).flatMap(to: Paginated<Comment>.self) { post in
+            return try post.comments
+                .query(on: request)
+                .join(\BlockedDevice.deviceID, to: \Comment.deviceID)
+                .filter(\BlockedDevice.blockedDeviceID != request.getUUIDFromHeader())
+                .paginate(for: request)
+                .flatMap { paginated in
+                    let newComments = paginated.data.filter { $0.parentID == nil }
+                    return Future.map(on: request) { return Paginated(page: paginated.page, data: newComments) }
+                }
         }
     }
     
@@ -77,23 +94,12 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     }
     
     // GET POSTS
-    func getPosts(_ request: Request)throws -> Future<PostsResponse> {
-        return try Post.queryBlocked(on: request, deviceID: request.getUUIDFromHeader()).all().flatMap(to: PostsResponse.self) { posts in
-            return self.removingBlocked(blocked: posts, request: request).flatMap { p in
-                return Future.map(on: request) {
-                    let sorted = p.sorted(by: { (l, r) -> Bool in
-                        return l > r
-                    })
-                    return PostsResponse(posts: sorted)
-                }
-            }
-        }
-    }
-    
-    func getPostsV2(_ request: Request)throws -> Future<Paginated<Post>> {
-        return try Post.queryBlocked(on: request, deviceID: request.getUUIDFromHeader()).all().flatMap(to: Paginated<Post>.self) { paginated in
-            return try self.removingBlockedPaginated(blocked: paginated, request: request)
-        }
+    func getPosts(_ request: Request)throws -> Future<Paginated<Post>> {
+        return try Post
+            .query(on: request)
+            .join(\BlockedDevice.deviceID, to: \Post.deviceID)
+            .filter(\BlockedDevice.blockedDeviceID != request.getUUIDFromHeader())
+            .paginate(for: request)
     }
     
     // GET POST
