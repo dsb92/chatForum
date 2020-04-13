@@ -1,10 +1,11 @@
 import Vapor
 import Fluent
 import Pagination
+import FluentPostgreSQL
 
 final class PostFilterController: RouteCollection {
-    struct Geolocation {
-        static let countryParam = "country"
+    struct GeolocationURLQueryParam {
+        static let country = "country"
     }
     
     func boot(router: Router) throws {
@@ -14,7 +15,7 @@ final class PostFilterController: RouteCollection {
     }
     
     func getPostsGeolocation(_ request: Request)throws -> Future<PostsResponse> {
-        guard let queryCountry = request.query[String.self, at: Geolocation.countryParam] else {
+        guard let queryCountry = request.query[String.self, at: GeolocationURLQueryParam.country] else {
             throw Abort(.badRequest)
         }
         
@@ -36,24 +37,12 @@ final class PostFilterController: RouteCollection {
     }
     
     func getPostsGeolocationV2(_ request: Request)throws -> Future<Paginated<Post>> {
-        guard let queryCountry = request.query[String.self, at: Geolocation.countryParam] else {
+        guard let queryCountry = request.query[String.self, at: GeolocationURLQueryParam.country] else {
             throw Abort(.badRequest)
         }
         
-        return try Post.query(on: request).paginate(for: request).flatMap(to: Paginated<Post>.self) { posts in
-            var match = [Post]()
-            let promise: Promise<Paginated<Post>> = request.eventLoop.newPromise()
-            DispatchQueue.global().async {
-                posts.data.forEach { post in
-                    if let geolocation = post.geolocation, let country = geolocation.country, country == queryCountry {
-                        match.append(post)
-                    }
-                }
-                
-                promise.succeed(result: Paginated(page: posts.page, data: match))
-            }
-            
-            return promise.futureResult
-        }
+        let geoLocation = Geolocation(country: queryCountry, flagURL: nil, city: nil)
+        
+        return try Post.query(on: request).filter(\Post.geolocation, .contains, geoLocation).paginate(for: request)
     }
 }

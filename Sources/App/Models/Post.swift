@@ -1,4 +1,6 @@
 import FluentPostgreSQL
+import FluentSQL
+import SQL
 import Foundation
 import Vapor
 import Pagination
@@ -29,7 +31,7 @@ extension Coordinate2DPosition: ReflectionDecodable, Equatable {
 
 extension Geolocation: ReflectionDecodable, Equatable {
     static var leftExample = Geolocation(country: nil, flagURL: nil, city: nil)
-    static var rightExample = Geolocation(country: "Danmark", flagURL: "https://www.countryflags.io/be/shiny/64.png", city: "Aarhus")
+    static var rightExample = Geolocation(country: "test", flagURL: "test", city: "test")
     
     static func reflectDecoded() throws -> (Geolocation, Geolocation) {
         return (Geolocation.leftExample, Geolocation.rightExample)
