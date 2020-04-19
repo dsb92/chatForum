@@ -94,7 +94,8 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
     
     // POST COMMENT
     func postComment(_ request: Request, _ comment: Comment)throws -> Future<Comment> {
-        comment.deviceID = try request.getUUIDFromHeader()
+        let deviceID = try request.getUUIDFromHeader()
+        comment.deviceID = deviceID
         
         let _ = comment.post.get(on: request).flatMap(to: Post.self) { post in
             guard let postID = post.id else { throw Abort.init(HTTPStatus.notFound) }
@@ -127,6 +128,10 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
         return comment.create(on: request).flatMap { newComment in
             if let commentID = newComment.id, let pushTokenID = newComment.pushTokenID {
                 NotificationEvent.create(on: request, pushTokenID: pushTokenID, eventID: commentID)
+            }
+            
+            if let _ = newComment.id {
+                PostFilter.create(on: request, postID: newComment.postID, deviceID: deviceID, type: .myComments)
             }
             
             return Future.map(on: request) { return newComment }

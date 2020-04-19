@@ -52,7 +52,8 @@ _ services: inout Services
 //    migrations.add(model: Channel.self, database: .psql)
 //    migrations.add(model: Device.self, database: .psql)
 //    migrations.add(model: BlockedDevice.self, database: .psql)
-    migrations.add(model: AllowedDevice.self, database: .psql)
+//    migrations.add(model: AllowedDevice.self, database: .psql)
+    migrations.add(model: PostFilter.self, database: .psql)
 
 //    migrations.add(migration: PostAddUpdatedAt.self, database: .psql)
 //    migrations.add(migration: CommentAddUpdatedAt.self, database: .psql)
@@ -96,6 +97,8 @@ _ services: inout Services
     Channel.defaultDatabase = .psql
     Device.defaultDatabase = .psql
     BlockedDevice.defaultDatabase = .psql
+    AllowedDevice.defaultDatabase = .psql
+    PostFilter.defaultDatabase = .psql
     
     // Configure FCM
     let directory = DirectoryConfig.detect()

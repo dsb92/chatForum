@@ -64,32 +64,52 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     
     // LIKES
     func postLike(_ request: Request)throws -> Future<LikesResponse> {
+        let deviceID = try request.getUUIDFromHeader()
+        
         return try request.parameters.next(Post.self).flatMap { post in
             self.likesManager.like(numberOfLikes: &post.numberOfLikes)
             self.sendPush(on: request, pushMessage: post, pushType: PushType.newLikeOrDislikeOnPost, likesManager: self.likesManager)
+            if let postID = post.id {
+                PostFilter.create(on: request, postID: postID, deviceID: deviceID, type: .myLikes)
+            }
             return self.updateLikes(request, post: post)
         }
     }
     
     func deleteLike(_ request: Request)throws -> Future<LikesResponse> {
+        let deviceID = try request.getUUIDFromHeader()
+        
         return try request.parameters.next(Post.self).flatMap { post in
             self.likesManager.deleteLike(numberOfLikes: &post.numberOfLikes)
+            if let postID = post.id {
+                PostFilter.deleteLike(on: request, postID: postID, deviceID: deviceID)
+            }
             return self.updateLikes(request, post: post)
         }
     }
     
     // DISLIKES
     func postDislike(_ request: Request)throws -> Future<DislikesResponse> {
+        let deviceID = try request.getUUIDFromHeader()
+        
         return try request.parameters.next(Post.self).flatMap { post in
             self.likesManager.dislike(numberOfDislikes: &post.numberOfDislikes)
             self.sendPush(on: request, pushMessage: post, pushType: PushType.newLikeOrDislikeOnPost, likesManager: self.likesManager)
+            if let postID = post.id {
+                PostFilter.create(on: request, postID: postID, deviceID: deviceID, type: .myDislikes)
+            }
             return self.updateDislikes(request, post: post)
         }
     }
     
     func deleteDislike(_ request: Request)throws -> Future<DislikesResponse> {
+        let deviceID = try request.getUUIDFromHeader()
+        
         return try request.parameters.next(Post.self).flatMap { post in
             self.likesManager.deleteDislike(numberOfDislikes: &post.numberOfDislikes)
+            if let postID = post.id {
+                PostFilter.deleteDislike(on: request, postID: postID, deviceID: deviceID)
+            }
             return self.updateDislikes(request, post: post)
         }
     }
@@ -118,11 +138,16 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     
     // POST POST
     func postPost(_ request: Request, _ post: Post)throws -> Future<Post> {
-        post.deviceID = try request.getUUIDFromHeader()
+        let deviceID = try request.getUUIDFromHeader()
+        post.deviceID = deviceID
         
         return post.create(on: request).flatMap { newPost in
             if let postID = newPost.id, let pushTokenID = newPost.pushTokenID {
                 NotificationEvent.create(on: request, pushTokenID: pushTokenID, eventID: postID)
+            }
+            
+            if let postID = newPost.id {
+                PostFilter.create(on: request, postID: postID, deviceID: deviceID, type: .myPost)
             }
             
             guard let _ = post.coordinate2D else {
@@ -168,9 +193,12 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     // DELETE POST
     func deletePost(_ request: Request)throws -> Future<HTTPStatus> {
         return try request.parameters.next(Post.self).delete(on: request).flatMap(to: HTTPStatus.self) { post in
-            // Delete associated notification events
             if let postID = post.id {
+                // Delete associated notification events
                 let _ = NotificationEvent.query(on: request).filter(\NotificationEvent.eventID, .equal, postID).delete()
+                
+                // Delete associate filters
+                let _ = PostFilter.query(on: request).filter(\PostFilter.postID == postID).delete()
             }
             
             // Delete associated images
