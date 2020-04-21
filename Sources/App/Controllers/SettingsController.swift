@@ -18,4 +18,8 @@ final class SettingsController: RouteCollection {
             return Future.map(on: request) { return all }
         }
     }
+    
+    func synchronizeLocalData() {
+        
+    }
 }

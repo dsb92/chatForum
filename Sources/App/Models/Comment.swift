@@ -10,6 +10,8 @@ final class Comment: PostgreModel, Identifiable {
     var parentID: UUID?
     var comment: String
     var updatedAt: String
+    var likedBy: [UUID]?
+    var dislikedBy: [UUID]?
     var numberOfLikes: Int?
     var numberOfDislikes: Int?
     var numberOfComments: Int?
@@ -21,6 +23,8 @@ final class Comment: PostgreModel, Identifiable {
         parentID: UUID?,
         comment: String,
         updatedAt: String,
+        likedBy: [UUID]?,
+        dislikedBy: [UUID]?,
         numberOfLikes: Int?,
         numberOfDislikes: Int?,
         numberOfComments: Int?,
@@ -33,6 +37,8 @@ final class Comment: PostgreModel, Identifiable {
         self.numberOfLikes = numberOfLikes
         self.numberOfDislikes = numberOfDislikes
         self.numberOfComments = numberOfComments
+        self.likedBy = likedBy
+        self.dislikedBy = dislikedBy
         self.pushTokenID = pushTokenID
     }
 }

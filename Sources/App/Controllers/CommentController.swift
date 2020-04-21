@@ -45,32 +45,62 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
     
     // LIKES
     func postLike(_ request: Request)throws -> Future<LikesResponse> {
+        let deviceID = try request.getUUIDFromHeader()
+        
         return try request.parameters.next(Comment.self).flatMap { comment in
             self.likesManager.like(numberOfLikes: &comment.numberOfLikes)
             self.sendPush(on: request, pushMessage: comment, pushType: PushType.newLikeOrDislkeOnComment, likesManager: self.likesManager)
+            if var likedBy = comment.likedBy {
+                likedBy.append(deviceID)
+                comment.likedBy = likedBy
+            } else {
+                comment.likedBy = [deviceID]
+            }
             return self.updateLikes(request, comment: comment)
         }
     }
     
     func deleteLike(_ request: Request)throws -> Future<LikesResponse> {
+        let deviceID = try request.getUUIDFromHeader()
+        
         return try request.parameters.next(Comment.self).flatMap { comment in
             self.likesManager.deleteLike(numberOfLikes: &comment.numberOfLikes)
+            if let likedBy = comment.likedBy {
+                comment.likedBy = likedBy.filter { $0 != deviceID }
+            } else {
+                comment.likedBy = []
+            }
             return self.updateLikes(request, comment: comment)
         }
     }
     
     // DISLIKES
     func postDislike(_ request: Request)throws -> Future<DislikesResponse> {
+        let deviceID = try request.getUUIDFromHeader()
+        
         return try request.parameters.next(Comment.self).flatMap { comment in
             self.likesManager.dislike(numberOfDislikes: &comment.numberOfDislikes)
             self.sendPush(on: request, pushMessage: comment, pushType: PushType.newLikeOrDislkeOnComment, likesManager: self.likesManager)
+            if var dislikedBy = comment.dislikedBy {
+                dislikedBy.append(deviceID)
+                comment.dislikedBy = dislikedBy
+            } else {
+                comment.dislikedBy = [deviceID]
+            }
             return self.updateDislikes(request, comment: comment)
         }
     }
     
     func deleteDislike(_ request: Request)throws -> Future<DislikesResponse> {
+        let deviceID = try request.getUUIDFromHeader()
+        
         return try request.parameters.next(Comment.self).flatMap { comment in
             self.likesManager.deleteDislike(numberOfDislikes: &comment.numberOfDislikes)
+            if let dislikedBy = comment.dislikedBy {
+                comment.dislikedBy = dislikedBy.filter { $0 != deviceID }
+            } else {
+                comment.dislikedBy = []
+            }
             return self.updateDislikes(request, comment: comment)
         }
     }

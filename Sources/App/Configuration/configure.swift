@@ -77,6 +77,8 @@ _ services: inout Services
 //    migrations.add(migration: CommentAddDeviceID.self, database: .psql)
     migrations.add(migration: PostAddLikedBy.self, database: .psql)
     migrations.add(migration: PostAddDislikedBy.self, database: .psql)
+    migrations.add(migration: CommentAddLikedBy.self, database: .psql)
+    migrations.add(migration: CommentAddDislikedBy.self, database: .psql)
     
     services.register(migrations)
     
