@@ -65,10 +65,15 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     // LIKES
     func postLike(_ request: Request)throws -> Future<LikesResponse> {
         let deviceID = try request.getUUIDFromHeader()
-        
         return try request.parameters.next(Post.self).flatMap { post in
             self.likesManager.like(numberOfLikes: &post.numberOfLikes)
             self.sendPush(on: request, pushMessage: post, pushType: PushType.newLikeOrDislikeOnPost, likesManager: self.likesManager)
+            if var likedBy = post.likedBy {
+                likedBy.append(deviceID)
+                post.likedBy = likedBy
+            } else {
+                post.likedBy = [deviceID]
+            }
             if let postID = post.id {
                 PostFilter.create(on: request, postID: postID, deviceID: deviceID, type: .myLikes)
             }
@@ -81,6 +86,11 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
         
         return try request.parameters.next(Post.self).flatMap { post in
             self.likesManager.deleteLike(numberOfLikes: &post.numberOfLikes)
+            if let likedBy = post.likedBy {
+                post.likedBy = likedBy.filter { $0 != deviceID }
+            } else {
+                post.likedBy = []
+            }
             if let postID = post.id {
                 PostFilter.deleteLike(on: request, postID: postID, deviceID: deviceID)
             }
@@ -95,6 +105,12 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
         return try request.parameters.next(Post.self).flatMap { post in
             self.likesManager.dislike(numberOfDislikes: &post.numberOfDislikes)
             self.sendPush(on: request, pushMessage: post, pushType: PushType.newLikeOrDislikeOnPost, likesManager: self.likesManager)
+            if var dislikedBy = post.dislikedBy {
+                dislikedBy.append(deviceID)
+                post.dislikedBy = dislikedBy
+            } else {
+                post.dislikedBy = [deviceID]
+            }
             if let postID = post.id {
                 PostFilter.create(on: request, postID: postID, deviceID: deviceID, type: .myDislikes)
             }
@@ -107,6 +123,11 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
         
         return try request.parameters.next(Post.self).flatMap { post in
             self.likesManager.deleteDislike(numberOfDislikes: &post.numberOfDislikes)
+            if let dislikedBy = post.dislikedBy {
+                post.dislikedBy = dislikedBy.filter { $0 != deviceID }
+            } else {
+                post.dislikedBy = []
+            }
             if let postID = post.id {
                 PostFilter.deleteDislike(on: request, postID: postID, deviceID: deviceID)
             }

@@ -57,6 +57,8 @@ final class Post: PostgreModel, Identifiable {
     var coordinate2D: Coordinate2DPosition?
     var geolocation: Geolocation?
     var channelID: UUID?
+    var likedBy: [UUID]?
+    var dislikedBy: [UUID]?
     
     init(
         text: String,
@@ -71,7 +73,9 @@ final class Post: PostgreModel, Identifiable {
         pushTokenID: UUID?,
         coordinate2D: Coordinate2DPosition?,
         geolocation: Geolocation?,
-        channelID: UUID?) {
+        channelID: UUID?,
+        likedBy: [UUID]?,
+        dislikedBy: [UUID]?) {
         self.text = text
         self.updatedAt = updatedAt
         self.backgroundColorHex = backgroundColorHex
@@ -85,6 +89,8 @@ final class Post: PostgreModel, Identifiable {
         self.coordinate2D = coordinate2D
         self.geolocation = geolocation
         self.channelID = channelID
+        self.likedBy = likedBy
+        self.dislikedBy = dislikedBy
     }
 }
 
