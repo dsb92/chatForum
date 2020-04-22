@@ -92,20 +92,7 @@ final class PostFilterController: RouteCollection {
     }
     
     private func getUserPosts(_ request: Request, of type: PostFilterType)throws -> Future<Paginated<Post>> {
-        let query = try Post.query(on: request).join(\PostFilter.postID, to: \Post.id).filter(\PostFilter.deviceID == request.getUUIDFromHeader()).filter(\PostFilter.type == type)
-        return try query.paginate(for: request).flatMap(to: Paginated<Post>.self) { paginated in
-            let promise: Promise<Paginated<Post>> = request.eventLoop.newPromise()
-            DispatchQueue.global().async {
-                var uniquePosts = [Post]()
-                paginated.data.forEach { post in
-                    if uniquePosts.contains(post) == false {
-                        uniquePosts.append(post)
-                    }
-                }
-                promise.succeed(result: Paginated(page: paginated.page, data: uniquePosts))
-            }
-            return promise.futureResult
-        }
+        return try Post.query(on: request).join(\PostFilter.postID, to: \Post.id).filter(\PostFilter.deviceID == request.getUUIDFromHeader()).filter(\PostFilter.type == type).paginate(for: request)
     }
     
     private func postUserPosts(_ request: Request, of type: PostFilterType)throws -> Future<PostFilter> {

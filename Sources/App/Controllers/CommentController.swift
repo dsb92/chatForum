@@ -161,7 +161,12 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
             }
             
             if let _ = newComment.id {
-                PostFilter.create(on: request, postID: newComment.postID, deviceID: deviceID, type: .myComments)
+                let query = Post.query(on: request).join(\PostFilter.postID, to: \Post.id).filter(\PostFilter.deviceID == deviceID).filter(\PostFilter.postID == newComment.postID).filter(\PostFilter.type == .myComments).first()
+                let _ = query.map { first in
+                    if first == nil {
+                        PostFilter.create(on: request, postID: newComment.postID, deviceID: deviceID, type: .myComments)
+                    }
+                }
             }
             
             return Future.map(on: request) { return newComment }
