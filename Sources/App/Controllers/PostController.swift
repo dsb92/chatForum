@@ -20,7 +20,7 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
         posts.get(Post.parameter, "comments", use: getComments)
         posts.get(Post.parameter, "comments/v2", use: getCommentsV2)
         posts.get(use: getPosts)
-        posts.get("/v2", use: getPostsV2)
+        posts.get("/v2", use: getPosts)
         posts.get(Post.parameter, use: getPost)
         posts.delete(Post.parameter, use: deletePost)
         posts.post(Post.self, use: postPost)
@@ -35,11 +35,23 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
         return try request.parameters.next(Post.self).flatMap(to: CommentsResponse.self) { post in
             return try post.comments
                 .query(on: request)
-                .join(\BlockedDevice.deviceID, to: \Comment.deviceID)
-                .filter(\BlockedDevice.blockedDeviceID != request.getUUIDFromHeader())
                 .all()
+                .flatMap(to: CommentsResponse.self) { all in
+                    var data = all
+                    // Find all comments that are blocked
+                    return try Comment
+                    .query(on: request)
+                    .join(\BlockedDevice.deviceID, to: \Comment.deviceID)
+                    .filter(\BlockedDevice.blockedDeviceID == request.getUUIDFromHeader())
+                    .all()
+                    .flatMap { comments in
+                        // Filter them out removing those that should not be visible to requester
+                        data = data.filter { comments.contains($0) == false }
+                        return Future.map(on: request) { CommentsResponse(comments: data) }
+                    }
+                }
                 .flatMap { comments in
-                    let newComments = comments.filter { $0.parentID == nil }
+                    let newComments = comments.comments.filter { $0.parentID == nil }
                     let all = CommentsResponse(comments: newComments.sorted(by: { (l, r) -> Bool in
                         return l < r
                     }))
@@ -52,9 +64,21 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
         return try request.parameters.next(Post.self).flatMap(to: Paginated<Comment>.self) { post in
             return try post.comments
                 .query(on: request)
-                .join(\BlockedDevice.deviceID, to: \Comment.deviceID)
-                .filter(\BlockedDevice.blockedDeviceID != request.getUUIDFromHeader())
                 .paginate(for: request)
+                .flatMap(to: Paginated<Comment>.self) { paginated in
+                    var data = paginated.data
+                    // Find all comments that are blocked
+                    return try Comment
+                    .query(on: request)
+                    .join(\BlockedDevice.deviceID, to: \Comment.deviceID)
+                    .filter(\BlockedDevice.blockedDeviceID == request.getUUIDFromHeader())
+                    .all()
+                    .flatMap { comments in
+                        // Filter them out removing those that should not be visible to requester
+                        data = data.filter { comments.contains($0) == false }
+                        return Future.map(on: request) { Paginated(page: paginated.page, data: data) }
+                    }
+                }
                 .flatMap { paginated in
                     let newComments = paginated.data.filter { $0.parentID == nil }
                     return Future.map(on: request) { return Paginated(page: paginated.page, data: newComments) }
@@ -139,17 +163,21 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     func getPosts(_ request: Request)throws -> Future<Paginated<Post>> {
         return try Post
             .query(on: request)
-            .join(\BlockedDevice.deviceID, to: \Post.deviceID)
-            .filter(\BlockedDevice.blockedDeviceID != request.getUUIDFromHeader())
             .paginate(for: request)
-    }
-    
-    func getPostsV2(_ request: Request)throws -> Future<Paginated<Post>> {
-        return try Post
-            .query(on: request)
-            .join(\BlockedDevice.deviceID, to: \Post.deviceID)
-            .filter(\BlockedDevice.blockedDeviceID != request.getUUIDFromHeader())
-            .paginate(for: request)
+            .flatMap(to: Paginated<Post>.self) { paginated in
+                var data = paginated.data
+                // Find all posts that are blocked
+                return try Post
+                .query(on: request)
+                .join(\BlockedDevice.deviceID, to: \Post.deviceID)
+                .filter(\BlockedDevice.blockedDeviceID == request.getUUIDFromHeader())
+                .all()
+                .flatMap { posts in
+                    // Filter them out removing those that should not be visible to requester
+                    data = data.filter { posts.contains($0) == false }
+                    return Future.map(on: request) { Paginated(page: paginated.page, data: data) }
+                }
+            }
     }
     
     // GET POST

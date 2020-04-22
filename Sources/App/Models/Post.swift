@@ -112,7 +112,7 @@ extension Post: Comparable {
     }
     
     static func == (lhs: Post, rhs: Post) -> Bool {
-        return lhs.updatedAt.toDate().compare(rhs.updatedAt.toDate()) == .orderedSame
+        return lhs.id == rhs.id
     }
 }
 

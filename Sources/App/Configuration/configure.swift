@@ -33,6 +33,9 @@ _ services: inout Services
     // Configure a database
     guard let databaseUrl = Environment.get("DATABASE_URL") else { throw Abort(.internalServerError, reason: "Missing database connection") }
     var databases = DatabasesConfig()
+    if env == .development {
+        databases.enableLogging(on: .psql)
+    }
     let databaseConfig = PostgreSQLDatabaseConfig(url: databaseUrl)!
     let database = PostgreSQLDatabase(config: databaseConfig)
     databases.add(database: database, as: .psql)

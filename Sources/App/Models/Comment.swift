@@ -73,7 +73,7 @@ extension Comment: Comparable {
     }
     
     static func == (lhs: Comment, rhs: Comment) -> Bool {
-        return lhs.updatedAt.toDate().compare(rhs.updatedAt.toDate()) == .orderedSame
+        return lhs.id == rhs.id
     }
 }
 
