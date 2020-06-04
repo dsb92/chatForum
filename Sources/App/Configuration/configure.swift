@@ -43,45 +43,7 @@ _ services: inout Services
     
     // Migrations
     var migrations = MigrationConfig()
-//    migrations.add(model: Post.self, database: .psql)
-//    migrations.add(model: Comment.self, database: .psql)
-//    migrations.add(model: Color.self, database: .psql)
-//    migrations.add(model: Token.self, database: .psql)
-//    migrations.add(model: User.self, database: .psql)
-//    migrations.add(model: PushToken.self, database: .psql)
-//    migrations.add(model: Notification.self, database: .psql)
-//    migrations.add(model: NotificationEvent.self, database: .psql)
-//    migrations.add(model: Location.self, database: .psql)
-//    migrations.add(model: Channel.self, database: .psql)
-//    migrations.add(model: Device.self, database: .psql)
-//    migrations.add(model: BlockedDevice.self, database: .psql)
-//    migrations.add(model: AllowedDevice.self, database: .psql)
-    migrations.add(model: PostFilter.self, database: .psql)
-
-//    migrations.add(migration: PostAddUpdatedAt.self, database: .psql)
-//    migrations.add(migration: CommentAddUpdatedAt.self, database: .psql)
-//    migrations.add(migration: PostAddBackgroundColorHex.self, database: .psql)
-//    migrations.add(migration: PostAddNumberOfComments.self, database: .psql)
-//    migrations.add(migration: PostAddImageIds.self, database: .psql)
-//    migrations.add(migration: PostAddVideoIds.self, database: .psql)
-//    migrations.add(migration: PostAddNumberOfLikes.self, database: .psql)
-//    migrations.add(migration: PostAddNumberOfDislikes.self, database: .psql)
-//    migrations.add(migration: CommentAddNumberOfLikes.self, database: .psql)
-//    migrations.add(migration: CommentAddNumberOfDislikes.self, database: .psql)
-//    migrations.add(migration: CommentAddParentID.self, database: .psql)
-//    migrations.add(migration: CommentAddNumberOfComments.self, database: .psql)
-//    migrations.add(migration: CommentAddPushTokenID.self, database: .psql)
-//    migrations.add(migration: PostAddPushTokenID.self, database: .psql)
-//    migrations.add(migration: NotificationAddMigration.self, database: .psql)
-//    migrations.add(migration: PostAddLocation.self, database: .psql)
-//    migrations.add(migration: LocationAddFlagURLCity.self, database: .psql)
-//    migrations.add(migration: PostAddChannelID.self, database: .psql)
-//    migrations.add(migration: PostAddDeviceID.self, database: .psql)
-//    migrations.add(migration: CommentAddDeviceID.self, database: .psql)
-    migrations.add(migration: PostAddLikedBy.self, database: .psql)
-    migrations.add(migration: PostAddDislikedBy.self, database: .psql)
-    migrations.add(migration: CommentAddLikedBy.self, database: .psql)
-    migrations.add(migration: CommentAddDislikedBy.self, database: .psql)
+    migrations.add(migration: DeviceAddAppInfo.self, database: .psql)
     
     services.register(migrations)
     
@@ -94,7 +56,6 @@ _ services: inout Services
     
     Post.defaultDatabase = .psql
     Comment.defaultDatabase = .psql
-    Color.defaultDatabase = .psql
     Token.defaultDatabase = .psql
     User.defaultDatabase = .psql
     PushToken.defaultDatabase = .psql

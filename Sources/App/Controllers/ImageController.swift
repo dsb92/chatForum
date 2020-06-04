@@ -13,7 +13,6 @@ final class ImageController: RouteCollection, FileManageable, NSFWContentManagab
         let images = router.grouped("upload/image")
         
         images.post(use: postUploadImage)
-        images.put(use: putUploadImage)
         images.delete(UUID.parameter, use: deleteImage)
     }
     
@@ -21,16 +20,6 @@ final class ImageController: RouteCollection, FileManageable, NSFWContentManagab
     func postUploadImage(request: Request) throws -> Future<NSFWFileResponse> {
         return try request.content.decode(FileContent.self).flatMap(to: NSFWFileResponse.self) { content in
             return try self.fileRequester.writeToFile(nsfw: self.nsfwContentProvider, with: request, ext: .png, path: .images, file: content.file, id: UUID())
-        }
-    }
-    
-    // PUT IMAGE
-    func putUploadImage(request: Request) throws -> Future<NSFWFileResponse> {
-        return try request.content.decode(FileContent.self).flatMap(to: NSFWFileResponse.self) { content in
-            guard let id = content.id else {
-                throw Abort(.badRequest, reason: "Missing image id")
-            }
-            return try self.fileRequester.writeToFile(nsfw: self.nsfwContentProvider, with: request, ext: .png, path: .images, file: content.file, id: id)
         }
     }
     

@@ -3,15 +3,13 @@ import Vapor
 final class VersionMiddleware: Middleware {
     
     func respond(to request: Request, chainingTo next: Responder) throws -> Future<Response> {
-        guard let version = request.http.headers["version"].first else {
-            //throw Abort(.badRequest, reason: "Missing version")
-            return try next.respond(to: request)
-        }
+        let appHeaders = try request.getAppHeaders()
+        let version = appHeaders.version
+        let platform = appHeaders.platform
+        let deviceID = appHeaders.deviceID
         
-        guard let platform = request.http.headers["platform"].first else {
-            //throw Abort(.badRequest, reason: "Missing platform")
-            return try next.respond(to: request)
-        }
+        // Create or update device
+        Device.create(on: request, deviceID: deviceID, appVersion: version, appPlatform: platform)
         
         return AllowedDevice.query(on: request).group(.or) {
             $0.filter(\AllowedDevice.platform, .equal, platform).filter(\AllowedDevice.version, .equal, version)

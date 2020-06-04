@@ -45,23 +45,25 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
     
     // LIKES
     func postLike(_ request: Request)throws -> Future<LikesResponse> {
-        let deviceID = try request.getUUIDFromHeader()
+        let appHeaders = try request.getAppHeaders()
         
         return try request.parameters.next(Comment.self).flatMap { comment in
             self.likesManager.like(numberOfLikes: &comment.numberOfLikes)
             self.sendPush(on: request, pushMessage: comment, pushType: PushType.newLikeOrDislkeOnComment, likesManager: self.likesManager)
+            
             if var likedBy = comment.likedBy {
-                likedBy.append(deviceID)
+                likedBy.append(appHeaders.deviceID)
                 comment.likedBy = likedBy
             } else {
-                comment.likedBy = [deviceID]
+                comment.likedBy = [appHeaders.deviceID]
             }
+            
             return self.updateLikes(request, comment: comment)
         }
     }
     
     func deleteLike(_ request: Request)throws -> Future<LikesResponse> {
-        let deviceID = try request.getUUIDFromHeader()
+        let deviceID = try request.getAppHeaders().deviceID
         
         return try request.parameters.next(Comment.self).flatMap { comment in
             self.likesManager.deleteLike(numberOfLikes: &comment.numberOfLikes)
@@ -76,23 +78,25 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
     
     // DISLIKES
     func postDislike(_ request: Request)throws -> Future<DislikesResponse> {
-        let deviceID = try request.getUUIDFromHeader()
+        let appHeaders = try request.getAppHeaders()
         
         return try request.parameters.next(Comment.self).flatMap { comment in
             self.likesManager.dislike(numberOfDislikes: &comment.numberOfDislikes)
             self.sendPush(on: request, pushMessage: comment, pushType: PushType.newLikeOrDislkeOnComment, likesManager: self.likesManager)
+            
             if var dislikedBy = comment.dislikedBy {
-                dislikedBy.append(deviceID)
+                dislikedBy.append(appHeaders.deviceID)
                 comment.dislikedBy = dislikedBy
             } else {
-                comment.dislikedBy = [deviceID]
+                comment.dislikedBy = [appHeaders.deviceID]
             }
+            
             return self.updateDislikes(request, comment: comment)
         }
     }
     
     func deleteDislike(_ request: Request)throws -> Future<DislikesResponse> {
-        let deviceID = try request.getUUIDFromHeader()
+        let deviceID = try request.getAppHeaders().deviceID
         
         return try request.parameters.next(Comment.self).flatMap { comment in
             self.likesManager.deleteDislike(numberOfDislikes: &comment.numberOfDislikes)
@@ -124,8 +128,8 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
     
     // POST COMMENT
     func postComment(_ request: Request, _ comment: Comment)throws -> Future<Comment> {
-        let deviceID = try request.getUUIDFromHeader()
-        comment.deviceID = deviceID
+        let appHeaders = try request.getAppHeaders()
+        comment.deviceID = appHeaders.deviceID
         
         let _ = comment.post.get(on: request).flatMap(to: Post.self) { post in
             guard let postID = post.id else { throw Abort.init(HTTPStatus.notFound) }
@@ -161,10 +165,10 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
             }
             
             if let _ = newComment.id {
-                let query = Post.query(on: request).join(\PostFilter.postID, to: \Post.id).filter(\PostFilter.deviceID == deviceID).filter(\PostFilter.postID == newComment.postID).filter(\PostFilter.type == .myComments).first()
+                let query = Post.query(on: request).join(\PostFilter.postID, to: \Post.id).filter(\PostFilter.deviceID == appHeaders.deviceID).filter(\PostFilter.postID == newComment.postID).filter(\PostFilter.type == .myComments).first()
                 let _ = query.map { first in
                     if first == nil {
-                        PostFilter.create(on: request, postID: newComment.postID, deviceID: deviceID, type: .myComments)
+                        PostFilter.create(on: request, postID: newComment.postID, deviceID: appHeaders.deviceID, type: .myComments)
                     }
                 }
             }

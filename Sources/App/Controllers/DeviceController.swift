@@ -5,10 +5,6 @@ final class DeviceController: RouteCollection {
     func boot(router: Router) throws {
         let devices = router.grouped("devices")
         devices.get(use: getDevices)
-        devices.post(Device.self, use: postDevice)
-        devices.put(Device.self, use: putDevice)
-        devices.get(Device.parameter, "posts", use: getPosts)
-        devices.get(Device.parameter, "comments", use: getComments)
         devices.delete(Device.parameter, use: deleteDevice)
     }
     
@@ -18,39 +14,7 @@ final class DeviceController: RouteCollection {
         }
     }
     
-    func getPosts(_ request: Request)throws -> Future<PostsResponse> {
-        return try request.parameters.next(Device.self).flatMap(to: PostsResponse.self) { device in
-            let val = try device.posts.query(on: request).all()
-            return val.flatMap { posts in
-                let all = PostsResponse(posts: posts.sorted(by: { (l, r) -> Bool in
-                    return l > r
-                }))
-                return Future.map(on: request) { return all }
-            }
-        }
-    }
-    
-    func getComments(_ request: Request)throws -> Future<CommentsResponse> {
-        return try request.parameters.next(Device.self).flatMap(to: CommentsResponse.self) { device in
-            let val = try device.comments.query(on: request).all()
-            return val.flatMap { comments in
-                let all = CommentsResponse(comments: comments.sorted(by: { (l, r) -> Bool in
-                    return l > r
-                }))
-                return Future.map(on: request) { return all }
-            }
-        }
-    }
-    
     func deleteDevice(_ request: Request)throws -> Future<HTTPStatus> {
         return try request.parameters.next(Device.self).delete(on: request).transform(to: .noContent)
-    }
-    
-    func postDevice(_ request: Request, device: Device)throws -> Future<Device> {
-        return device.create(on: request)
-    }
-    
-    func putDevice(_ request: Request, device: Device)throws -> Future<Device> {
-        return device.update(on: request)
     }
 }

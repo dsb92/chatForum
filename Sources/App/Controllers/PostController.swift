@@ -16,11 +16,9 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
         
         let posts = router.grouped("posts")
         
-        posts.put(Post.self, use: putPost)
         posts.get(Post.parameter, "comments", use: getComments)
         posts.get(Post.parameter, "comments/v2", use: getCommentsV2)
         posts.get(use: getPosts)
-        posts.get("/v2", use: getPosts)
         posts.get(Post.parameter, use: getPost)
         posts.delete(Post.parameter, use: deletePost)
         posts.post(Post.self, use: postPost)
@@ -40,23 +38,23 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
                     var data = all
                     // Find all comments that are blocked
                     return try Comment
-                    .query(on: request)
-                    .join(\BlockedDevice.deviceID, to: \Comment.deviceID)
-                    .filter(\BlockedDevice.blockedDeviceID == request.getUUIDFromHeader())
-                    .all()
-                    .flatMap { comments in
-                        // Filter them out removing those that should not be visible to requester
-                        data = data.filter { comments.contains($0) == false }
-                        return Future.map(on: request) { CommentsResponse(comments: data) }
+                        .query(on: request)
+                        .join(\BlockedDevice.deviceID, to: \Comment.deviceID)
+                        .filter(\BlockedDevice.blockedDeviceID == request.getAppHeaders().deviceID)
+                        .all()
+                        .flatMap { comments in
+                            // Filter them out removing those that should not be visible to requester
+                            data = data.filter { comments.contains($0) == false }
+                            return Future.map(on: request) { CommentsResponse(comments: data) }
                     }
-                }
-                .flatMap { comments in
-                    let newComments = comments.comments.filter { $0.parentID == nil }
-                    let all = CommentsResponse(comments: newComments.sorted(by: { (l, r) -> Bool in
-                        return l < r
-                    }))
-                    return Future.map(on: request) { return all }
-                }
+            }
+            .flatMap { comments in
+                let newComments = comments.comments.filter { $0.parentID == nil }
+                let all = CommentsResponse(comments: newComments.sorted(by: { (l, r) -> Bool in
+                    return l < r
+                }))
+                return Future.map(on: request) { return all }
+            }
         }
     }
     
@@ -69,54 +67,56 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
                     var data = paginated.data
                     // Find all comments that are blocked
                     return try Comment
-                    .query(on: request)
-                    .join(\BlockedDevice.deviceID, to: \Comment.deviceID)
-                    .filter(\BlockedDevice.blockedDeviceID == request.getUUIDFromHeader())
-                    .all()
-                    .flatMap { comments in
-                        // Filter them out removing those that should not be visible to requester
-                        data = data.filter { comments.contains($0) == false }
-                        return Future.map(on: request) { Paginated(page: paginated.page, data: data) }
+                        .query(on: request)
+                        .join(\BlockedDevice.deviceID, to: \Comment.deviceID)
+                        .filter(\BlockedDevice.blockedDeviceID == request.getAppHeaders().deviceID)
+                        .all()
+                        .flatMap { comments in
+                            // Filter them out removing those that should not be visible to requester
+                            data = data.filter { comments.contains($0) == false }
+                            return Future.map(on: request) { Paginated(page: paginated.page, data: data) }
                     }
-                }
-                .flatMap { paginated in
-                    let newComments = paginated.data.filter { $0.parentID == nil }
-                    return Future.map(on: request) { return Paginated(page: paginated.page, data: newComments) }
-                }
+            }
+            .flatMap { paginated in
+                let newComments = paginated.data.filter { $0.parentID == nil }
+                return Future.map(on: request) { return Paginated(page: paginated.page, data: newComments) }
+            }
         }
     }
     
     // LIKES
     func postLike(_ request: Request)throws -> Future<LikesResponse> {
-        let deviceID = try request.getUUIDFromHeader()
+        let appHeaders = try request.getAppHeaders()
+        
         return try request.parameters.next(Post.self).flatMap { post in
             self.likesManager.like(numberOfLikes: &post.numberOfLikes)
             self.sendPush(on: request, pushMessage: post, pushType: PushType.newLikeOrDislikeOnPost, likesManager: self.likesManager)
             if var likedBy = post.likedBy {
-                likedBy.append(deviceID)
+                likedBy.append(appHeaders.deviceID)
                 post.likedBy = likedBy
             } else {
-                post.likedBy = [deviceID]
+                post.likedBy = [appHeaders.deviceID]
             }
             if let postID = post.id {
-                PostFilter.create(on: request, postID: postID, deviceID: deviceID, type: .myLikes)
+                // Create or update my likes filter
+                PostFilter.create(on: request, postID: postID, deviceID: appHeaders.deviceID, type: .myLikes)
             }
             return self.updateLikes(request, post: post)
         }
     }
     
     func deleteLike(_ request: Request)throws -> Future<LikesResponse> {
-        let deviceID = try request.getUUIDFromHeader()
+        let appHeaders = try request.getAppHeaders()
         
         return try request.parameters.next(Post.self).flatMap { post in
             self.likesManager.deleteLike(numberOfLikes: &post.numberOfLikes)
             if let likedBy = post.likedBy {
-                post.likedBy = likedBy.filter { $0 != deviceID }
+                post.likedBy = likedBy.filter { $0 != appHeaders.deviceID }
             } else {
                 post.likedBy = []
             }
             if let postID = post.id {
-                PostFilter.deleteLike(on: request, postID: postID, deviceID: deviceID)
+                PostFilter.deleteLike(on: request, postID: postID, deviceID: appHeaders.deviceID)
             }
             return self.updateLikes(request, post: post)
         }
@@ -124,36 +124,37 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     
     // DISLIKES
     func postDislike(_ request: Request)throws -> Future<DislikesResponse> {
-        let deviceID = try request.getUUIDFromHeader()
+        let appHeaders = try request.getAppHeaders()
         
         return try request.parameters.next(Post.self).flatMap { post in
             self.likesManager.dislike(numberOfDislikes: &post.numberOfDislikes)
             self.sendPush(on: request, pushMessage: post, pushType: PushType.newLikeOrDislikeOnPost, likesManager: self.likesManager)
             if var dislikedBy = post.dislikedBy {
-                dislikedBy.append(deviceID)
+                dislikedBy.append(appHeaders.deviceID)
                 post.dislikedBy = dislikedBy
             } else {
-                post.dislikedBy = [deviceID]
+                post.dislikedBy = [appHeaders.deviceID]
             }
             if let postID = post.id {
-                PostFilter.create(on: request, postID: postID, deviceID: deviceID, type: .myDislikes)
+                // Create or update my dislikes filter
+                PostFilter.create(on: request, postID: postID, deviceID: appHeaders.deviceID, type: .myDislikes)
             }
             return self.updateDislikes(request, post: post)
         }
     }
     
     func deleteDislike(_ request: Request)throws -> Future<DislikesResponse> {
-        let deviceID = try request.getUUIDFromHeader()
+        let appHeaders = try request.getAppHeaders()
         
         return try request.parameters.next(Post.self).flatMap { post in
             self.likesManager.deleteDislike(numberOfDislikes: &post.numberOfDislikes)
             if let dislikedBy = post.dislikedBy {
-                post.dislikedBy = dislikedBy.filter { $0 != deviceID }
+                post.dislikedBy = dislikedBy.filter { $0 != appHeaders.deviceID }
             } else {
                 post.dislikedBy = []
             }
             if let postID = post.id {
-                PostFilter.deleteDislike(on: request, postID: postID, deviceID: deviceID)
+                PostFilter.deleteDislike(on: request, postID: postID, deviceID: appHeaders.deviceID)
             }
             return self.updateDislikes(request, post: post)
         }
@@ -168,16 +169,16 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
                 var data = paginated.data
                 // Find all posts that are blocked
                 return try Post
-                .query(on: request)
-                .join(\BlockedDevice.deviceID, to: \Post.deviceID)
-                .filter(\BlockedDevice.blockedDeviceID == request.getUUIDFromHeader())
-                .all()
-                .flatMap { posts in
-                    // Filter them out removing those that should not be visible to requester
-                    data = data.filter { posts.contains($0) == false }
-                    return Future.map(on: request) { Paginated(page: paginated.page, data: data) }
+                    .query(on: request)
+                    .join(\BlockedDevice.deviceID, to: \Post.deviceID)
+                    .filter(\BlockedDevice.blockedDeviceID == request.getAppHeaders().deviceID)
+                    .all()
+                    .flatMap { posts in
+                        // Filter them out removing those that should not be visible to requester
+                        data = data.filter { posts.contains($0) == false }
+                        return Future.map(on: request) { Paginated(page: paginated.page, data: data) }
                 }
-            }
+        }
     }
     
     // GET POST
@@ -187,16 +188,17 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     
     // POST POST
     func postPost(_ request: Request, _ post: Post)throws -> Future<Post> {
-        let deviceID = try request.getUUIDFromHeader()
-        post.deviceID = deviceID
+        let appHeaders = try request.getAppHeaders()
+        post.deviceID = appHeaders.deviceID
         
         return post.create(on: request).flatMap { newPost in
-            if let postID = newPost.id, let pushTokenID = newPost.pushTokenID {
-                NotificationEvent.create(on: request, pushTokenID: pushTokenID, eventID: postID)
-            }
-            
             if let postID = newPost.id {
-                PostFilter.create(on: request, postID: postID, deviceID: deviceID, type: .myPost)
+                // Create notification event
+                if let pushTokenID = newPost.pushTokenID {
+                    NotificationEvent.create(on: request, pushTokenID: pushTokenID, eventID: postID)
+                }
+                // Create or update my post filter
+                PostFilter.create(on: request, postID: postID, deviceID: appHeaders.deviceID, type: .myPost)
             }
             
             guard let _ = post.coordinate2D else {
@@ -207,34 +209,6 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
                 newPost.coordinate2D = nil
                 newPost.geolocation = Geolocation(country: location.country, flagURL: location.flagURL, city: location.city)
                 return newPost.save(on: request)
-            }
-        }
-    }
-    
-    // UPDATE POST
-    func putPost(_ request: Request, post: Post)throws -> Future<Post> {
-        post.deviceID = try request.getUUIDFromHeader()
-        
-        return Post.query(on: request).filter(\Post.id, .equal, post.id).first().flatMap(to: Post.self) { fetchedPost in
-            guard let existingPost = fetchedPost else {
-                throw Abort(.badRequest)
-            }
-            
-            post.numberOfComments = existingPost.numberOfComments
-            post.numberOfLikes = existingPost.numberOfLikes
-            post.numberOfDislikes = existingPost.numberOfDislikes
-            
-            return post.update(on: request).flatMap { newPost in
-                
-                guard let _ = post.coordinate2D else {
-                    return Future.map(on: request) { return newPost }
-                }
-                
-                return try self.getLocationFromPostByCoordinate2D(request: request, post: newPost).flatMap(to: Post.self) { location in
-                    newPost.coordinate2D = nil
-                    newPost.geolocation = Geolocation(country: location.country, flagURL: location.flagURL, city: location.city)
-                    return newPost.save(on: request)
-                }
             }
         }
     }
