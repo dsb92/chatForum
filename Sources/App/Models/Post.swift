@@ -45,6 +45,7 @@ extension Geolocation: ReflectionDecodable, Equatable {
 final class Post: PostgreModel, Identifiable {
     var id: UUID?
     var text: String
+    var backgroundColorHex: String
     var updatedAt: String
     var numberOfComments: Int?
     var numberOfLikes: Int?
@@ -61,6 +62,7 @@ final class Post: PostgreModel, Identifiable {
     
     init(
         text: String,
+        backgroundColorHex: String,
         updatedAt: String,
         numberOfComments: Int?,
         numberOfLikes: Int?,
@@ -75,6 +77,7 @@ final class Post: PostgreModel, Identifiable {
         likedBy: [UUID]?,
         dislikedBy: [UUID]?) {
         self.text = text
+        self.backgroundColorHex = backgroundColorHex
         self.updatedAt = updatedAt
         self.numberOfComments = numberOfComments
         self.numberOfLikes = numberOfLikes

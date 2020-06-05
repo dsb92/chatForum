@@ -44,6 +44,7 @@ _ services: inout Services
     // Migrations
     var migrations = MigrationConfig()
     migrations.add(migration: DeviceAddAppInfo.self, database: .psql)
+    migrations.add(migration: PostAddBackgroundHexColor.self, database: .psql)
     
     services.register(migrations)
     
