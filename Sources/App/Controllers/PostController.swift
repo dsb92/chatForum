@@ -29,13 +29,13 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     }
     
     // COMMENTS
-    func getComments(_ request: Request)throws -> Future<CommentsResponse> {
-        return try request.parameters.next(Post.self).flatMap(to: CommentsResponse.self) { post in
+    func getComments(_ request: Request)throws -> Future<Paginated<Comment>> {
+        return try request.parameters.next(Post.self).flatMap(to: Paginated<Comment>.self) { post in
             return try post.comments
                 .query(on: request)
-                .all()
-                .flatMap(to: CommentsResponse.self) { all in
-                    var data = all
+                .paginate(for: request)
+                .flatMap(to: Paginated<Comment>.self) { paginated in
+                    var data = paginated.data
                     // Find all comments that are blocked
                     return try Comment
                         .query(on: request)
@@ -45,15 +45,12 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
                         .flatMap { comments in
                             // Filter them out removing those that should not be visible to requester
                             data = data.filter { comments.contains($0) == false }
-                            return Future.map(on: request) { CommentsResponse(comments: data) }
+                            return Future.map(on: request) { Paginated(page: paginated.page, data: data) }
                     }
             }
-            .flatMap { comments in
-                let newComments = comments.comments.filter { $0.parentID == nil }
-                let all = CommentsResponse(comments: newComments.sorted(by: { (l, r) -> Bool in
-                    return l < r
-                }))
-                return Future.map(on: request) { return all }
+            .flatMap { paginated in
+                let newComments = paginated.data.filter { $0.parentID == nil }
+                return Future.map(on: request) { return Paginated(page: paginated.page, data: newComments) }
             }
         }
     }
@@ -166,7 +163,6 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
             .query(on: request)
             .paginate(for: request)
             .flatMap(to: Paginated<Post>.self) { paginated in
-                var data = paginated.data
                 // Find all posts that are blocked
                 return try Post
                     .query(on: request)
@@ -175,7 +171,7 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
                     .all()
                     .flatMap { posts in
                         // Filter them out removing those that should not be visible to requester
-                        data = data.filter { posts.contains($0) == false }
+                        let data = paginated.data.filter { posts.contains($0) == false }
                         return Future.map(on: request) { Paginated(page: paginated.page, data: data) }
                 }
         }

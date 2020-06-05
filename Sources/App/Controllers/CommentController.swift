@@ -164,13 +164,16 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
                 NotificationEvent.create(on: request, pushTokenID: pushTokenID, eventID: commentID)
             }
             
-            if let _ = newComment.id {
-                let query = Post.query(on: request).join(\PostFilter.postID, to: \Post.id).filter(\PostFilter.deviceID == appHeaders.deviceID).filter(\PostFilter.postID == newComment.postID).filter(\PostFilter.type == .myComments).first()
-                let _ = query.map { first in
+            let _ = Post.query(on: request)
+                .join(\PostFilter.postID, to: \Post.id)
+                .filter(\PostFilter.deviceID == appHeaders.deviceID)
+                .filter(\PostFilter.postID == newComment.postID)
+                .filter(\PostFilter.type == .myComments)
+                .first()
+                .map { first in
                     if first == nil {
                         PostFilter.create(on: request, postID: newComment.postID, deviceID: appHeaders.deviceID, type: .myComments)
                     }
-                }
             }
             
             return Future.map(on: request) { return newComment }
