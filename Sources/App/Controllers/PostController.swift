@@ -17,11 +17,10 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
         let posts = router.grouped("posts")
         
         posts.get(Post.parameter, "comments", use: getComments)
-        posts.get(Post.parameter, "comments/v2", use: getCommentsV2)
         posts.get(use: getPosts)
         posts.get(Post.parameter, use: getPost)
         posts.delete(Post.parameter, use: deletePost)
-        posts.post(Post.self, use: postPost)
+        posts.post(PostDTO.self, use: postPost)
         posts.post(Post.parameter, "like", use: postLike)
         posts.delete(Post.parameter, "like", use: deleteLike)
         posts.post(Post.parameter, "dislike", use: postDislike)
@@ -30,32 +29,6 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     
     // COMMENTS
     func getComments(_ request: Request)throws -> Future<Paginated<Comment>> {
-        return try request.parameters.next(Post.self).flatMap(to: Paginated<Comment>.self) { post in
-            return try post.comments
-                .query(on: request)
-                .paginate(for: request)
-                .flatMap(to: Paginated<Comment>.self) { paginated in
-                    var data = paginated.data
-                    // Find all comments that are blocked
-                    return try Comment
-                        .query(on: request)
-                        .join(\BlockedDevice.deviceID, to: \Comment.deviceID)
-                        .filter(\BlockedDevice.blockedDeviceID == request.getAppHeaders().deviceID)
-                        .all()
-                        .flatMap { comments in
-                            // Filter them out removing those that should not be visible to requester
-                            data = data.filter { comments.contains($0) == false }
-                            return Future.map(on: request) { Paginated(page: paginated.page, data: data) }
-                    }
-            }
-            .flatMap { paginated in
-                let newComments = paginated.data.filter { $0.parentID == nil }
-                return Future.map(on: request) { return Paginated(page: paginated.page, data: newComments) }
-            }
-        }
-    }
-    
-    func getCommentsV2(_ request: Request)throws -> Future<Paginated<Comment>> {
         return try request.parameters.next(Post.self).flatMap(to: Paginated<Comment>.self) { post in
             return try post.comments
                 .query(on: request)
@@ -183,19 +156,42 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
     }
     
     // POST POST
-    func postPost(_ request: Request, _ post: Post)throws -> Future<Post> {
+    func postPost(_ request: Request, _ dto: PostDTO)throws -> Future<Post> {
         let appHeaders = try request.getAppHeaders()
-        post.deviceID = appHeaders.deviceID
+        
+        let post = Post(deviceID: appHeaders.deviceID,
+                        text: dto.text,
+                        updatedAt: dto.updatedAt,
+                        pushTokenID: nil,
+                        numberOfComments: nil,
+                        numberOfLikes: nil,
+                        numberOfDislikes: nil,
+                        imageIds: dto.imageIds,
+                        videosId: nil,
+                        coordinate2D: dto.coordinate2D,
+                        geolocation: nil,
+                        channelID: nil,
+                        likedBy: nil,
+                        dislikedBy: nil)
         
         return post.create(on: request).flatMap { newPost in
-            if let postID = newPost.id {
-                // Create notification event
-                if let pushTokenID = newPost.pushTokenID {
+            let postID = try newPost.requireID()
+            
+            let _ = Device.query(on: request).filter(\Device.deviceID == appHeaders.deviceID).first().flatMap(to: Device.self) { fetchedDevice in
+                guard let existingDevice = fetchedDevice else {
+                    throw Abort(HTTPStatus.notFound)
+                }
+                
+                if let pushTokenID = existingDevice.pushTokenID {
+                    // Create notification event
                     NotificationEvent.create(on: request, pushTokenID: pushTokenID, eventID: postID)
                 }
-                // Create or update my post filter
-                PostFilter.create(on: request, postID: postID, deviceID: appHeaders.deviceID, type: .myPost)
+                
+                return Future.map(on: request) { existingDevice }
             }
+            
+            // Create or update my post filter
+            PostFilter.create(on: request, postID: postID, deviceID: appHeaders.deviceID, type: .myPost)
             
             guard let _ = post.coordinate2D else {
                 return Future.map(on: request) { return newPost }

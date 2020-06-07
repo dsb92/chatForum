@@ -9,13 +9,13 @@ struct HttpHeaders {
 
 extension Request {
     func getAppHeaders() throws -> HttpHeaders {
-        let deviceID = try getUUIDFromHeader()
+        let deviceID = try getDeviceUUID()
         let appVersion = try getAppVersion()
         let appPlatform = try getAppPlatform()
         return HttpHeaders(deviceID: deviceID, version: appVersion, platform: appPlatform)
     }
     
-    private func getUUIDFromHeader() throws -> UUID {
+    private func getDeviceUUID() throws -> UUID {
         guard let deviceIDString = self.http.headers["deviceID"].first, let deviceID = UUID(uuidString: deviceIDString) else { throw Abort.init(.badRequest, reason: "missing 'deviceID' in header") }
         return deviceID
     }

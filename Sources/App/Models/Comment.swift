@@ -3,10 +3,10 @@ import Foundation
 import Vapor
 import Pagination
 
-final class Comment: PostgreModel, Identifiable {
+final class Comment: PostgreModel {
     var id: UUID?
+    var deviceID: UUID
     var postID: UUID
-    var deviceID: UUID?
     var parentID: UUID?
     var comment: String
     var updatedAt: String
@@ -18,8 +18,8 @@ final class Comment: PostgreModel, Identifiable {
     var pushTokenID: UUID?
     
     init(
+        deviceID: UUID,
         postID: UUID,
-        deviceID: UUID?,
         parentID: UUID?,
         comment: String,
         updatedAt: String,
@@ -30,8 +30,8 @@ final class Comment: PostgreModel, Identifiable {
         numberOfComments: Int?,
         pushTokenID: UUID?) {
         self.deviceID = deviceID
-        self.parentID = parentID
         self.postID = postID
+        self.parentID = parentID
         self.comment = comment
         self.updatedAt = updatedAt
         self.numberOfLikes = numberOfLikes
@@ -46,6 +46,12 @@ final class Comment: PostgreModel, Identifiable {
 extension Comment {
     static var idKey: WritableKeyPath<Comment, UUID?> {
         return \.id
+    }
+}
+
+extension Comment {
+    var device: Parent<Comment, Post> {
+        return parent(\.deviceID)
     }
 }
 

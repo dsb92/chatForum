@@ -7,11 +7,13 @@ final class Device: PostgreModel {
     var deviceID: UUID
     var appVersion: String
     var appPlatform: String
+    var pushTokenID: UUID?
     
-    init(deviceID: UUID, appVersion: String, appPlatform: String) {
+    init(deviceID: UUID, appVersion: String, appPlatform: String, pushTokenID: UUID?) {
         self.deviceID = deviceID
         self.appVersion = appVersion
         self.appPlatform = appPlatform
+        self.pushTokenID = pushTokenID
     }
 }
 
@@ -23,14 +25,29 @@ extension Device {
 
 extension Device {
     static func create(on request: Request, deviceID: UUID, appVersion: String, appPlatform: String) {
-        let _ = Device.query(on: request).filter(\Device.deviceID == deviceID).first().flatMap(to: Device.self) { device in
+        let _ = get(on: request, deviceID: deviceID).flatMap(to: Device.self) { device in
             if let device = device {
                 device.appVersion = appVersion
                 device.appPlatform = appPlatform
                 return device.save(on: request)
             } else {
-                return Device.query(on: request).create(Device(deviceID: deviceID, appVersion: appVersion, appPlatform: appPlatform))
+                return Device.query(on: request).create(Device(deviceID: deviceID, appVersion: appVersion, appPlatform: appPlatform, pushTokenID: nil))
             }
         }
+    }
+    
+    static func create(on request: Request, deviceID: UUID, appVersion: String, appPlatform: String, pushTokenID: UUID) {
+        let _ = get(on: request, deviceID: deviceID).flatMap(to: Device.self) { device in
+            if let device = device {
+                device.pushTokenID = pushTokenID
+                return device.save(on: request)
+            } else {
+                return Device.query(on: request).create(Device(deviceID: deviceID, appVersion: appVersion, appPlatform: appPlatform, pushTokenID: pushTokenID))
+            }
+        }
+    }
+    
+    static func get(on request: Request, deviceID: UUID) -> Future<Device?> {
+        return Device.query(on: request).filter(\Device.deviceID == deviceID).first()
     }
 }

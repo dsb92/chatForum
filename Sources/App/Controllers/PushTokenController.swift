@@ -6,18 +6,19 @@ final class PushTokenController: RouteCollection {
     func boot(router: Router) throws {
         let pushToken = router.grouped("pushTokens")
         
-        pushToken.post(PushToken.self, use: postPushToken)
-        pushToken.put(PushToken.self, use: putPushToken)
+        pushToken.post(PushToken.self, use: createOrUpdatePushToken)
+        pushToken.put(PushToken.self, use: createOrUpdatePushToken)
         pushToken.delete(PushToken.parameter, use: deletePushToken)
         pushToken.get(use: getPushTokens)
     }
     
-    func postPushToken(_ request: Request, _ pushToken: PushToken)throws -> Future<PushToken> {
-        return pushToken.create(on: request)
-    }
-    
-    func putPushToken(_ request: Request, pushToken: PushToken)throws -> Future<PushToken> {
-        return pushToken.update(on: request)
+    func createOrUpdatePushToken(_ request: Request, pushToken: PushToken)throws -> Future<PushToken> {
+        let appHeaders = try request.getAppHeaders()
+        return pushToken.save(on: request).flatMap { created in
+            let id = try created.requireID()
+            Device.create(on: request, deviceID: appHeaders.deviceID, appVersion: appHeaders.version, appPlatform: appHeaders.platform, pushTokenID: id)
+            return Future.map(on: request) { return created }
+        }
     }
     
     func deletePushToken(_ request: Request)throws -> Future<HTTPStatus> {

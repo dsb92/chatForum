@@ -18,7 +18,7 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
         comments.get(use: getComments)
         comments.get(Comment.parameter, use: getComment)
         comments.delete(Comment.parameter, use: deleteComment)
-        comments.post(Comment.self, use: postComment)
+        comments.post(CommentDTO.self, use: postComment)
         comments.post(Comment.parameter, "like", use: postLike)
         comments.delete(Comment.parameter, "like", use: deleteLike)
         comments.post(Comment.parameter, "dislike", use: postDislike)
@@ -127,9 +127,20 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
     }
     
     // POST COMMENT
-    func postComment(_ request: Request, _ comment: Comment)throws -> Future<Comment> {
+    func postComment(_ request: Request, _ dto: CommentDTO)throws -> Future<Comment> {
         let appHeaders = try request.getAppHeaders()
-        comment.deviceID = appHeaders.deviceID
+        
+        let comment = Comment(deviceID: appHeaders.deviceID,
+                              postID: dto.postID,
+                              parentID: nil,
+                              comment: dto.comment,
+                              updatedAt: dto.updatedAt,
+                              likedBy: nil,
+                              dislikedBy: nil,
+                              numberOfLikes: nil,
+                              numberOfDislikes: nil,
+                              numberOfComments: nil,
+                              pushTokenID: nil)
         
         let _ = comment.post.get(on: request).flatMap(to: Post.self) { post in
             guard let postID = post.id else { throw Abort.init(HTTPStatus.notFound) }
@@ -137,9 +148,15 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
             return post.update(on: request).flatMap() { updatedPost in
                 // Check if comment is on parent comment
                 if comment.parentID == nil {
-                    // Check if comment is created by owner of Post. We don't want to send push to ourselves :)
-                    if let pushTokenID = updatedPost.pushTokenID, pushTokenID != comment.pushTokenID {
-                        self.sendPush(on: request, eventID: postID, title: LocalizationManager.newCommentOnPost, body: comment.comment, category: PushType.newCommentOnPost.rawValue)
+                    let _ = Device.get(on: request, deviceID: appHeaders.deviceID).flatMap(to: Device.self) { device in
+                        guard let device = device else {
+                            throw Abort(.notFound, reason: "deviceID \(appHeaders.deviceID) not found")
+                        }
+                        // Check if comment is created by owner of Post. We don't want to send push to ourselves :)
+                        if let pushTokenID = device.pushTokenID, pushTokenID != comment.pushTokenID {
+                            self.sendPush(on: request, eventID: postID, title: LocalizationManager.newCommentOnPost, body: comment.comment, category: PushType.newCommentOnPost.rawValue)
+                        }
+                        return Future.map(on: request) { return device }
                     }
                 }
                 return Future.map(on: request) { return updatedPost }

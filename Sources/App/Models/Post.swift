@@ -42,18 +42,17 @@ extension Geolocation: ReflectionDecodable, Equatable {
     }
 }
 
-final class Post: PostgreModel, Identifiable {
+final class Post: PostgreModel {
     var id: UUID?
+    var deviceID: UUID
     var text: String
-    var backgroundColorHex: String
     var updatedAt: String
+    var pushTokenID: UUID?
     var numberOfComments: Int?
     var numberOfLikes: Int?
     var numberOfDislikes: Int?
     var imageIds: [UUID]?
     var videoIds: [UUID]?
-    var deviceID: UUID?
-    var pushTokenID: UUID?
     var coordinate2D: Coordinate2DPosition?
     var geolocation: Geolocation?
     var channelID: UUID?
@@ -61,31 +60,29 @@ final class Post: PostgreModel, Identifiable {
     var dislikedBy: [UUID]?
     
     init(
+        deviceID: UUID,
         text: String,
-        backgroundColorHex: String,
         updatedAt: String,
+        pushTokenID: UUID?,
         numberOfComments: Int?,
         numberOfLikes: Int?,
         numberOfDislikes: Int?,
         imageIds: [UUID]?,
         videosId: [UUID]?,
-        deviceID: UUID?,
-        pushTokenID: UUID?,
         coordinate2D: Coordinate2DPosition?,
         geolocation: Geolocation?,
         channelID: UUID?,
         likedBy: [UUID]?,
         dislikedBy: [UUID]?) {
+        self.deviceID = deviceID
         self.text = text
-        self.backgroundColorHex = backgroundColorHex
         self.updatedAt = updatedAt
+        self.pushTokenID = pushTokenID
         self.numberOfComments = numberOfComments
         self.numberOfLikes = numberOfLikes
         self.numberOfDislikes = numberOfDislikes
         self.imageIds = imageIds
         self.videoIds = videosId
-        self.deviceID = deviceID
-        self.pushTokenID = pushTokenID
         self.coordinate2D = coordinate2D
         self.geolocation = geolocation
         self.channelID = channelID

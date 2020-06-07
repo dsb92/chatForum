@@ -9,13 +9,13 @@ enum PostFilterType: Int, PostgreSQLRawEnum {
     case myComments
 }
 
-final class PostFilter: PostgreModel, Identifiable {
+final class PostFilter: PostgreModel {
     var id: UUID?
     var postID: UUID
-    var deviceID: UUID?
+    var deviceID: UUID
     var type: PostFilterType?
     
-    init(postID: UUID, deviceID: UUID?, type: PostFilterType?) {
+    init(postID: UUID, deviceID: UUID, type: PostFilterType?) {
         self.type = type
         self.postID = postID
         self.deviceID = deviceID

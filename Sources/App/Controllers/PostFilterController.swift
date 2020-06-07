@@ -11,7 +11,6 @@ final class PostFilterController: RouteCollection {
     func boot(router: Router) throws {
         let filter = router.grouped("posts/filter")
         filter.get("geolocation", use: getPostsGeolocation)
-        filter.get("geolocation/v2", use: getPostsGeolocationV2)
         filter.get("myPosts", use: getMyPosts)
         filter.get("myLikes", use: getMyLikes)
         filter.get("myDislikes", use: getMyDislikes)
@@ -20,16 +19,6 @@ final class PostFilterController: RouteCollection {
     
     // GEOLOCATION
     func getPostsGeolocation(_ request: Request)throws -> Future<Paginated<Post>> {
-        guard let queryCountry = request.query[String.self, at: GeolocationURLQueryParam.country] else {
-            throw Abort(.badRequest)
-        }
-        
-        let geoLocation = Geolocation(country: queryCountry, flagURL: nil, city: nil)
-        
-        return try Post.query(on: request).filter(\Post.geolocation, .contains, geoLocation).paginate(for: request)
-    }
-    
-    func getPostsGeolocationV2(_ request: Request)throws -> Future<Paginated<Post>> {
         guard let queryCountry = request.query[String.self, at: GeolocationURLQueryParam.country] else {
             throw Abort(.badRequest)
         }

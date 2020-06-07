@@ -16,8 +16,6 @@ final class BlockedDeviceController: RouteCollection {
     }
     
     func postBlockedDevice(_ request: Request, blockedDevice: BlockedDevice)throws -> Future<BlockedDevice> {
-        let appHeaders = try request.getAppHeaders()
-        
         // Ignore blocking if deviceID and blockedDeviceID are identical (meaning trying to block yourself)
         if blockedDevice.deviceID == blockedDevice.blockedDeviceID {
             throw Abort(.badRequest, reason: "You cannot block yourself")
