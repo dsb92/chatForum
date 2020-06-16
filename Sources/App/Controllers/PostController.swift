@@ -177,7 +177,7 @@ final class PostController: RouteCollection, LikesManagable, PushManageable, Loc
         return post.create(on: request).flatMap { newPost in
             let postID = try newPost.requireID()
             
-            let _ = Device.query(on: request).filter(\Device.deviceID == appHeaders.deviceID).first().flatMap(to: Device.self) { fetchedDevice in
+            let _ = Device.get(on: request, deviceID: appHeaders.deviceID).flatMap(to: Device.self) { fetchedDevice in
                 guard let existingDevice = fetchedDevice else {
                     throw Abort(HTTPStatus.notFound)
                 }

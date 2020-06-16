@@ -146,33 +146,17 @@ final class CommentController: RouteCollection, LikesManagable, CommentsManagabl
             guard let postID = post.id else { throw Abort.init(HTTPStatus.notFound) }
             self.commentsManager.addComment(numberOfComments: &post.numberOfComments)
             return post.update(on: request).flatMap() { updatedPost in
-                // Check if comment is on parent comment
-                if comment.parentID == nil {
-                    let _ = Device.get(on: request, deviceID: appHeaders.deviceID).flatMap(to: Device.self) { device in
-                        guard let device = device else {
-                            throw Abort(.notFound, reason: "deviceID \(appHeaders.deviceID) not found")
-                        }
-                        // Check if comment is created by owner of Post. We don't want to send push to ourselves :)
-                        if let pushTokenID = device.pushTokenID, pushTokenID != comment.pushTokenID {
-                            self.sendPush(on: request, eventID: postID, title: LocalizationManager.newCommentOnPost, body: comment.comment, category: PushType.newCommentOnPost.rawValue)
-                        }
-                        return Future.map(on: request) { return device }
+                let _ = Device.get(on: request, deviceID: updatedPost.deviceID).flatMap(to: Device.self) { device in
+                    guard let device = device else {
+                        throw Abort(.notFound, reason: "deviceID \(updatedPost.deviceID) not found")
                     }
+                    // Check if comment is created by owner of Post. We don't want to send push to ourselves :)
+                    if device.deviceID != appHeaders.deviceID {
+                        self.sendPush(on: request, eventID: postID, title: LocalizationManager.newCommentOnPost, body: comment.comment, category: PushType.newCommentOnPost.rawValue)
+                    }
+                    return Future.map(on: request) { return device }
                 }
                 return Future.map(on: request) { return updatedPost }
-            }
-        }
-        
-        if let parentID = comment.parentID {
-            let _ = Comment.find(parentID, on: request).flatMap(to: Comment.self) { parentComment in
-                guard let parentComment = parentComment else { throw Abort.init(HTTPStatus.notFound) }
-                self.commentsManager.addComment(numberOfComments: &parentComment.numberOfComments)
-                return parentComment.update(on: request).flatMap { updatedComment in
-                    if let pushTokenID = updatedComment.pushTokenID, pushTokenID != comment.pushTokenID {
-                        self.sendPush(on: request, eventID: parentID, title: LocalizationManager.newCommentOnComment, body: comment.comment, category: PushType.newCommentOnComment.rawValue)
-                    }
-                    return Future.map(on: request) { return updatedComment }
-                }
             }
         }
         

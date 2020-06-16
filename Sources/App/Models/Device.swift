@@ -29,7 +29,7 @@ extension Device {
             if let device = device {
                 device.appVersion = appVersion
                 device.appPlatform = appPlatform
-                return device.save(on: request)
+                return device.update(on: request)
             } else {
                 return Device.query(on: request).create(Device(deviceID: deviceID, appVersion: appVersion, appPlatform: appPlatform, pushTokenID: nil))
             }
@@ -40,7 +40,7 @@ extension Device {
         let _ = get(on: request, deviceID: deviceID).flatMap(to: Device.self) { device in
             if let device = device {
                 device.pushTokenID = pushTokenID
-                return device.save(on: request)
+                return device.update(on: request)
             } else {
                 return Device.query(on: request).create(Device(deviceID: deviceID, appVersion: appVersion, appPlatform: appPlatform, pushTokenID: pushTokenID))
             }
