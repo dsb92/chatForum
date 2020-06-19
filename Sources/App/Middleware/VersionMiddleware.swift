@@ -6,10 +6,6 @@ final class VersionMiddleware: Middleware {
         let appHeaders = try request.getAppHeaders()
         let version = appHeaders.version
         let platform = appHeaders.platform
-        let deviceID = appHeaders.deviceID
-        
-        // Create or update device
-        Device.create(on: request, deviceID: deviceID, appVersion: version, appPlatform: platform)
         
         return AllowedDevice.query(on: request).group(.or) {
             $0.filter(\AllowedDevice.platform, .equal, platform).filter(\AllowedDevice.version, .equal, version)

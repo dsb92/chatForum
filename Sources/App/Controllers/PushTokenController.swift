@@ -15,8 +15,8 @@ final class PushTokenController: RouteCollection {
     func createOrUpdatePushToken(_ request: Request, pushToken: PushToken)throws -> Future<PushToken> {
         let appHeaders = try request.getAppHeaders()
         return pushToken.save(on: request).flatMap { created in
-            let id = try created.requireID()
-            Device.create(on: request, deviceID: appHeaders.deviceID, appVersion: appHeaders.version, appPlatform: appHeaders.platform, pushTokenID: id)
+            let pushTokenID = try created.requireID()
+            Device.create(on: request, deviceID: appHeaders.deviceID, appVersion: appHeaders.version, appPlatform: appHeaders.platform, pushTokenID: pushTokenID)
             return Future.map(on: request) { return created }
         }
     }
