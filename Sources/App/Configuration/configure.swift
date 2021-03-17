@@ -36,7 +36,7 @@ _ services: inout Services
     if env == .development {
         databases.enableLogging(on: .psql)
     }
-    let databaseConfig = PostgreSQLDatabaseConfig(url: databaseUrl, transport: .unverifiedTLS)
+    guard let databaseConfig = PostgreSQLDatabaseConfig(url: databaseUrl, transport: .unverifiedTLS) else { throw Abort(.internalServerError, reason: "Could not configure TLS") }
     let database = PostgreSQLDatabase(config: databaseConfig)
     databases.add(database: database, as: .psql)
     services.register(databases)
